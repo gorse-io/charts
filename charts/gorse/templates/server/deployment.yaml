@@ -1,0 +1,83 @@
+apiVersion: apps/v1
+kind: ReplicaSet
+metadata:
+  name: {{ printf "%s-server" (include "common.names.fullname" .) }}
+  namespace: {{ .Release.Namespace | quote }}
+  labels: {{- include "common.labels.standard" . | nindent 4 }}
+    app.kubernetes.io/component: sever
+    {{- if .Values.commonLabels }}
+    {{- include "common.tplvalues.render" ( dict "value" .Values.commonLabels "context" $ ) | nindent 4 }}
+    {{- end }}
+  {{- if .Values.commonAnnotations }}
+  annotations: {{- include "common.tplvalues.render" ( dict "value" .Values.commonAnnotations "context" $ ) | nindent 4 }}
+  {{- end }}
+spec:
+  {{- if not .Values.server.autoscaling.enabled }}
+  replicas: {{ .Values.server.replicaCount }}
+  {{- end }}
+  selector:
+    matchLabels: {{- include "common.labels.matchLabels" . | nindent 6 }}
+      app.kubernetes.io/component: server
+  {{- if .Values.server.updateStrategy }}
+  {{- if (eq .Values.server.kind "Deployment") }}
+  strategy: {{- toYaml .Values.server.updateStrategy | nindent 4 }}
+  {{- else }}
+  updateStrategy: {{- toYaml .Values.server.updateStrategy | nindent 4 }}
+  {{- end }}
+  {{- end }}
+  template:
+    metadata:
+      labels: {{- include "common.labels.standard" . | nindent 8 }}
+        app.kubernetes.io/component: server
+        {{- if .Values.server.podLabels }}
+        {{- include "common.tplvalues.render" ( dict "value" .Values.server.podLabels "context" $ ) | nindent 8 }}
+        {{- end }}
+      annotations:
+        {{- if .Values.server.podAnnotations }}
+        {{- include "common.tplvalues.render" ( dict "value" .Values.server.podAnnotations "context" $ ) | nindent 8 }}
+        {{- end }}
+    spec:
+      {{- if .Values.server.nodeSelector }}
+      nodeSelector: {{- include "common.tplvalues.render" (dict "value" .Values.server.nodeSelector "context" $) | nindent 8 }}
+      {{- end }}
+      {{- if .Values.server.affinity }}
+      affinity: {{- include "common.tplvalues.render" (dict "value" .Values.server.affinity "context" $) | nindent 8 }}
+      {{- else }}
+      affinity:
+        podAffinity: {{- include "common.affinities.pods" (dict "type" .Values.server.podAffinityPreset "component" "server" "context" $) | nindent 10 }}
+        podAntiAffinity: {{- include "common.affinities.pods" (dict "type" .Values.server.podAntiAffinityPreset "component" "server" "context" $) | nindent 10 }}
+        nodeAffinity: {{- include "common.affinities.nodes" (dict "type" .Values.server.nodeAffinityPreset.type "key" .Values.server.nodeAffinityPreset.key "values" .Values.server.nodeAffinityPreset.values) | nindent 10 }}
+      {{- end }}
+      {{- if .Values.server.tolerations }}
+      tolerations: {{- include "common.tplvalues.render" (dict "value" .Values.server.tolerations "context" $) | nindent 8 }}
+      {{- end }}
+      containers:
+        - name: {{ .Chart.Name }}-server
+          image: "{{ .Values.server.image.repository }}:{{ .Values.server.image.tag }}"
+          imagePullPolicy: {{ .Values.server.image.pullPolicy }}
+          command: 
+              - "/usr/bin/gorse-server"
+              - "--master-host"
+              - {{ printf "%s-master" (include "common.names.fullname" .) | quote}}
+              - "--master-port"
+              - {{ .Values.master.service.ports.grpc | quote }}
+              - "--http-host"
+              - "0.0.0.0"
+          ports:
+            - name: http
+              containerPort: 8087
+              protocol: TCP              
+          # TODO - We dont have a proper endpoint for health check
+          # livenessProbe:
+          #   httpGet:
+          #     path: /apidocs
+          #     port: http
+          #   initialDelaySeconds: 120
+          # readinessProbe:
+          #   httpGet:
+          #     path: /
+          #     port: http
+          #  initialDelaySeconds: 0            
+          {{- if .Values.server.resources }}
+          resources: {{- toYaml .Values.server.resources | nindent 12 }}
+          {{- end }}
