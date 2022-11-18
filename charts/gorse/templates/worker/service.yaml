@@ -1,0 +1,56 @@
+{{- if .Values.worker.service.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ printf "%s-worker" (include "common.names.fullname" .) }}
+  namespace: {{ .Release.Namespace | quote }}
+  labels: {{- include "common.labels.standard" . | nindent 4 }}
+    app.kubernetes.io/component: worker
+    {{- if .Values.commonLabels }}
+    {{- include "common.tplvalues.render" ( dict "value" .Values.commonLabels "context" $ ) | nindent 4 }}
+    {{- end }}
+  {{- if or .Values.worker.service.annotations .Values.commonAnnotations }}
+  annotations:
+    {{- if .Values.worker.service.annotations }}
+    {{- include "common.tplvalues.render" ( dict "value" .Values.worker.service.annotations "context" $ ) | nindent 4 }}
+    {{- end }}
+    {{- if .Values.commonAnnotations }}
+    {{- include "common.tplvalues.render" ( dict "value" .Values.commonAnnotations "context" $ ) | nindent 4 }}
+    {{- end }}
+  {{- end }}
+spec:
+  type: {{ .Values.worker.service.type }}
+  {{- if or (eq .Values.worker.service.type "LoadBalancer") (eq .Values.worker.service.type "NodePort") }}
+  externalTrafficPolicy: {{ .Values.worker.service.externalTrafficPolicy | quote }}
+  {{- end }}
+  {{- if (semverCompare ">=1.22-0" (include "common.capabilities.kubeVersion" .)) }}
+  internalTrafficPolicy: {{ .Values.worker.service.internalTrafficPolicy }}
+  {{- end }}
+  {{- if and (eq .Values.worker.service.type "LoadBalancer") (not (empty .Values.worker.service.loadBalancerIP)) }}
+  loadBalancerIP: {{ .Values.worker.service.loadBalancerIP }}
+  {{- end }}
+  {{- if and (eq .Values.worker.service.type "LoadBalancer") (not (empty .Values.worker.service.loadBalancerSourceRanges)) }}
+  loadBalancerSourceRanges: {{ .Values.worker.service.loadBalancerSourceRanges }}
+  {{- end }}
+  {{- if and .Values.worker.service.clusterIP (eq .Values.worker.service.type "ClusterIP") }}
+  clusterIP: {{ .Values.worker.service.clusterIP }}
+  {{- end }}
+  {{- if .Values.worker.service.sessionAffinity }}
+  sessionAffinity: {{ .Values.worker.service.sessionAffinity }}
+  {{- end }}
+  {{- if .Values.worker.service.sessionAffinityConfig }}
+  sessionAffinityConfig: {{- include "common.tplvalues.render" (dict "value" .Values.worker.service.sessionAffinityConfig "context" $) | nindent 4 }}
+  {{- end }}
+  ports:
+    - name: http
+      port: {{ .Values.worker.service.ports.http }}
+      protocol: TCP
+      targetPort: http
+      {{- if and (or (eq .Values.worker.service.type "NodePort") (eq .Values.worker.service.type "LoadBalancer")) .Values.worker.service.nodePorts.http}}
+      nodePort: {{ .Values.worker.service.nodePorts.http}}
+      {{- else if eq .Values.worker.service.type "ClusterIP" }}
+      nodePort: null
+      {{- end }}
+  selector: {{- include "common.labels.matchLabels" . | nindent 4 }}
+    app.kubernetes.io/component: worker
+{{- end }}

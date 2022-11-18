@@ -1,0 +1,175 @@
+apiVersion: apps/v1
+kind: {{ .Values.master.kind }}
+metadata:
+  name: {{ printf "%s-master" (include "common.names.fullname" .) }}
+  namespace: {{ .Release.Namespace | quote }}
+  labels: {{- include "common.labels.standard" . | nindent 4 }}
+    app.kubernetes.io/component: master
+    {{- if .Values.commonLabels }}
+    {{- include "common.tplvalues.render" ( dict "value" .Values.commonLabels "context" $ ) | nindent 4 }}
+    {{- end }}
+  {{- if .Values.commonAnnotations }}
+  annotations: {{- include "common.tplvalues.render" ( dict "value" .Values.commonAnnotations "context" $ ) | nindent 4 }}
+  {{- end }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels: {{- include "common.labels.matchLabels" . | nindent 6 }}
+      app.kubernetes.io/component: master
+  {{- if (eq .Values.master.kind "StatefulSet") }}
+  serviceName: {{ printf "%s-master" (include "common.names.fullname" .) }}
+  {{- end }}
+  {{- if .Values.master.updateStrategy }}
+  {{- if (eq .Values.master.kind "Deployment") }}
+  strategy: {{- toYaml .Values.master.updateStrategy | nindent 4 }}
+  {{- else }}
+  updateStrategy: {{- toYaml .Values.master.updateStrategy | nindent 4 }}
+  {{- end }}
+  {{- end }}
+  template:
+    metadata:
+      labels: {{- include "common.labels.standard" . | nindent 8 }}
+        app.kubernetes.io/component: master
+        {{- if .Values.master.podLabels }}
+        {{- include "common.tplvalues.render" ( dict "value" .Values.master.podLabels "context" $ ) | nindent 8 }}
+        {{- end }}
+      annotations:
+        {{- if .Values.master.podAnnotations }}
+        {{- include "common.tplvalues.render" ( dict "value" .Values.master.podAnnotations "context" $ ) | nindent 8 }}
+        {{- end }}
+    spec:
+      {{- if .Values.master.nodeSelector }}
+      nodeSelector: {{- include "common.tplvalues.render" (dict "value" .Values.master.nodeSelector "context" $) | nindent 8 }}
+      {{- end }}
+      {{- if .Values.master.affinity }}
+      affinity: {{- include "common.tplvalues.render" (dict "value" .Values.master.affinity "context" $) | nindent 8 }}
+      {{- else }}
+      affinity:
+        podAffinity: {{- include "common.affinities.pods" (dict "type" .Values.master.podAffinityPreset "component" "master" "context" $) | nindent 10 }}
+        podAntiAffinity: {{- include "common.affinities.pods" (dict "type" .Values.master.podAntiAffinityPreset "component" "master" "context" $) | nindent 10 }}
+        nodeAffinity: {{- include "common.affinities.nodes" (dict "type" .Values.master.nodeAffinityPreset.type "key" .Values.master.nodeAffinityPreset.key "values" .Values.master.nodeAffinityPreset.values) | nindent 10 }}
+      {{- end }}
+      {{- if .Values.master.tolerations }}
+      tolerations: {{- include "common.tplvalues.render" (dict "value" .Values.master.tolerations "context" $) | nindent 8 }}
+      {{- end }}
+      containers:
+        - name: {{ .Chart.Name }}-master
+          image: "{{ .Values.master.image.repository }}:{{ .Values.master.image.tag }}"
+          imagePullPolicy: {{ .Values.master.image.pullPolicy }}
+          command: 
+              - "/usr/bin/gorse-master"
+              - "-c"
+              - "/etc/gorse/config.toml"
+              - "--debug"
+              # - "--log-path /var/log/gorse/master.log"
+              # - "--cache-path /var/lib/gorse/master_cache.data"
+          env:
+            {{- if and .Values.gorse.auth.api.enabled }}
+            - name: GORSE_SERVER_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: {{ template "common.names.fullname" . }}
+                  key: api-key
+            {{- end }}
+            {{- if .Values.gorse.auth.dashboard.enabled }}
+            - name: GORSE_DASHBOARD_USER_NAME
+              valueFrom:
+                secretKeyRef:
+                  name: {{ template "common.names.fullname" . }}
+                  key: auth-username
+            - name: GORSE_DASHBOARD_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ template "common.names.fullname" . }}
+                  key: auth-password
+            {{- end }}
+            - name: GORSE_MASTER_JOBS
+              value: {{ .Values.gorse.master.jobs }}
+            - name: GORSE_TABLE_PREFIX
+              value: {{ .Values.gorse.database.prefix }}
+            - name: GORSE_CACHE_STORE
+              valueFrom:
+                secretKeyRef:
+                  name: {{ template "common.names.fullname" . }}
+                  key: cache-uri
+            - name: GORSE_DATA_STORE
+              valueFrom:
+                secretKeyRef:
+                  name: {{ template "common.names.fullname" . }}
+                  key: database-uri
+          volumeMounts:
+            - name: config
+              mountPath: /etc/gorse/
+            - name: data
+              mountPath: {{ .Values.master.persistence.path }}
+              {{- if .Values.master.persistence.subPath }}
+              subPath: {{ .Values.master.persistence.subPath }}
+              {{- else if .Values.master.persistence.subPathExpr }}
+              subPathExpr: {{ .Values.master.persistence.subPathExpr }}
+              {{- end }}
+          ports:
+            - name: grpc
+              containerPort: 8086
+              protocol: TCP
+            - name: http
+              containerPort: 8088
+              protocol: TCP
+          # TODO - We dont have a proper endpoint for health check
+          livenessProbe:
+            httpGet:
+              path: /overview
+              port: http
+            initialDelaySeconds: 120
+          # readinessProbe:
+          #   httpGet:
+          #     path: /
+          #     port: http
+          #   initialDelaySeconds: 0
+          {{- if .Values.master.resources }}
+          resources: {{- toYaml .Values.master.resources | nindent 12 }}
+          {{- end }}
+      volumes:
+        - name: config
+          configMap:
+            name: {{ printf "%s" (include "common.names.fullname" .) }}
+  {{- if not .Values.master.persistence.enabled }}
+        - name: data
+          {{- if .Values.master.persistence.medium }}
+          emptyDir:
+            medium: {{ .Values.master.persistence.medium | quote }}
+          {{- else }}
+          emptyDir: {}
+          {{- end }}
+  {{- else if .Values.master.persistence.existingClaim }}
+        - name: data
+          persistentVolumeClaim:
+            claimName: {{ printf "%s" (tpl .Values.master.persistence.existingClaim .) }}
+  {{- else if (eq .Values.master.kind "Deployment") }}
+        - name: data
+          persistentVolumeClaim:
+            claimName: {{ printf "data-%s-master" (include "common.names.fullname" .) }}
+  {{- else }}
+  volumeClaimTemplates:
+    - metadata:
+        name: data
+        labels: {{- include "common.labels.matchLabels" . | nindent 10 }}
+          app.kubernetes.io/component: master
+        {{- if .Values.master.persistence.annotations }}
+        annotations: {{- toYaml .Values.master.persistence.annotations | nindent 10 }}
+        {{- end }}
+      spec:
+        accessModes:
+        {{- range .Values.master.persistence.accessModes }}
+          - {{ . | quote }}
+        {{- end }}
+        resources:
+          requests:
+            storage: {{ .Values.master.persistence.size | quote }}
+        {{- if .Values.master.persistence.selector }}
+        selector: {{- include "common.tplvalues.render" (dict "value" .Values.master.persistence.selector "context" $) | nindent 10 }}
+        {{- end }}
+        {{- if .Values.master.persistence.dataSource }}
+        dataSource: {{- include "common.tplvalues.render" (dict "value" .Values.master.persistence.dataSource "context" $) | nindent 10 }}
+        {{- end }}
+        {{- include "common.storage.class" (dict "persistence" .Values.master.persistence "global" .Values.global) | nindent 8 }}
+  {{- end }}
