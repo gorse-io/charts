@@ -1,7 +1,32 @@
-# ------------------------------------------------------------------------------
-# Gorse:
-# ------------------------------------------------------------------------------
+## @section Global parameters
 
+## @section Common parameters
+##
+
+## @param kubeVersion Override Kubernetes version
+##
+kubeVersion: ""
+## @param nameOverride String to partially override common.names.fullname
+##
+nameOverride: ""
+## @param fullnameOverride String to fully override common.names.fullname
+##
+fullnameOverride: ""
+## @param commonLabels Labels to add to all deployed objects
+##
+commonLabels: {}
+## @param commonAnnotations Annotations to add to all deployed objects
+##
+commonAnnotations: {}
+## @param secretAnnotations Annotations to add to secret
+##
+secretAnnotations: {}
+## @param clusterDomain Default Kubernetes cluster domain
+##
+clusterDomain: cluster.local
+
+## @section Gorse Configuration
+##
 gorse:
   cache:
     ## @param gorse.cache.uri URI used to connect Gorse to the cache
@@ -30,108 +55,137 @@ gorse:
       password: ""
 
     api:
-      ## @param auth.api.enabled Enable API security via token
+      ## @param gorse.auth.api.enabled Enable API security via token
       ##
       enabled: false
-      ## @param auth.api.key The key to secure the API andpoint
+      ## @param gorse.auth.api.key The key to secure the API andpoint
       ##
       key: ""
 
   master:
     http:
       cors:
+        ## @param gorse.master.http.cors.domains List of allowed values for Http Origin
+        ##
         domains: []
+        ## @param gorse.master.http.cors.methods List of http methods names. Checking is case-insensitive.
+        ##
         methods: []
+    ## @param gorse.master.jobs Number of working jobs in the master node
+    ##
     jobs: 1
 
   server:
+    ## @param gorse.server.items Default number of returned items
+    ##
     items: 10
 
     insert:
+      ## @param gorse.server.insert.users Insert new users while inserting feedback
+      ##
       users: true
+      ## @param gorse.server.insert.items Insert new items while inserting feedback.
+      ##
       items: true
 
     cache:
+      ## @param gorse.server.cache.expire Server-side cache expire time
+      ##
       expire: "10s"
 
   recommend:
     cache:
+      ## @param gorse.recommend.cache.size The cache size for recommended/popular/latest items
+      ##
       size: 10
+      ## @param gorse.recommend.cache.expire Recommended cache expire time
+      ##
       expire: "72h"
 
     ttl:
+      ## @param gorse.recommend.ttl.feedback The time-to-live (days) of positive feedback
+      ##
       feedback: 0
+      ## @param gorse.recommend.ttl.item The time-to-live (days) of items
+      ##
       item: 0
+      ## @param gorse.recommend.ttl.popular The time window of popular items
+      ##
       popular: "4320h"
 
     feedback:
+      ## @param gorse.recommend.feedback.positive The feedback types for positive events
+      ##
       positive:
         - "star"
         - "like"
+      ## @param gorse.recommend.feedback.read The feedback types for read events.
+      ##
       read:
         - "read"
 
     neighbors:
       users:
+        ## @param gorse.recommend.neighbors.users.type The type of neighbors for users
+        ##
         type: "similar"
       items:
+        ## @param gorse.recommend.neighbors.items.type The type of neighbors for items.
+        ##
         type: "similar"
 
     collaborative:
+      ## @param gorse.recommend.collaborative.enable Enable approximate collaborative filtering recommend using vector index
+      ##
       enable: true
 
     replacement:
+      ## @param gorse.recommend.replacement.enable Replace historical items back to recommendations
+      ##
       enable: false
       decay:
+        ## @param gorse.recommend.replacement.decay.positive Decay the weights of replaced items from positive feedbacks
+        ##
         positive: 0.8
+        ## @param gorse.recommend.replacement.decay.read Decay the weights of replaced items from read feedbacks
+        ##
         read: 0.6
 
     online:
+      ## @param gorse.recommend.online.failback The fallback recommendation method is used when cached recommendation drained
+      ##
       failback:
         - "latest"
 
-## @section Common parameters
+## @section Gorse master node parameters
 ##
-
-## @param kubeVersion Override Kubernetes version
-##
-kubeVersion: ""
-## @param nameOverride String to partially override common.names.fullname
-##
-nameOverride: ""
-## @param fullnameOverride String to fully override common.names.fullname
-##
-fullnameOverride: ""
-## @param commonLabels Labels to add to all deployed objects
-##
-commonLabels: {}
-## @param commonAnnotations Annotations to add to all deployed objects
-##
-commonAnnotations: {}
-## @param secretAnnotations Annotations to add to secret
-##
-secretAnnotations: {}
-## @param clusterDomain Kubernetes cluster domain name
-##
-
-## @section Gorse master configuration parameters
-##
-
 master:
-  # The docker image to be installed in this chart/pod
+  ## Gorse Master image version
+  ## ref: https://hub.docker.com/r/zhenghaoz/gorse-master
+  ## @param master.image.registry Gorse image registry
+  ## @param master.image.repository Gorse Master image repository
+  ## @param master.image.tag Gorse Master image tag (immutable tags are recommended)
+  ## @param master.image.digest Gorse Master image digest in the way sha256:aa.... Please note this parameter, if set, will override the tag
+  ## @param master.image.pullPolicy Gorse Master image pull policy
+  ## @param master.image.pullSecrets Specify docker-registry secret names as an array
+  ##
   image:
-    ## Gorse image repository
-    ##
+    registry: docker.io
     repository: zhenghaoz/gorse-master
-
-    ## Gorse image version
-    ##
     tag: 0.4.9
-
+    digest: ""
     ## Specify an imagePullPolicy
     ## ref: http://kubernetes.io/docs/user-guide/images/#pre-pulling-images
     ##
     pullPolicy: IfNotPresent
+    ## Optionally specify an array of imagePullSecrets.
+    ## Secrets must be manually created in the namespace.
+    ## ref: https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/
+    ## Example:
+    ## pullSecrets:
+    ##   - myRegistryKeySecretName
+    ##
+    pullSecrets: []
 
   ## @param master.kind Use either Deployment or StatefulSet (default)
   ## ref: https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/
@@ -199,12 +253,14 @@ master:
     ## @param master.service.type Gorse master service type
     ##
     type: ClusterIP
-    ## @param master.service.ports.redis Gorse master service port
+    ## @param master.service.ports.http HTTP port of the master node (dashboard)
+    ## @param master.service.ports.grpc GRPC port of the master node
     ##
     ports:
       http: 80
       grpc: 8086
-    ## @param master.service.nodePorts.redis Node port for Gorse master
+    ## @param master.service.nodePorts.http HTTP port of the master node (dashboard)
+    ## @param master.service.nodePorts.grpc GRPC port of the master node
     ## ref: https://kubernetes.io/docs/concepts/services-networking/service/#type-nodeport
     ## NOTE: choose port between <30000-32767>
     ##
@@ -256,29 +312,29 @@ master:
   ## ref: https://kubernetes.io/docs/user-guide/ingress/
   ##
   ingress:
-    ## @param ingress.enabled Enable ingress controller resource
+    ## @param master.ingress.enabled Enable ingress controller resource
     ##
     enabled: false
 
-    ## @param ingress.pathType Ingress Path type
+    ## @param master.ingress.pathType Ingress Path type
     ##
     pathType: ImplementationSpecific
-    ## @param ingress.apiVersion Override API Version (automatically detected if not set)
+    ## @param master.ingress.apiVersion Override API Version (automatically detected if not set)
     ##
     apiVersion: ""
-    ## @param ingress.ingressClassName IngressClass that will be be used to implement the Ingress (Kubernetes 1.18+)
+    ## @param master.ingress.ingressClassName IngressClass that will be be used to implement the Ingress (Kubernetes 1.18+)
     ## This is supported in Kubernetes 1.18+ and required if you have more than one IngressClass marked as the default for your cluster .
     ## ref: https://kubernetes.io/blog/2020/04/02/improvements-to-the-ingress-api-in-kubernetes-1.18/
     ##
     ingressClassName: ""
-    ## @param ingress.hostname Default host for the ingress resource
+    ## @param master.ingress.hostname Default host for the ingress resource
     ##
     hostname: gorse.local
-    ## @param ingress.path The Path to Gorse. You may need to set this to '/*' in order to use this
+    ## @param master.ingress.path The Path to Gorse. You may need to set this to '/*' in order to use this
     ## with ALB ingress controllers.
     ##
     path: /
-    ## @param ingress.annotations Additional annotations for the Ingress resource. To enable certificate autogeneration, place here your cert-manager annotations.
+    ## @param master.ingress.annotations Additional annotations for the Ingress resource. To enable certificate autogeneration, place here your cert-manager annotations.
     ## For a full list of possible ingress annotations, please see
     ## ref: https://github.com/kubernetes/ingress-nginx/blob/master/docs/user-guide/nginx-configuration/annotations.md
     ## Use this parameter to set the required annotations for cert-manager, see
@@ -290,18 +346,18 @@ master:
     ##   cert-manager.io/cluster-issuer: cluster-issuer-name
     ##
     annotations: {}
-    ## @param ingress.tls Enable TLS configuration for the hostname defined at ingress.hostname parameter
+    ## @param master.ingress.tls Enable TLS configuration for the hostname defined at ingress.hostname parameter
     ## TLS certificates will be retrieved from a TLS secret with name: {{- printf "%s-tls" .Values.ingress.hostname }}
     ## You can use the ingress.secrets parameter to create this TLS secret or relay on cert-manager to create it
     ##
     tls: false
-    ## @param ingress.extraHosts The list of additional hostnames to be covered with this ingress record.
+    ## @param master.ingress.extraHosts The list of additional hostnames to be covered with this ingress record.
     ## Most likely the hostname above will be enough, but in the event more hosts are needed, this is an array
     ## extraHosts:
     ## - name: gorse.local
     ##   path: /
     extraHosts: []
-    ## @param ingress.extraPaths Any additional arbitrary paths that may need to be added to the ingress under the main host.
+    ## @param master.ingress.extraPaths Any additional arbitrary paths that may need to be added to the ingress under the main host.
     ## For example: The ALB ingress controller requires a special rule for handling SSL redirection.
     ## extraPaths:
     ## - path: /*
@@ -309,14 +365,14 @@ master:
     ##     serviceName: ssl-redirect
     ##     servicePort: use-annotation
     extraPaths: []
-    ## @param ingress.extraTls The tls configuration for additional hostnames to be covered with this ingress record.
+    ## @param master.ingress.extraTls The tls configuration for additional hostnames to be covered with this ingress record.
     ## see: https://kubernetes.io/docs/concepts/services-networking/ingress/#tls
     ## extraTls:
     ## - hosts:
     ##     - gorse.local
     ##   secretName: gorse.local-tls
     extraTls: []
-    ## @param ingress.secrets If you're providing your own certificates, please use this to add the certificates as secrets
+    ## @param master.ingress.secrets If you're providing your own certificates, please use this to add the certificates as secrets
     ## key and certificate should start with -----BEGIN CERTIFICATE----- or
     ## -----BEGIN RSA PRIVATE KEY-----
     ##
@@ -331,7 +387,7 @@ master:
     ##   certificate:
     ##
     secrets: []
-    ## @param ingress.extraRules Additional rules to be covered with this ingress record
+    ## @param master.ingress.extraRules Additional rules to be covered with this ingress record
     ## ref: https://kubernetes.io/docs/concepts/services-networking/ingress/#ingress-rules
     ## e.g:
     ## extraRules:
@@ -348,8 +404,8 @@ master:
 
   ## Gorse replicas resource requests and limits
   ## ref: https://kubernetes.io/docs/user-guide/compute-resources/
-  ## @param replica.resources.limits The resources limits for the Gorse replicas containers
-  ## @param replica.resources.requests The requested resources for the Gorse replicas containers
+  ## @param master.resources.limits The resources limits for the Gorse replicas containers
+  ## @param master.resources.requests The requested resources for the Gorse replicas containers
   ##
   resources:
     # We usually recommend not to specify default resources and to leave this as a conscious
@@ -402,32 +458,49 @@ master:
   ##
   tolerations: []
 
-  ## PodDisruptionBudget for pod concurrent disruptions
-  ## ref: https://kubernetes.io/docs/tasks/run-application/configure-pdb/#specifying-a-poddisruptionbudget
+  ## Master Pod Disruption Budget configuration
+  ## ref: https://kubernetes.io/docs/tasks/run-application/configure-pdb/
   ##
-  podDisruptionBudget:
-    {}
-    # maxUnavailable: 1
-    # minAvailable: 1
+  pdb:
+    ## @param master.pdb.create Specifies whether a PodDisruptionBudget should be created
+    ##
+    create: false
+    ## @param master.pdb.minAvailable Min number of pods that must still be available after the eviction
+    ##
+    minAvailable: 1
+    ## @param master.pdb.maxUnavailable Max number of pods that can be unavailable after the eviction
+    ##
+    maxUnavailable: ""
 
-## @section Gorse server configuration parameters
+## @section Gorse server node parameters
 ##
-
 server:
-  # The docker image to be installed in this chart/pod
+  ## Gorse Server image version
+  ## ref: https://hub.docker.com/r/zhenghaoz/gorse-server
+  ## @param server.image.registry Gorse image registry
+  ## @param server.image.repository Gorse Server image repository
+  ## @param server.image.tag Gorse Server image tag (immutable tags are recommended)
+  ## @param server.image.digest Gorse Server image digest in the way sha256:aa.... Please note this parameter, if set, will override the tag
+  ## @param server.image.pullPolicy Gorse Server image pull policy
+  ## @param server.image.pullSecrets Specify docker-registry secret names as an array
+  ##
   image:
-    ## Gorse image repository
-    ##
+    registry: docker.io
     repository: zhenghaoz/gorse-server
-
-    ## Gorse image version
-    ##
     tag: 0.4.9
-
+    digest: ""
     ## Specify an imagePullPolicy
     ## ref: http://kubernetes.io/docs/user-guide/images/#pre-pulling-images
     ##
     pullPolicy: IfNotPresent
+    ## Optionally specify an array of imagePullSecrets.
+    ## Secrets must be manually created in the namespace.
+    ## ref: https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/
+    ## Example:
+    ## pullSecrets:
+    ##   - myRegistryKeySecretName
+    ##
+    pullSecrets: []
 
   ## Gorse server service parameters
   ##
@@ -490,29 +563,29 @@ server:
   ## ref: https://kubernetes.io/docs/user-guide/ingress/
   ##
   ingress:
-    ## @param ingress.enabled Enable ingress controller resource
+    ## @param server.ingress.enabled Enable ingress controller resource
     ##
     enabled: false
 
-    ## @param ingress.pathType Ingress Path type
+    ## @param server.ingress.pathType Ingress Path type
     ##
     pathType: ImplementationSpecific
-    ## @param ingress.apiVersion Override API Version (automatically detected if not set)
+    ## @param server.ingress.apiVersion Override API Version (automatically detected if not set)
     ##
     apiVersion: ""
-    ## @param ingress.ingressClassName IngressClass that will be be used to implement the Ingress (Kubernetes 1.18+)
+    ## @param server.ingress.ingressClassName IngressClass that will be be used to implement the Ingress (Kubernetes 1.18+)
     ## This is supported in Kubernetes 1.18+ and required if you have more than one IngressClass marked as the default for your cluster .
     ## ref: https://kubernetes.io/blog/2020/04/02/improvements-to-the-ingress-api-in-kubernetes-1.18/
     ##
     ingressClassName: ""
-    ## @param ingress.hostname Default host for the ingress resource
+    ## @param server.ingress.hostname Default host for the ingress resource
     ##
     hostname: api.gorse.local
-    ## @param ingress.path The Path to Gorse. You may need to set this to '/*' in order to use this
+    ## @param server.ingress.path The Path to Gorse. You may need to set this to '/*' in order to use this
     ## with ALB ingress controllers.
     ##
     path: /
-    ## @param ingress.annotations Additional annotations for the Ingress resource. To enable certificate autogeneration, place here your cert-manager annotations.
+    ## @param server.ingress.annotations Additional annotations for the Ingress resource. To enable certificate autogeneration, place here your cert-manager annotations.
     ## For a full list of possible ingress annotations, please see
     ## ref: https://github.com/kubernetes/ingress-nginx/blob/master/docs/user-guide/nginx-configuration/annotations.md
     ## Use this parameter to set the required annotations for cert-manager, see
@@ -524,18 +597,18 @@ server:
     ##   cert-manager.io/cluster-issuer: cluster-issuer-name
     ##
     annotations: {}
-    ## @param ingress.tls Enable TLS configuration for the hostname defined at ingress.hostname parameter
+    ## @param server.ingress.tls Enable TLS configuration for the hostname defined at ingress.hostname parameter
     ## TLS certificates will be retrieved from a TLS secret with name: {{- printf "%s-tls" .Values.ingress.hostname }}
     ## You can use the ingress.secrets parameter to create this TLS secret or relay on cert-manager to create it
     ##
     tls: false
-    ## @param ingress.extraHosts The list of additional hostnames to be covered with this ingress record.
+    ## @param server.ingress.extraHosts The list of additional hostnames to be covered with this ingress record.
     ## Most likely the hostname above will be enough, but in the event more hosts are needed, this is an array
     ## extraHosts:
     ## - name: api.gorse.local
     ##   path: /
     extraHosts: []
-    ## @param ingress.extraPaths Any additional arbitrary paths that may need to be added to the ingress under the main host.
+    ## @param server.ingress.extraPaths Any additional arbitrary paths that may need to be added to the ingress under the main host.
     ## For example: The ALB ingress controller requires a special rule for handling SSL redirection.
     ## extraPaths:
     ## - path: /*
@@ -543,14 +616,14 @@ server:
     ##     serviceName: ssl-redirect
     ##     servicePort: use-annotation
     extraPaths: []
-    ## @param ingress.extraTls The tls configuration for additional hostnames to be covered with this ingress record.
+    ## @param server.ingress.extraTls The tls configuration for additional hostnames to be covered with this ingress record.
     ## see: https://kubernetes.io/docs/concepts/services-networking/ingress/#tls
     ## extraTls:
     ## - hosts:
     ##     - api.gorse.local
     ##   secretName: gorse.local-tls
     extraTls: []
-    ## @param ingress.secrets If you're providing your own certificates, please use this to add the certificates as secrets
+    ## @param server.ingress.secrets If you're providing your own certificates, please use this to add the certificates as secrets
     ## key and certificate should start with -----BEGIN CERTIFICATE----- or
     ## -----BEGIN RSA PRIVATE KEY-----
     ##
@@ -565,7 +638,7 @@ server:
     ##   certificate:
     ##
     secrets: []
-    ## @param ingress.extraRules Additional rules to be covered with this ingress record
+    ## @param server.ingress.extraRules Additional rules to be covered with this ingress record
     ## ref: https://kubernetes.io/docs/concepts/services-networking/ingress/#ingress-rules
     ## e.g:
     ## extraRules:
@@ -655,37 +728,55 @@ server:
   ##
   tolerations: []
 
-  ## PodDisruptionBudget for pod concurrent disruptions
-  ## ref: https://kubernetes.io/docs/tasks/run-application/configure-pdb/#specifying-a-poddisruptionbudget
+  ## Server Pod Disruption Budget configuration
+  ## ref: https://kubernetes.io/docs/tasks/run-application/configure-pdb/
   ##
-  podDisruptionBudget:
-    {}
-    # maxUnavailable: 1
-    # minAvailable: 1
+  pdb:
+    ## @param server.pdb.create Specifies whether a PodDisruptionBudget should be created
+    ##
+    create: false
+    ## @param server.pdb.minAvailable Min number of pods that must still be available after the eviction
+    ##
+    minAvailable: 1
+    ## @param server.pdb.maxUnavailable Max number of pods that can be unavailable after the eviction
+    ##
+    maxUnavailable: ""
 
-## @section Gorse worker configuration parameters
+## @section Gorse worker node parameters
 ##
 
 worker:
-  # The docker image to be installed in this chart/pod
+  ## Gorse Worker image version
+  ## ref: https://hub.docker.com/r/zhenghaoz/gorse-master
+  ## @param worker.image.registry Gorse image registry
+  ## @param worker.image.repository Gorse Worker image repository
+  ## @param worker.image.tag Gorse Worker image tag (immutable tags are recommended)
+  ## @param worker.image.digest Gorse Worker image digest in the way sha256:aa.... Please note this parameter, if set, will override the tag
+  ## @param worker.image.pullPolicy Gorse Worker image pull policy
+  ## @param worker.image.pullSecrets Specify docker-registry secret names as an array
+  ##
   image:
-    ## Gorse image repository
-    ##
+    registry: docker.io
     repository: zhenghaoz/gorse-worker
-
-    ## Gorse image version
-    ##
     tag: 0.4.9
-
+    digest: ""
     ## Specify an imagePullPolicy
     ## ref: http://kubernetes.io/docs/user-guide/images/#pre-pulling-images
     ##
     pullPolicy: IfNotPresent
+    ## Optionally specify an array of imagePullSecrets.
+    ## Secrets must be manually created in the namespace.
+    ## ref: https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/
+    ## Example:
+    ## pullSecrets:
+    ##   - myRegistryKeySecretName
+    ##
+    pullSecrets: []
 
   ## Gorse worker service parameters
   ##
   service:
-    ## @param worker.service.type Enable service for Gorse workers
+    ## @param worker.service.enable Enable service for Gorse workers
     ##
     enable: false
     ## @param worker.service.type Gorse worker service type
@@ -816,38 +907,52 @@ worker:
   ##
   tolerations: []
 
-  ## PodDisruptionBudget for pod concurrent disruptions
-  ## ref: https://kubernetes.io/docs/tasks/run-application/configure-pdb/#specifying-a-poddisruptionbudget
+  ## Worker Pod Disruption Budget configuration
+  ## ref: https://kubernetes.io/docs/tasks/run-application/configure-pdb/
   ##
-  podDisruptionBudget:
-    {}
-    # maxUnavailable: 1
-    # minAvailable: 1
+  pdb:
+    ## @param worker.pdb.create Specifies whether a PodDisruptionBudget should be created
+    ##
+    create: false
+    ## @param worker.pdb.minAvailable Min number of pods that must still be available after the eviction
+    ##
+    minAvailable: 1
+    ## @param worker.pdb.maxUnavailable Max number of pods that can be unavailable after the eviction
+    ##
+    maxUnavailable: ""
 
-# ------------------------------------------------------------------------------
-# Redis:
-# ------------------------------------------------------------------------------
+## @section Redis&reg; Parameters
 
+## Redis&reg; chart configuration
+## ref: https://github.com/bitnami/charts/blob/master/bitnami/redisvalues.yaml
+## @param redis.enabled Switch to enable or disable the PostgreSQL helm chart
+## @param redis.auth.enabled Name for a custom user to create
+## @param redis.auth.password Password for the custom user to create
+## @param redis.architecture PostgreSQL architecture (`standalone` or `replication`)
+##
 redis:
-  ## If true, install the Redis chart alongside Gorse
-  ## ref: https://github.com/bitnami/charts/blob/master/bitnami/redis
-  ##
   enabled: false
+  auth:
+    enabled: true
+    password: ""
+  architecture: "standalone"
 
-# ------------------------------------------------------------------------------
-# PostgreSQL:
-# ------------------------------------------------------------------------------
+## @section Database Parameters
 
+## PostgreSQL chart configuration
+## ref: https://github.com/bitnami/charts/blob/main/bitnami/postgresql/values.yaml
+## @param postgresql.enabled Switch to enable or disable the PostgreSQL helm chart
+## @param postgresql.auth.username Name for a custom user to create
+## @param postgresql.auth.password Password for the custom user to create
+## @param postgresql.auth.database Name for a custom database to create
+## @param postgresql.auth.existingSecret Name of existing secret to use for PostgreSQL credentials
+## @param postgresql.architecture PostgreSQL architecture (`standalone` or `replication`)
+##
 postgresql:
-  ## If true, install the PostgreSQL chart alongside Gorse
-  ## ref: https://github.com/bitnami/charts/blob/master/bitnami/postgresql
-  ##
   enabled: false
-
   auth:
     username: gorse
     password: ""
     database: gorse
     existingSecret: ""
-
   architecture: standalone
