@@ -6,7 +6,8 @@
 
 ```bash
 $ helm repo add bitnami https://charts.bitnami.com/bitnami
-$ helm install gorse
+$ helm repo add gorse-io https://charts.gorse.io
+$ helm upgrade --name gorse --install gorse-io/gorse
 ```
 
 ## Introduction
@@ -17,12 +18,15 @@ This chart bootstraps a Gorse deployment on a [Kubernetes](http://kubernetes.io)
 
 ## Installing the Chart
 
-To install the chart with the release name `my-release`:
+To install the chart with the release name `my-release` in the `gorse` namespace:
 
 ```bash
 $ helm repo add bitnami https://charts.bitnami.com/bitnami
-$ helm upgrade --name my-release --install gorse
+$ helm repo add gorse-io https://charts.gorse.io
+$ helm upgrade --name my-release --install gorse --create-namespace --namescape gorse
 ```
+
+> **Tip**: Tou can override the default values by passing `-f ./values.yaml` to the `helm upgrade` command.
 
 **Note**: Gorse requires a properly configured database in order to initialize. See the `values.yaml` file for the configuration values that need to be set. Also, if preferred you can set `postgresql.enabled` to `true` and Helm will deploy the PostgreSQL chart listed in the `requirements.yaml` file, and Gorse will be able to initialize properly using the default values.
 
