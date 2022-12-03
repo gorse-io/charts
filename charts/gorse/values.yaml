@@ -931,9 +931,9 @@ worker:
 ## @param redis.architecture PostgreSQL architecture (`standalone` or `replication`)
 ##
 redis:
-  enabled: false
+  enabled: true
   auth:
-    enabled: true
+    enabled: false
     password: ""
   architecture: "standalone"
 
@@ -949,10 +949,10 @@ redis:
 ## @param postgresql.architecture PostgreSQL architecture (`standalone` or `replication`)
 ##
 postgresql:
-  enabled: false
+  enabled: true
   auth:
     username: gorse
-    password: ""
+    password: gorse_pass
     database: gorse
     existingSecret: ""
   architecture: standalone

@@ -83,8 +83,12 @@ spec:
                   name: {{ template "common.names.fullname" . }}
                   key: auth-password
             {{- end }}
+            - name: GORSE_MASTER_PORT
+              value: "{{ .Values.master.service.ports.grpc }}"
+            - name: GORSE_MASTER_HTTP_PORT
+              value: "{{ .Values.master.service.ports.http }}"
             - name: GORSE_MASTER_JOBS
-              value: {{ .Values.gorse.master.jobs }}
+              value: "{{ .Values.gorse.master.jobs }}"
             - name: GORSE_TABLE_PREFIX
               value: {{ .Values.gorse.database.prefix }}
             - name: GORSE_CACHE_STORE
@@ -109,10 +113,10 @@ spec:
               {{- end }}
           ports:
             - name: grpc
-              containerPort: 8086
+              containerPort: {{ .Values.master.service.ports.grpc }}
               protocol: TCP
             - name: http
-              containerPort: 8088
+              containerPort: {{ .Values.master.service.ports.http }}
               protocol: TCP
           # TODO - We dont have a proper endpoint for health check
           livenessProbe:

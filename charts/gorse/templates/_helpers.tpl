@@ -84,13 +84,6 @@ Get PostgreSQL user
 {{- end -}}
 
 {{/*
-Get PostgreSQL password
-*/}}
-{{- define "gorse.postgresql.password" -}}
-    {{- print "postgres-password" -}}
-{{- end -}}
-
-{{/*
 Set the proper Database uri. If postgresql is installed as part of this chart, build uri,
 else use user-provided uri
 */}}
@@ -99,12 +92,27 @@ else use user-provided uri
     {{- $host := include "gorse.postgresql.host" . -}}
     {{- $port := 5432 -}}
     {{- $user := include "gorse.postgresql.user" . -}}
-    {{- $password := include "gorse.postgresql.password" . -}}
+    {{- $password := .Values.postgresql.auth.password -}}
+    {{- $database := .Values.postgresql.auth.database -}}
 
-    {{- printf "pgsql://%s:%s@%s:%g" $user $password "host" $port }}
+    {{- printf "postgres://%s:%s@%s:%d/%s?sslmode=disable" $user $password $host $port $database }}
 {{- else -}}
     {{- .Values.gorse.database.uri }}
 {{- end -}}
+{{- end -}}
+
+{{/*
+Create a default fully qualified Redis name.
+*/}}
+{{- define "gorse.redis.fullname" -}}
+{{- include "common.names.dependency.fullname" (dict "chartName" "redis" "chartValues" .Values.redis "context" $) -}}
+{{- end -}}
+
+{{/*
+Get Redis host
+*/}}
+{{- define "gorse.redis.host" -}}
+{{- printf "%s-master" (include "gorse.redis.fullname" .) }}
 {{- end -}}
 
 {{/*
@@ -113,6 +121,9 @@ else use user-provided uri
 */}}
 {{- define "gorse.cache.uri" }}
 {{- if .Values.redis.enabled -}}
+    {{- $host := include "gorse.redis.host" . -}}
+
+    {{- printf "redis://%s" $host }}
 {{- else -}}
     {{- .Values.gorse.cache.uri }}
 {{- end -}}
