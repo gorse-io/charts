@@ -1,3 +1,28 @@
 apiVersion: v1
 entries:
   gorse:
+  - apiVersion: v2
+    appVersion: 0.4.9
+    created: "2022-12-03T09:47:34.157899791Z"
+    dependencies:
+    - name: common
+      repository: https://charts.bitnami.com/bitnami
+      tags:
+      - bitnami-common
+      version: 2.x.x
+    - condition: redis.enabled
+      name: redis
+      repository: https://charts.bitnami.com/bitnami
+      version: 17.x.x
+    - condition: postgresql.enabled
+      name: postgresql
+      repository: https://charts.bitnami.com/bitnami
+      version: ~11.9.0
+    description: Gorse Recommender System Engine
+    digest: 57b929c6d1afd584fbf056d26810fdc6fc4f7caa0f43d2d2c744fc1565b043d1
+    name: gorse
+    type: application
+    urls:
+    - https://github.com/gorse-io/charts/releases/download/gorse-0.4.0-alpha.1/gorse-0.4.0-alpha.1.tgz
+    version: 0.4.0-alpha.1
+generated: "2022-12-03T09:47:34.157911091Z"
