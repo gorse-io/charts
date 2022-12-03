@@ -7,14 +7,14 @@
 ```bash
 $ helm repo add bitnami https://charts.bitnami.com/bitnami
 $ helm repo add gorse-io https://charts.gorse.io
-$ helm upgrade --name gorse --install gorse-io/gorse
+$ helm upgrade --name my-release --install gorse-io/gorse --devel
 ```
 
 ## Introduction
 
 This chart bootstraps a Gorse deployment on a [Kubernetes](http://kubernetes.io) cluster using the [Helm](https://helm.sh) package manager.
 
-**Note**: This chart doesn't support horizontal scaling yet.
+> **Note**: This chart doesn't support horizontal scaling yet.
 
 ## Prerequisites
 
@@ -29,7 +29,7 @@ To install the chart with the release name `my-release` in the `gorse` namespace
 ```bash
 $ helm repo add bitnami https://charts.bitnami.com/bitnami
 $ helm repo add gorse-io https://charts.gorse.io
-$ helm upgrade --name my-release --install gorse-io/gorse --create-namespace --namespace gorse
+$ helm upgrade --name my-release --install gorse-io/gorse --create-namespace --namespace gorse --devel
 ```
 
 The command deploys Gorse on the Kubernetes cluster in the default configuration. The [Parameters](#parameters) section lists the parameters that can be configured during installation.
