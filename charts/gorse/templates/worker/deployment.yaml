@@ -53,7 +53,7 @@ spec:
       {{- end }}
       containers:
         - name: {{ .Chart.Name }}-worker
-          image: "{{ .Values.worker.image.repository }}:{{ .Values.worker.image.tag }}"
+          image: "{{ .Values.worker.image.repository }}:{{ default .Chart.AppVersion .Values.worker.image.tag }}"
           imagePullPolicy: {{ .Values.worker.image.pullPolicy }}
           command: 
               - "/usr/bin/gorse-worker"
