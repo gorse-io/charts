@@ -54,7 +54,7 @@ spec:
       {{- end }}
       containers:
         - name: {{ .Chart.Name }}-master
-          image: "{{ .Values.master.image.repository }}:{{ .Values.master.image.tag }}"
+          image: "{{ .Values.master.image.repository }}:{{ default .Chart.AppVersion .Values.master.image.tag }}"
           imagePullPolicy: {{ .Values.master.image.pullPolicy }}
           command: 
               - "/usr/bin/gorse-master"
@@ -89,7 +89,9 @@ spec:
               value: "{{ .Values.master.service.ports.http }}"
             - name: GORSE_MASTER_JOBS
               value: "{{ .Values.gorse.master.jobs }}"
-            - name: GORSE_TABLE_PREFIX
+            - name: GORSE_CACHE_TABLE_PREFIX
+              value: {{ .Values.gorse.cache.prefix }}
+            - name: GORSE_DATA_TABLE_PREFIX
               value: {{ .Values.gorse.database.prefix }}
             - name: GORSE_CACHE_STORE
               valueFrom:
