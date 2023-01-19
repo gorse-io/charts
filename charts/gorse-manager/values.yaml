@@ -1,0 +1,189 @@
+## @section Global parameters
+
+## @section Common parameters
+##
+
+## @param kubeVersion Override Kubernetes version
+##
+kubeVersion: ""
+## @param nameOverride String to partially override common.names.fullname
+##
+nameOverride: ""
+## @param fullnameOverride String to fully override common.names.fullname
+##
+fullnameOverride: ""
+## @param commonLabels Labels to add to all deployed objects
+##
+commonLabels: {}
+## @param commonAnnotations Annotations to add to all deployed objects
+##
+commonAnnotations: {}
+## @param secretAnnotations Annotations to add to secret
+##
+secretAnnotations: {}
+## @param clusterDomain Default Kubernetes cluster domain
+##
+clusterDomain: cluster.local
+
+## @section Gorse Manager Configuration
+##
+
+## @param database URI used to connect Gorse manager to the database for user data.
+database: ""
+
+## WordPress service parameters
+##
+service:
+  ## @param service.type WordPress service type
+  ##
+  type: ClusterIP
+  ## @param service.ports.http WordPress service HTTP port
+  ## @param service.ports.https WordPress service HTTPS port
+  ##
+  ports:
+    http: 8888
+  ## Node ports to expose
+  ## @param service.nodePorts.http Node port for HTTP
+  ## @param service.nodePorts.https Node port for HTTPS
+  ## NOTE: choose port between <30000-32767>
+  ##
+  nodePorts:
+    http: ""
+  ## @param service.sessionAffinity Control where client requests go, to the same pod or round-robin
+  ## Values: ClientIP or None
+  ## ref: https://kubernetes.io/docs/user-guide/services/
+  ##
+  sessionAffinity: None
+  ## @param service.sessionAffinityConfig Additional settings for the sessionAffinity
+  ## sessionAffinityConfig:
+  ##   clientIP:
+  ##     timeoutSeconds: 300
+  ##
+  sessionAffinityConfig: {}
+  ## @param service.clusterIP WordPress service Cluster IP
+  ## e.g.:
+  ## clusterIP: None
+  ##
+  clusterIP: ""
+  ## @param service.loadBalancerIP WordPress service Load Balancer IP
+  ## ref: https://kubernetes.io/docs/concepts/services-networking/service/#type-loadbalancer
+  ##
+  loadBalancerIP: ""
+  ## @param service.loadBalancerSourceRanges WordPress service Load Balancer sources
+  ## ref: https://kubernetes.io/docs/tasks/access-application-cluster/configure-cloud-provider-firewall/#restrict-access-for-loadbalancer-service
+  ## e.g:
+  ## loadBalancerSourceRanges:
+  ##   - 10.10.10.0/24
+  ##
+  loadBalancerSourceRanges: []
+  ## @param service.externalTrafficPolicy WordPress service external traffic policy
+  ## ref https://kubernetes.io/docs/tasks/access-application-cluster/create-external-load-balancer/#preserving-the-client-source-ip
+  ##
+  externalTrafficPolicy: Cluster
+  ## @param service.annotations Additional custom annotations for WordPress service
+  ##
+  annotations: {}
+  ## @param service.extraPorts Extra port to expose on WordPress service
+  ##
+  extraPorts: []
+
+## Gorse Worker image version
+## ref: https://hub.docker.com/r/zhenghaoz/gorse-master
+## @param worker.image.registry Gorse image registry
+## @param worker.image.repository Gorse Worker image repository
+## @param worker.image.tag Gorse Worker image tag (immutable tags are recommended)
+## @param worker.image.digest Gorse Worker image digest in the way sha256:aa.... Please note this parameter, if set, will override the tag
+## @param worker.image.pullPolicy Gorse Worker image pull policy
+## @param worker.image.pullSecrets Specify docker-registry secret names as an array
+##
+image:
+  registry: docker.io
+  repository: zhenghaoz/gorse-manager
+  tag: nightly
+  digest: ""
+  ## Specify an imagePullPolicy
+  ## ref: http://kubernetes.io/docs/user-guide/images/#pre-pulling-images
+  ##
+  pullPolicy: IfNotPresent
+  ## Optionally specify an array of imagePullSecrets.
+  ## Secrets must be manually created in the namespace.
+  ## ref: https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/
+  ## Example:
+  ## pullSecrets:
+  ##   - myRegistryKeySecretName
+  ##
+  pullSecrets: []
+
+## Autoscaling configuration
+##
+autoscaling:
+  ## @param server.autoscaling.enabled Enable replica autoscaling settings
+  ##
+  enabled: false
+  ## @param server.autoscaling.minReplicas Minimum replicas for the pod autoscaling
+  ##
+  minReplicas: 1
+  ## @param server.autoscaling.maxReplicas Maximum replicas for the pod autoscaling
+  ##
+  maxReplicas: 11
+  ## @param server.autoscaling.targetCPU Percentage of CPU to consider when autoscaling
+  ##
+  targetCPU: ""
+  ## @param server.autoscaling.targetMemory Percentage of Memory to consider when autoscaling
+  ##
+  targetMemory: ""
+
+## @param server.podAffinityPreset Pod affinity preset. Ignored if `server.affinity` is set. Allowed values: `soft` or `hard`
+## ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#inter-pod-affinity-and-anti-affinity
+##
+podAffinityPreset: ""
+## @param server.podAntiAffinityPreset Pod anti-affinity preset. Ignored if `server.affinity` is set. Allowed values: `soft` or `hard`
+## ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#inter-pod-affinity-and-anti-affinity
+##
+podAntiAffinityPreset: soft
+## Node server.affinity preset
+## ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#node-affinity
+##
+nodeAffinityPreset:
+  ## @param server.nodeAffinityPreset.type Node affinity preset type. Ignored if `server.affinity` is set. Allowed values: `soft` or `hard`
+  ##
+  type: ""
+  ## @param server.nodeAffinityPreset.key Node label key to match. Ignored if `server.affinity` is set
+  ##
+  key: ""
+  ## @param server.nodeAffinityPreset.values Node label values to match. Ignored if `server.affinity` is set
+  ## E.g.
+  ## values:
+  ##   - e2e-az1
+  ##   - e2e-az2
+  ##
+  values: []
+## @param server.affinity Affinity for Gorse server pods assignment
+## ref: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/#affinity-and-anti-affinity
+## NOTE: `server.podAffinityPreset`, `server.podAntiAffinityPreset`, and `server.nodeAffinityPreset` will be ignored when it's set
+##
+affinity: {}
+## @param server.nodeSelector Node labels for Gorse server pods assignment
+## ref: https://kubernetes.io/docs/user-guide/node-selection/
+##
+nodeSelector: {}
+## @param server.tolerations Tolerations for Gorse server pods assignment
+## ref: https://kubernetes.io/docs/concepts/configuration/taint-and-toleration/
+##
+tolerations: []
+
+## @section MongoDB&reg; Parameters
+
+## MongoDB&reg; chart configuration
+## ref: https://github.com/bitnami/charts/tree/main/bitnami/mongodb
+## @param mongodb.enabled Switch to enable or disable the MongoDB helm chart
+## @param mongodb.auth.enabled Enable authentication
+## @param mongodb.auth.password MongoDB(®) root password
+## @param mongodb.architecture MongoDB(®) architecture (`standalone`` or `replicaset`)
+##
+mongodb:
+  enabled: true
+  auth:
+    enabled: false
+    rootPassword: ""
+  architecture: "standalone"

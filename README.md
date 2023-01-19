@@ -7,14 +7,11 @@ $ helm repo add gorse-io https://charts.gorse.io
 $ helm search repo gorse-io --devel
 ```
 
-> **NOTE:** some chart **might** require the `bitnami` repository already installed.
+There are charts available in this repo:
 
-## Gorse Installation
+| Name | Description |
+|-|-|
+| [gorse](./charts/gorse) | Gorse Recommender System Engine |
+| [gorse-manager](./charts/gorse-manager) | Gorse Cloud Manager for Kubernetes | 
 
-```bash
-$ helm repo add bitnami https://charts.bitnami.com/bitnami
-$ helm repo add gorse-io https://charts.gorse.io
-$ helm upgrade --name my-release --install gorse-io/gorse --devel
-```
-
-For full documentation see the `gorse` [README](https://github.com/gorse-io/charts/blob/main/charts/gorse/README.md).
+> **NOTE:** The `bitnami` repository is required.
