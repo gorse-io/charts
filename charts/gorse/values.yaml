@@ -32,6 +32,8 @@ gorse:
     ## @param gorse.cache.uri URI used to connect Gorse to the cache
     ## The current supported connectors are [redis, postgres, mongodb]
     uri: ""
+    ## @param gorse.cache.prefix Table prefix of cache
+    prefix: ""
 
   database:
     ## @param gorse.database.uri URI used to connect Gorse to the database
@@ -172,7 +174,7 @@ master:
   image:
     registry: docker.io
     repository: zhenghaoz/gorse-master
-    tag: 0.4.9
+    tag: 0.4.10
     digest: ""
     ## Specify an imagePullPolicy
     ## ref: http://kubernetes.io/docs/user-guide/images/#pre-pulling-images
@@ -487,7 +489,7 @@ server:
   image:
     registry: docker.io
     repository: zhenghaoz/gorse-server
-    tag: 0.4.9
+    tag: 0.4.10
     digest: ""
     ## Specify an imagePullPolicy
     ## ref: http://kubernetes.io/docs/user-guide/images/#pre-pulling-images
@@ -758,7 +760,7 @@ worker:
   image:
     registry: docker.io
     repository: zhenghaoz/gorse-worker
-    tag: 0.4.9
+    tag: 0.4.10
     digest: ""
     ## Specify an imagePullPolicy
     ## ref: http://kubernetes.io/docs/user-guide/images/#pre-pulling-images
