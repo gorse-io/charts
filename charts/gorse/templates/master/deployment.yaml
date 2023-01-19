@@ -89,6 +89,8 @@ spec:
               value: "{{ .Values.master.service.ports.http }}"
             - name: GORSE_MASTER_JOBS
               value: "{{ .Values.gorse.master.jobs }}"
+            - name: GORSE_CACHE_TABLE_PREFIX
+              value: {{ .Values.gorse.cache.prefix }}
             - name: GORSE_TABLE_PREFIX
               value: {{ .Values.gorse.database.prefix }}
             - name: GORSE_CACHE_STORE
