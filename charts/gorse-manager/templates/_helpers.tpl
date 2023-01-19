@@ -18,7 +18,7 @@ else use user-provided uri
     {{- $port := 5432 -}}
     {{- $password := .Values.mongodb.auth.rootPassword -}}
 
-    {{- printf "mongodb://root:%s@%s:%d/%s?sslmode=disable" $password $host $port }}
+    {{- printf "mongodb://root:%s@%s:%d/?authSource=admin&connect=direct" $password $host $port }}
 {{- else -}}
     {{- .Values.database }}
 {{- end -}}

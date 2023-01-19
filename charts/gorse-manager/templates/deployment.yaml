@@ -63,8 +63,8 @@ spec:
             - name: GORSE_MANAGER_HOST
               value: 0.0.0.0
             - name: GORSE_MANAGER_PORT
-              value: {{ .Values.service.ports.http }}
-            - name: GORSE_DATA_STORE
+              value: "{{ .Values.service.ports.http }}"
+            - name: GORSE_MANAGER_USER_DATABASE
               valueFrom:
                 secretKeyRef:
                   name: {{ template "common.names.fullname" . }}
