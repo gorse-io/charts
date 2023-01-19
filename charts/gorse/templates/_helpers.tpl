@@ -123,11 +123,7 @@ else use user-provided uri
 {{- if .Values.redis.enabled -}}
     {{- $host := include "gorse.redis.host" . -}}
 
-    {{- if .Values.redis.auth.enabled -}}
-        {{- printf "redis://:%s@%s" .Values.redis.auth.password  $host }}
-    {{- else -}}
-        {{- printf "redis://%s" $host }}
-    {{- end -}}
+    {{- printf "redis://%s" $host }}
 {{- else -}}
     {{- .Values.gorse.cache.uri }}
 {{- end -}}
