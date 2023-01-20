@@ -56,6 +56,9 @@ The command removes all the Kubernetes components associated with the chart and 
 
 ### Global parameters
 
+
+
+
 ### Common parameters
 
 | Name                | Description                                        | Value           |
@@ -68,11 +71,13 @@ The command removes all the Kubernetes components associated with the chart and 
 | `secretAnnotations` | Annotations to add to secret                       | `{}`            |
 | `clusterDomain`     | Default Kubernetes cluster domain                  | `cluster.local` |
 
+
 ### Gorse Configuration
 
 | Name                                         | Description                                                                   | Value             |
 | -------------------------------------------- | ----------------------------------------------------------------------------- | ----------------- |
 | `gorse.cache.uri`                            | URI used to connect Gorse to the cache                                        | `""`              |
+| `gorse.cache.prefix`                         | Table prefix of cache                                                         | `""`              |
 | `gorse.database.uri`                         | URI used to connect Gorse to the database                                     | `""`              |
 | `gorse.database.prefix`                      | Table prefix of database and cache                                            | `""`              |
 | `gorse.auth.dashboard.enabled`               | Enable login in Gorse dashboard                                               | `false`           |
@@ -102,13 +107,14 @@ The command removes all the Kubernetes components associated with the chart and 
 | `gorse.recommend.replacement.decay.read`     | Decay the weights of replaced items from read feedbacks                       | `0.6`             |
 | `gorse.recommend.online.failback`            | The fallback recommendation method is used when cached recommendation drained | `["latest"]`      |
 
+
 ### Gorse master node parameters
 
 | Name                                      | Description                                                                                                                      | Value                    |
 | ----------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------- | ------------------------ |
 | `master.image.registry`                   | Gorse image registry                                                                                                             | `docker.io`              |
 | `master.image.repository`                 | Gorse Master image repository                                                                                                    | `zhenghaoz/gorse-master` |
-| `master.image.tag`                        | Gorse Master image tag (immutable tags are recommended)                                                                          | `0.4.10`                  |
+| `master.image.tag`                        | Gorse Master image tag (immutable tags are recommended)                                                                          | `0.4.10`                 |
 | `master.image.digest`                     | Gorse Master image digest in the way sha256:aa.... Please note this parameter, if set, will override the tag                     | `""`                     |
 | `master.image.pullPolicy`                 | Gorse Master image pull policy                                                                                                   | `IfNotPresent`           |
 | `master.image.pullSecrets`                | Specify docker-registry secret names as an array                                                                                 | `[]`                     |
@@ -145,7 +151,7 @@ The command removes all the Kubernetes components associated with the chart and 
 | `master.ingress.apiVersion`               | Override API Version (automatically detected if not set)                                                                         | `""`                     |
 | `master.ingress.ingressClassName`         | IngressClass that will be be used to implement the Ingress (Kubernetes 1.18+)                                                    | `""`                     |
 | `master.ingress.hostname`                 | Default host for the ingress resource                                                                                            | `gorse.local`            |
-| `master.ingress.path`                     | The Path to Gorse. You may need to set this to '/\*' in order to use this                                                        | `/`                      |
+| `master.ingress.path`                     | The Path to Gorse. You may need to set this to '/*' in order to use this                                                         | `/`                      |
 | `master.ingress.annotations`              | Additional annotations for the Ingress resource. To enable certificate autogeneration, place here your cert-manager annotations. | `{}`                     |
 | `master.ingress.tls`                      | Enable TLS configuration for the hostname defined at ingress.hostname parameter                                                  | `false`                  |
 | `master.ingress.extraHosts`               | The list of additional hostnames to be covered with this ingress record.                                                         | `[]`                     |
@@ -167,13 +173,14 @@ The command removes all the Kubernetes components associated with the chart and 
 | `master.pdb.minAvailable`                 | Min number of pods that must still be available after the eviction                                                               | `1`                      |
 | `master.pdb.maxUnavailable`               | Max number of pods that can be unavailable after the eviction                                                                    | `""`                     |
 
+
 ### Gorse server node parameters
 
 | Name                                      | Description                                                                                                                      | Value                    |
 | ----------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------- | ------------------------ |
 | `server.image.registry`                   | Gorse image registry                                                                                                             | `docker.io`              |
 | `server.image.repository`                 | Gorse Server image repository                                                                                                    | `zhenghaoz/gorse-server` |
-| `server.image.tag`                        | Gorse Server image tag (immutable tags are recommended)                                                                          | `0.4.10`                  |
+| `server.image.tag`                        | Gorse Server image tag (immutable tags are recommended)                                                                          | `0.4.10`                 |
 | `server.image.digest`                     | Gorse Server image digest in the way sha256:aa.... Please note this parameter, if set, will override the tag                     | `""`                     |
 | `server.image.pullPolicy`                 | Gorse Server image pull policy                                                                                                   | `IfNotPresent`           |
 | `server.image.pullSecrets`                | Specify docker-registry secret names as an array                                                                                 | `[]`                     |
@@ -194,7 +201,7 @@ The command removes all the Kubernetes components associated with the chart and 
 | `server.ingress.apiVersion`               | Override API Version (automatically detected if not set)                                                                         | `""`                     |
 | `server.ingress.ingressClassName`         | IngressClass that will be be used to implement the Ingress (Kubernetes 1.18+)                                                    | `""`                     |
 | `server.ingress.hostname`                 | Default host for the ingress resource                                                                                            | `api.gorse.local`        |
-| `server.ingress.path`                     | The Path to Gorse. You may need to set this to '/\*' in order to use this                                                        | `/`                      |
+| `server.ingress.path`                     | The Path to Gorse. You may need to set this to '/*' in order to use this                                                         | `/`                      |
 | `server.ingress.annotations`              | Additional annotations for the Ingress resource. To enable certificate autogeneration, place here your cert-manager annotations. | `{}`                     |
 | `server.ingress.tls`                      | Enable TLS configuration for the hostname defined at ingress.hostname parameter                                                  | `false`                  |
 | `server.ingress.extraHosts`               | The list of additional hostnames to be covered with this ingress record.                                                         | `[]`                     |
@@ -221,13 +228,14 @@ The command removes all the Kubernetes components associated with the chart and 
 | `server.pdb.minAvailable`                 | Min number of pods that must still be available after the eviction                                                               | `1`                      |
 | `server.pdb.maxUnavailable`               | Max number of pods that can be unavailable after the eviction                                                                    | `""`                     |
 
+
 ### Gorse worker node parameters
 
 | Name                                      | Description                                                                                                  | Value                    |
 | ----------------------------------------- | ------------------------------------------------------------------------------------------------------------ | ------------------------ |
 | `worker.image.registry`                   | Gorse image registry                                                                                         | `docker.io`              |
 | `worker.image.repository`                 | Gorse Worker image repository                                                                                | `zhenghaoz/gorse-worker` |
-| `worker.image.tag`                        | Gorse Worker image tag (immutable tags are recommended)                                                      | `0.4.10`                  |
+| `worker.image.tag`                        | Gorse Worker image tag (immutable tags are recommended)                                                      | `0.4.10`                 |
 | `worker.image.digest`                     | Gorse Worker image digest in the way sha256:aa.... Please note this parameter, if set, will override the tag | `""`                     |
 | `worker.image.pullPolicy`                 | Gorse Worker image pull policy                                                                               | `IfNotPresent`           |
 | `worker.image.pullSecrets`                | Specify docker-registry secret names as an array                                                             | `[]`                     |
@@ -263,25 +271,28 @@ The command removes all the Kubernetes components associated with the chart and 
 | `worker.pdb.minAvailable`                 | Min number of pods that must still be available after the eviction                                           | `1`                      |
 | `worker.pdb.maxUnavailable`               | Max number of pods that can be unavailable after the eviction                                                | `""`                     |
 
+
 ### Redis&reg; Parameters
 
 | Name                  | Description                                             | Value        |
 | --------------------- | ------------------------------------------------------- | ------------ |
-| `redis.enabled`       | Switch to enable or disable the PostgreSQL helm chart   | `false`      |
-| `redis.auth.enabled`  | Name for a custom user to create                        | `true`       |
+| `redis.enabled`       | Switch to enable or disable the PostgreSQL helm chart   | `true`       |
+| `redis.auth.enabled`  | Name for a custom user to create                        | `false`      |
 | `redis.auth.password` | Password for the custom user to create                  | `""`         |
 | `redis.architecture`  | PostgreSQL architecture (`standalone` or `replication`) | `standalone` |
+
 
 ### Database Parameters
 
 | Name                             | Description                                               | Value        |
 | -------------------------------- | --------------------------------------------------------- | ------------ |
-| `postgresql.enabled`             | Switch to enable or disable the PostgreSQL helm chart     | `false`      |
+| `postgresql.enabled`             | Switch to enable or disable the PostgreSQL helm chart     | `true`       |
 | `postgresql.auth.username`       | Name for a custom user to create                          | `gorse`      |
-| `postgresql.auth.password`       | Password for the custom user to create                    | `""`         |
+| `postgresql.auth.password`       | Password for the custom user to create                    | `gorse_pass` |
 | `postgresql.auth.database`       | Name for a custom database to create                      | `gorse`      |
 | `postgresql.auth.existingSecret` | Name of existing secret to use for PostgreSQL credentials | `""`         |
 | `postgresql.architecture`        | PostgreSQL architecture (`standalone` or `replication`)   | `standalone` |
+
 
 ## Configuration
 
