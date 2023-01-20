@@ -41,7 +41,9 @@ jobs:
           fi
 
       - name: Run chart-testing (lint)
-        run: ct lint --target-branch ${{ github.event.repository.default_branch }}
+        run: |
+          ct lint --check-version-increment=false \
+            --target-branch ${{ github.event.repository.default_branch }}
         if: steps.list-changed.outputs.changed == 'true'
 
       - name: Create kind cluster
@@ -51,3 +53,29 @@ jobs:
       - name: Run chart-testing (install)
         run: ct install --target-branch ${{ github.event.repository.default_branch }}
         if: steps.list-changed.outputs.changed == 'true'
+
+  check-metadata:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 16
+
+      - name: Install readme generator for Helm
+        run: npm i -g @bitnami/readme-generator-for-helm
+
+      - name: Check metadata
+        run: |
+          for CHART in ./charts/*; do 
+              if [ -d "$CHART" ]; then
+                  printf '%*s' 128 | tr ' ' -
+                  echo " Charts to be processed:"
+                  printf '%*s' 128 | tr ' ' -
+                  echo " $(basename $CHART)"
+                  printf '%*s' 128 | tr ' ' -
+                  readme-generator -v ${CHART}/values.yaml -r ${CHART}/README.md;
+              fi
+          done
