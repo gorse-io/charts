@@ -923,38 +923,27 @@ worker:
     ##
     maxUnavailable: ""
 
-## @section Redis&reg; Parameters
-
-## Redis&reg; chart configuration
-## ref: https://github.com/bitnami/charts/blob/master/bitnami/redisvalues.yaml
-## @param redis.enabled Switch to enable or disable the PostgreSQL helm chart
-## @param redis.auth.enabled Name for a custom user to create
-## @param redis.auth.password Password for the custom user to create
-## @param redis.architecture PostgreSQL architecture (`standalone` or `replication`)
+## MongoDb chart configuration
+## ref: https://github.com/bitnami/charts/blob/main/bitnami/mongodb/values.yaml
 ##
-redis:
+mongodb:
+  ## @param mongodb.enabled Switch to enable or disable the MongoDb helm chart
+  ##
   enabled: true
   auth:
-    enabled: false
-    password: ""
-  architecture: "standalone"
-
-## @section Database Parameters
-
-## PostgreSQL chart configuration
-## ref: https://github.com/bitnami/charts/blob/main/bitnami/postgresql/values.yaml
-## @param postgresql.enabled Switch to enable or disable the PostgreSQL helm chart
-## @param postgresql.auth.username Name for a custom user to create
-## @param postgresql.auth.password Password for the custom user to create
-## @param postgresql.auth.database Name for a custom database to create
-## @param postgresql.auth.existingSecret Name of existing secret to use for PostgreSQL credentials
-## @param postgresql.architecture PostgreSQL architecture (`standalone` or `replication`)
-##
-postgresql:
-  enabled: true
-  auth:
+    ## MongoDB(&reg;) custom users and databases
+    ## ref: https://github.com/bitnami/containers/tree/main/bitnami/mongodb#creating-a-user-and-database-on-first-run
+    ## @param mongodb.auth.username Custom user to be created during the initialization
+    ## @param mongodb.auth.password Password for the custom users set at `mongodb.auth.username`
+    ## @param mongodb.auth.database Custom database to be created during the initialization
+    ##
     username: gorse
     password: gorse_pass
     database: gorse
+    ## @param mongodb.auth.existingSecret Existing secret with MongoDB(&reg;) credentials (keys: `mongodb-passwords`, `mongodb-root-password`, `mongodb-metrics-password`, ` mongodb-replica-set-key`)
+    ## NOTE: When it's set the previous parameters are ignored.
+    ##
     existingSecret: ""
+  ## @param mongodb.architecture MongoDB(&reg;) architecture (`standalone` or `replicaset`)
+  ##
   architecture: standalone

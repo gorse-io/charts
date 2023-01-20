@@ -1,11 +1,11 @@
 {{/* vim: set filetype=mustache: */}}
 
 {{/*
-Create a default fully qualified postgresql name.
+Create a default fully qualified mongodb name.
 We truncate at 63 chars because some Kubernetes name fields are limited to this (by the DNS naming spec).
 */}}
-{{- define "gorse.postgresql.fullname" -}}
-{{- include "common.names.dependency.fullname" (dict "chartName" "postgresql" "chartValues" .Values.postgresql "context" $) -}}
+{{- define "gorse.mongodb.fullname" -}}
+{{- include "common.names.dependency.fullname" (dict "chartName" "mongodb" "chartValues" .Values.mongodb "context" $) -}}
 {{- end -}}
 
 {{/*
@@ -64,66 +64,56 @@ Return Gorse API Secret
 {{- end -}}
 
 {{/*
-Get PostgreSQL host
+Get MongoDb host
 */}}
-{{- define "gorse.postgresql.host" -}}
-{{- if eq .Values.postgresql.architecture "replication" }}
-    {{- printf "%s-primary" (include "gorse.postgresql.fullname" .) -}}
+{{- define "gorse.mongodb.host" -}}
+{{- if eq .Values.mongodb.architecture "replication" }}
+    {{- printf "%s-primary" (include "gorse.mongodb.fullname" .) -}}
 {{- else }}
-    {{- include "gorse.postgresql.fullname" . -}}
+    {{- include "gorse.mongodb.fullname" . -}}
 {{- end -}}
 {{- end -}}
 
 {{/*
-Get PostgreSQL user
+Get MongoDb user
 */}}
-{{- define "gorse.postgresql.user" -}}
-{{- if .Values.postgresql.enabled }}
-    {{- .Values.postgresql.auth.username -}}
+{{- define "gorse.mongodb.user" -}}
+{{- if .Values.mongodb.enabled }}
+    {{- .Values.mongodb.auth.username -}}
 {{- end -}}
 {{- end -}}
 
 {{/*
-Set the proper Database uri. If postgresql is installed as part of this chart, build uri,
+Set the proper Database uri. If mongodb is installed as part of this chart, build uri,
 else use user-provided uri
 */}}
 {{- define "gorse.database.uri" }}
-{{- if .Values.postgresql.enabled -}}
-    {{- $host := include "gorse.postgresql.host" . -}}
-    {{- $port := 5432 -}}
-    {{- $user := include "gorse.postgresql.user" . -}}
-    {{- $password := .Values.postgresql.auth.password -}}
-    {{- $database := .Values.postgresql.auth.database -}}
+{{- if .Values.mongodb.enabled -}}
+    {{- $host := include "gorse.mongodb.host" . -}}
+    {{- $port := 27017 -}}
+    {{- $user := include "gorse.mongodb.user" . -}}
+    {{- $password := .Values.mongodb.auth.password -}}
+    {{- $database := .Values.mongodb.auth.database -}}
 
-    {{- printf "postgres://%s:%s@%s:%d/%s?sslmode=disable" $user $password $host $port $database }}
+    {{- printf "mongodb://%s:%s@%s:%d/%s?connect=direct" $user $password $host $port $database }}
 {{- else -}}
     {{- .Values.gorse.database.uri }}
 {{- end -}}
 {{- end -}}
 
-{{/*
-Create a default fully qualified Redis name.
-*/}}
-{{- define "gorse.redis.fullname" -}}
-{{- include "common.names.dependency.fullname" (dict "chartName" "redis" "chartValues" .Values.redis "context" $) -}}
-{{- end -}}
 
 {{/*
-Get Redis host
-*/}}
-{{- define "gorse.redis.host" -}}
-{{- printf "%s-master" (include "gorse.redis.fullname" .) }}
-{{- end -}}
-
-{{/*
-Set the proper Redis uri. If Redis is installed as part of this chart, build uri,
+Set the proper mongodb uri. If MongoDB is installed as part of this chart, build uri,
 else use user-provided uri
 */}}
 {{- define "gorse.cache.uri" }}
-{{- if .Values.redis.enabled -}}
-    {{- $host := include "gorse.redis.host" . -}}
-
-    {{- printf "redis://%s" $host }}
+{{- if .Values.mongodb.enabled -}}
+    {{- $host := include "gorse.mongodb.host" . -}}
+    {{- $port := 27017 -}}
+    {{- $user := include "gorse.mongodb.user" . -}}
+    {{- $password := .Values.mongodb.auth.password -}}
+    {{- $database := .Values.mongodb.auth.database -}}
+    {{- printf "mongodb://%s:%s@%s:%d/%s?connect=direct" $user $password $host $port $database }}
 {{- else -}}
     {{- .Values.gorse.cache.uri }}
 {{- end -}}

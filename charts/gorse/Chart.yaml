@@ -32,11 +32,7 @@ dependencies:
     tags:
       - bitnami-common
     version: 2.x.x
-  - name: redis
-    condition: redis.enabled
-    repository: https://charts.bitnami.com/bitnami
-    version: 17.x.x
-  - name: postgresql
-    condition: postgresql.enabled
-    version: ~11.9.0
+  - name: mongodb
+    condition: mongdb.enabled
+    version: 13.x.x
     repository: "https://charts.bitnami.com/bitnami"
