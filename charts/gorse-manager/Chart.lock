@@ -1,9 +1,12 @@
 dependencies:
 - name: common
   repository: https://charts.bitnami.com/bitnami
-  version: 2.2.2
+  version: 2.2.3
 - name: mongodb
   repository: https://charts.bitnami.com/bitnami
-  version: 13.6.4
-digest: sha256:f38c09646e4e97498a305558e6526152fbf774fce05bfee01668401e72873897
-generated: "2023-01-19T11:58:12.168373794+08:00"
+  version: 13.6.7
+- name: mysql
+  repository: https://charts.bitnami.com/bitnami
+  version: 9.4.8
+digest: sha256:09d1cd19278babb67d324707f4bc6dba9d00c401924d71d93060281eda9cd030
+generated: "2023-02-09T14:13:14.989516722Z"
