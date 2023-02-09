@@ -109,3 +109,14 @@ This starts an HTTP proxy for secure access to the Gorse Manager Dashboard. Visi
 | `mongodb.auth.rootPassword` | MongoDB(®) root password                                | `""`         |
 | `mongodb.architecture`      | MongoDB(®) architecture (`standalone`` or `replicaset`) | `standalone` |
 
+
+### MySQL Parameters
+
+| Name                      | Description                                                        | Value   |
+| ------------------------- | ------------------------------------------------------------------ | ------- |
+| `mysql.enabled`           | Switch to enable or disable the MySQL helm chart                   | `true`  |
+| `mysql.auth.rootPassword` | Password for the root user. Ignored if existing secret is provided | `""`    |
+| `mysql.auth.database`     | Name for a custom database to create                               | `gorse` |
+| `mysql.auth.username`     | Name for a custom user to create                                   | `""`    |
+| `mysql.auth.password`     | Password for the new user. Ignored if existing secret is provided  | `""`    |
+

@@ -36,3 +36,7 @@ dependencies:
     condition: mongodb.enabled
     repository: https://charts.bitnami.com/bitnami
     version: 13.x.x
+  - name: mysql
+    condition: mysql.enabled
+    repository: https://charts.bitnami.com/bitnami
+    version: 9.x.x
