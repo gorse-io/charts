@@ -1,4 +1,5 @@
 # The Gorse Library for Kubernetes
+[![Artifact Hub](https://img.shields.io/endpoint?url=https://artifacthub.io/badge/repository/gorse-io)](https://artifacthub.io/packages/search?repo=gorse-io)
 
 To install a chart from this repo you need to run:
 
