@@ -74,38 +74,38 @@ The command removes all the Kubernetes components associated with the chart and 
 
 ### Gorse Configuration
 
-| Name                                         | Description                                                                   | Value             |
-| -------------------------------------------- | ----------------------------------------------------------------------------- | ----------------- |
-| `gorse.cache.uri`                            | URI used to connect Gorse to the cache                                        | `""`              |
-| `gorse.cache.prefix`                         | Table prefix of cache                                                         | `""`              |
-| `gorse.database.uri`                         | URI used to connect Gorse to the database                                     | `""`              |
-| `gorse.database.prefix`                      | Table prefix of database and cache                                            | `""`              |
-| `gorse.auth.dashboard.enabled`               | Enable login in Gorse dashboard                                               | `false`           |
-| `gorse.auth.dashboard.username`              | Password for the custom user to dashboard.                                    | `gorse`           |
-| `gorse.auth.dashboard.password`              | Password for the custom user to create.                                       | `""`              |
-| `gorse.auth.api.enabled`                     | Enable API security via token                                                 | `false`           |
-| `gorse.auth.api.key`                         | The key to secure the API andpoint                                            | `""`              |
-| `gorse.master.http.cors.domains`             | List of allowed values for Http Origin                                        | `[]`              |
-| `gorse.master.http.cors.methods`             | List of http methods names. Checking is case-insensitive.                     | `[]`              |
-| `gorse.master.jobs`                          | Number of working jobs in the master node                                     | `1`               |
-| `gorse.server.items`                         | Default number of returned items                                              | `10`              |
-| `gorse.server.insert.users`                  | Insert new users while inserting feedback                                     | `true`            |
-| `gorse.server.insert.items`                  | Insert new items while inserting feedback.                                    | `true`            |
-| `gorse.server.cache.expire`                  | Server-side cache expire time                                                 | `10s`             |
-| `gorse.recommend.cache.size`                 | The cache size for recommended/popular/latest items                           | `10`              |
-| `gorse.recommend.cache.expire`               | Recommended cache expire time                                                 | `72h`             |
-| `gorse.recommend.ttl.feedback`               | The time-to-live (days) of positive feedback                                  | `0`               |
-| `gorse.recommend.ttl.item`                   | The time-to-live (days) of items                                              | `0`               |
-| `gorse.recommend.ttl.popular`                | The time window of popular items                                              | `4320h`           |
-| `gorse.recommend.feedback.positive`          | The feedback types for positive events                                        | `["star","like"]` |
-| `gorse.recommend.feedback.read`              | The feedback types for read events.                                           | `["read"]`        |
-| `gorse.recommend.neighbors.users.type`       | The type of neighbors for users                                               | `similar`         |
-| `gorse.recommend.neighbors.items.type`       | The type of neighbors for items.                                              | `similar`         |
-| `gorse.recommend.collaborative.enable`       | Enable approximate collaborative filtering recommend using vector index       | `true`            |
-| `gorse.recommend.replacement.enable`         | Replace historical items back to recommendations                              | `false`           |
-| `gorse.recommend.replacement.decay.positive` | Decay the weights of replaced items from positive feedbacks                   | `0.8`             |
-| `gorse.recommend.replacement.decay.read`     | Decay the weights of replaced items from read feedbacks                       | `0.6`             |
-| `gorse.recommend.online.failback`            | The fallback recommendation method is used when cached recommendation drained | `["latest"]`      |
+| Name                                         | Description                                                                   | Value        |
+| -------------------------------------------- | ----------------------------------------------------------------------------- | ------------ |
+| `gorse.cache.uri`                            | URI used to connect Gorse to the cache                                        | `""`         |
+| `gorse.cache.prefix`                         | Table prefix of cache                                                         | `""`         |
+| `gorse.database.uri`                         | URI used to connect Gorse to the database                                     | `""`         |
+| `gorse.database.prefix`                      | Table prefix of database and cache                                            | `""`         |
+| `gorse.auth.dashboard.enabled`               | Enable login in Gorse dashboard                                               | `false`      |
+| `gorse.auth.dashboard.username`              | Password for the custom user to dashboard.                                    | `gorse`      |
+| `gorse.auth.dashboard.password`              | Password for the custom user to create.                                       | `""`         |
+| `gorse.auth.api.enabled`                     | Enable API security via token                                                 | `false`      |
+| `gorse.auth.api.key`                         | The key to secure the API andpoint                                            | `""`         |
+| `gorse.master.http.cors.domains`             | List of allowed values for Http Origin                                        | `[]`         |
+| `gorse.master.http.cors.methods`             | List of http methods names. Checking is case-insensitive.                     | `[]`         |
+| `gorse.master.jobs`                          | Number of working jobs in the master node                                     | `1`          |
+| `gorse.server.items`                         | Default number of returned items                                              | `10`         |
+| `gorse.server.insert.users`                  | Insert new users while inserting feedback                                     | `true`       |
+| `gorse.server.insert.items`                  | Insert new items while inserting feedback.                                    | `true`       |
+| `gorse.server.cache.expire`                  | Server-side cache expire time                                                 | `10s`        |
+| `gorse.recommend.cache.size`                 | The cache size for recommended/popular/latest items                           | `10`         |
+| `gorse.recommend.cache.expire`               | Recommended cache expire time                                                 | `72h`        |
+| `gorse.recommend.ttl.feedback`               | The time-to-live (days) of positive feedback                                  | `0`          |
+| `gorse.recommend.ttl.item`                   | The time-to-live (days) of items                                              | `0`          |
+| `gorse.recommend.ttl.popular`                | The time window of popular items                                              | `4320h`      |
+| `gorse.recommend.feedback.positive`          | The feedback types for positive events                                        | `[]`         |
+| `gorse.recommend.feedback.read`              | The feedback types for read events.                                           | `[]`         |
+| `gorse.recommend.neighbors.users.type`       | The type of neighbors for users                                               | `similar`    |
+| `gorse.recommend.neighbors.items.type`       | The type of neighbors for items.                                              | `similar`    |
+| `gorse.recommend.collaborative.enable`       | Enable approximate collaborative filtering recommend using vector index       | `true`       |
+| `gorse.recommend.replacement.enable`         | Replace historical items back to recommendations                              | `false`      |
+| `gorse.recommend.replacement.decay.positive` | Decay the weights of replaced items from positive feedbacks                   | `0.8`        |
+| `gorse.recommend.replacement.decay.read`     | Decay the weights of replaced items from read feedbacks                       | `0.6`        |
+| `gorse.recommend.online.failback`            | The fallback recommendation method is used when cached recommendation drained | `["latest"]` |
 
 
 ### Gorse master node parameters
@@ -114,7 +114,7 @@ The command removes all the Kubernetes components associated with the chart and 
 | ----------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------- | ------------------------ |
 | `master.image.registry`                   | Gorse image registry                                                                                                             | `docker.io`              |
 | `master.image.repository`                 | Gorse Master image repository                                                                                                    | `zhenghaoz/gorse-master` |
-| `master.image.tag`                        | Gorse Master image tag (immutable tags are recommended)                                                                          | `0.4.10`                 |
+| `master.image.tag`                        | Gorse Master image tag (immutable tags are recommended)                                                                          | `0.4.11`                 |
 | `master.image.digest`                     | Gorse Master image digest in the way sha256:aa.... Please note this parameter, if set, will override the tag                     | `""`                     |
 | `master.image.pullPolicy`                 | Gorse Master image pull policy                                                                                                   | `IfNotPresent`           |
 | `master.image.pullSecrets`                | Specify docker-registry secret names as an array                                                                                 | `[]`                     |
@@ -180,7 +180,7 @@ The command removes all the Kubernetes components associated with the chart and 
 | ----------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------- | ------------------------ |
 | `server.image.registry`                   | Gorse image registry                                                                                                             | `docker.io`              |
 | `server.image.repository`                 | Gorse Server image repository                                                                                                    | `zhenghaoz/gorse-server` |
-| `server.image.tag`                        | Gorse Server image tag (immutable tags are recommended)                                                                          | `0.4.10`                 |
+| `server.image.tag`                        | Gorse Server image tag (immutable tags are recommended)                                                                          | `0.4.11`                 |
 | `server.image.digest`                     | Gorse Server image digest in the way sha256:aa.... Please note this parameter, if set, will override the tag                     | `""`                     |
 | `server.image.pullPolicy`                 | Gorse Server image pull policy                                                                                                   | `IfNotPresent`           |
 | `server.image.pullSecrets`                | Specify docker-registry secret names as an array                                                                                 | `[]`                     |
@@ -235,7 +235,7 @@ The command removes all the Kubernetes components associated with the chart and 
 | ----------------------------------------- | ------------------------------------------------------------------------------------------------------------ | ------------------------ |
 | `worker.image.registry`                   | Gorse image registry                                                                                         | `docker.io`              |
 | `worker.image.repository`                 | Gorse Worker image repository                                                                                | `zhenghaoz/gorse-worker` |
-| `worker.image.tag`                        | Gorse Worker image tag (immutable tags are recommended)                                                      | `0.4.10`                 |
+| `worker.image.tag`                        | Gorse Worker image tag (immutable tags are recommended)                                                      | `0.4.11`                 |
 | `worker.image.digest`                     | Gorse Worker image digest in the way sha256:aa.... Please note this parameter, if set, will override the tag | `""`                     |
 | `worker.image.pullPolicy`                 | Gorse Worker image pull policy                                                                               | `IfNotPresent`           |
 | `worker.image.pullSecrets`                | Specify docker-registry secret names as an array                                                             | `[]`                     |
@@ -272,26 +272,16 @@ The command removes all the Kubernetes components associated with the chart and 
 | `worker.pdb.maxUnavailable`               | Max number of pods that can be unavailable after the eviction                                                | `""`                     |
 
 
-### Redis&reg; Parameters
-
-| Name                  | Description                                             | Value        |
-| --------------------- | ------------------------------------------------------- | ------------ |
-| `redis.enabled`       | Switch to enable or disable the PostgreSQL helm chart   | `true`       |
-| `redis.auth.enabled`  | Name for a custom user to create                        | `false`      |
-| `redis.auth.password` | Password for the custom user to create                  | `""`         |
-| `redis.architecture`  | PostgreSQL architecture (`standalone` or `replication`) | `standalone` |
-
-
 ### Database Parameters
 
-| Name                             | Description                                               | Value        |
-| -------------------------------- | --------------------------------------------------------- | ------------ |
-| `postgresql.enabled`             | Switch to enable or disable the PostgreSQL helm chart     | `true`       |
-| `postgresql.auth.username`       | Name for a custom user to create                          | `gorse`      |
-| `postgresql.auth.password`       | Password for the custom user to create                    | `gorse_pass` |
-| `postgresql.auth.database`       | Name for a custom database to create                      | `gorse`      |
-| `postgresql.auth.existingSecret` | Name of existing secret to use for PostgreSQL credentials | `""`         |
-| `postgresql.architecture`        | PostgreSQL architecture (`standalone` or `replication`)   | `standalone` |
+| Name                          | Description                                                                                                                                                  | Value        |
+| ----------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------------ |
+| `mongodb.enabled`             | Switch to enable or disable the MongoDb helm chart                                                                                                           | `true`       |
+| `mongodb.auth.username`       | Custom user to be created during the initialization                                                                                                          | `gorse`      |
+| `mongodb.auth.password`       | Password for the custom users set at `mongodb.auth.username`                                                                                                 | `gorse_pass` |
+| `mongodb.auth.database`       | Custom database to be created during the initialization                                                                                                      | `gorse`      |
+| `mongodb.auth.existingSecret` | Existing secret with MongoDB(&reg;) credentials (keys: `mongodb-passwords`, `mongodb-root-password`, `mongodb-metrics-password`, ` mongodb-replica-set-key`) | `""`         |
+| `mongodb.architecture`        | MongoDB(&reg;) architecture (`standalone` or `replicaset`)                                                                                                   | `standalone` |
 
 
 ## Configuration
