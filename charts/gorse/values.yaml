@@ -118,13 +118,10 @@ gorse:
     feedback:
       ## @param gorse.recommend.feedback.positive The feedback types for positive events
       ##
-      positive:
-        - "star"
-        - "like"
+      positive: []
       ## @param gorse.recommend.feedback.read The feedback types for read events.
       ##
-      read:
-        - "read"
+      read: []
 
     neighbors:
       users:
@@ -174,7 +171,7 @@ master:
   image:
     registry: docker.io
     repository: zhenghaoz/gorse-master
-    tag: 0.4.10
+    tag: 0.4.11
     digest: ""
     ## Specify an imagePullPolicy
     ## ref: http://kubernetes.io/docs/user-guide/images/#pre-pulling-images
@@ -489,7 +486,7 @@ server:
   image:
     registry: docker.io
     repository: zhenghaoz/gorse-server
-    tag: 0.4.10
+    tag: 0.4.11
     digest: ""
     ## Specify an imagePullPolicy
     ## ref: http://kubernetes.io/docs/user-guide/images/#pre-pulling-images
@@ -760,7 +757,7 @@ worker:
   image:
     registry: docker.io
     repository: zhenghaoz/gorse-worker
-    tag: 0.4.10
+    tag: 0.4.11
     digest: ""
     ## Specify an imagePullPolicy
     ## ref: http://kubernetes.io/docs/user-guide/images/#pre-pulling-images
@@ -922,6 +919,9 @@ worker:
     ## @param worker.pdb.maxUnavailable Max number of pods that can be unavailable after the eviction
     ##
     maxUnavailable: ""
+
+## @section Database Parameters
+##
 
 ## MongoDb chart configuration
 ## ref: https://github.com/bitnami/charts/blob/main/bitnami/mongodb/values.yaml
