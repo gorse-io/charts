@@ -65,39 +65,57 @@ This starts an HTTP proxy for secure access to the Gorse Manager Dashboard. Visi
 
 ### Gorse Manager Configuration
 
-| Name                               | Description                                                                                                   | Value                     |
-| ---------------------------------- | ------------------------------------------------------------------------------------------------------------- | ------------------------- |
-| `database`                         | URI used to connect Gorse manager to the database for user data.                                              | `""`                      |
-| `service.type`                     | WordPress service type                                                                                        | `NodePort`                |
-| `service.ports.http`               | WordPress service HTTP port                                                                                   | `8888`                    |
-| `service.nodePorts.http`           | Node port for HTTP                                                                                            | `""`                      |
-| `service.sessionAffinity`          | Control where client requests go, to the same pod or round-robin                                              | `None`                    |
-| `service.sessionAffinityConfig`    | Additional settings for the sessionAffinity                                                                   | `{}`                      |
-| `service.clusterIP`                | WordPress service Cluster IP                                                                                  | `""`                      |
-| `service.loadBalancerIP`           | WordPress service Load Balancer IP                                                                            | `""`                      |
-| `service.loadBalancerSourceRanges` | WordPress service Load Balancer sources                                                                       | `[]`                      |
-| `service.externalTrafficPolicy`    | WordPress service external traffic policy                                                                     | `Cluster`                 |
-| `service.annotations`              | Additional custom annotations for WordPress service                                                           | `{}`                      |
-| `service.extraPorts`               | Extra port to expose on WordPress service                                                                     | `[]`                      |
-| `image.registry`                   | Gorse image registry                                                                                          | `docker.io`               |
-| `image.repository`                 | Gorse Manager image repository                                                                                | `zhenghaoz/gorse-manager` |
-| `image.tag`                        | Gorse Manager image tag (immutable tags are recommended)                                                      | `nightly`                 |
-| `image.digest`                     | Gorse Manager image digest in the way sha256:aa.... Please note this parameter, if set, will override the tag | `""`                      |
-| `image.pullPolicy`                 | Gorse Manager image pull policy                                                                               | `IfNotPresent`            |
-| `image.pullSecrets`                | Specify docker-registry secret names as an array                                                              | `[]`                      |
-| `autoscaling.enabled`              | Enable replica autoscaling settings                                                                           | `false`                   |
-| `autoscaling.minReplicas`          | Minimum replicas for the pod autoscaling                                                                      | `1`                       |
-| `autoscaling.maxReplicas`          | Maximum replicas for the pod autoscaling                                                                      | `11`                      |
-| `autoscaling.targetCPU`            | Percentage of CPU to consider when autoscaling                                                                | `""`                      |
-| `autoscaling.targetMemory`         | Percentage of Memory to consider when autoscaling                                                             | `""`                      |
-| `podAffinityPreset`                | Pod affinity preset. Ignored if `server.affinity` is set. Allowed values: `soft` or `hard`                    | `""`                      |
-| `podAntiAffinityPreset`            | Pod anti-affinity preset. Ignored if `server.affinity` is set. Allowed values: `soft` or `hard`               | `soft`                    |
-| `nodeAffinityPreset.type`          | Node affinity preset type. Ignored if `server.affinity` is set. Allowed values: `soft` or `hard`              | `""`                      |
-| `nodeAffinityPreset.key`           | Node label key to match. Ignored if `server.affinity` is set                                                  | `""`                      |
-| `nodeAffinityPreset.values`        | Node label values to match. Ignored if `server.affinity` is set                                               | `[]`                      |
-| `affinity`                         | Affinity for Gorse server pods assignment                                                                     | `{}`                      |
-| `nodeSelector`                     | Node labels for Gorse server pods assignment                                                                  | `{}`                      |
-| `tolerations`                      | Tolerations for Gorse server pods assignment                                                                  | `[]`                      |
+| Name                               | Description                                                                                                                      | Value                     |
+| ---------------------------------- | -------------------------------------------------------------------------------------------------------------------------------- | ------------------------- |
+| `database`                         | URI used to connect Gorse manager to the database for user data.                                                                 | `""`                      |
+| `service.type`                     | Gorse Manager service type                                                                                                       | `LoadBalancer`            |
+| `service.ports.http`               | Gorse Manager service HTTP port                                                                                                  | `80`                      |
+| `service.ports.https`              | Gorse Manager service HTTPS port                                                                                                 | `443`                     |
+| `service.httpsTargetPort`          | Target port for HTTPS                                                                                                            | `https`                   |
+| `service.nodePorts.http`           | Node port for HTTP                                                                                                               | `""`                      |
+| `service.nodePorts.https`          | Node port for HTTPS                                                                                                              | `""`                      |
+| `service.sessionAffinity`          | Control where client requests go, to the same pod or round-robin                                                                 | `None`                    |
+| `service.sessionAffinityConfig`    | Additional settings for the sessionAffinity                                                                                      | `{}`                      |
+| `service.clusterIP`                | Gorse Manager service Cluster IP                                                                                                 | `""`                      |
+| `service.loadBalancerIP`           | Gorse Manager service Load Balancer IP                                                                                           | `""`                      |
+| `service.loadBalancerSourceRanges` | Gorse Manager service Load Balancer sources                                                                                      | `[]`                      |
+| `service.externalTrafficPolicy`    | Gorse Manager service external traffic policy                                                                                    | `Cluster`                 |
+| `service.annotations`              | Additional custom annotations for Gorse Manager service                                                                          | `{}`                      |
+| `service.extraPorts`               | Extra port to expose on Gorse Manager service                                                                                    | `[]`                      |
+| `ingress.enabled`                  | Enable ingress record generation for Gorse Manager                                                                               | `false`                   |
+| `ingress.pathType`                 | Ingress path type                                                                                                                | `ImplementationSpecific`  |
+| `ingress.apiVersion`               | Force Ingress API version (automatically detected if not set)                                                                    | `""`                      |
+| `ingress.ingressClassName`         | IngressClass that will be be used to implement the Ingress (Kubernetes 1.18+)                                                    | `""`                      |
+| `ingress.hostname`                 | Default host for the ingress record                                                                                              | `gorse-manager.local`     |
+| `ingress.path`                     | Default path for the ingress record                                                                                              | `/`                       |
+| `ingress.annotations`              | Additional annotations for the Ingress resource. To enable certificate autogeneration, place here your cert-manager annotations. | `{}`                      |
+| `ingress.tls`                      | Enable TLS configuration for the host defined at `ingress.hostname` parameter                                                    | `false`                   |
+| `ingress.tlsWwwPrefix`             | Adds www subdomain to default cert                                                                                               | `false`                   |
+| `ingress.selfSigned`               | Create a TLS secret for this ingress record using self-signed certificates generated by Helm                                     | `false`                   |
+| `ingress.extraHosts`               | An array with additional hostname(s) to be covered with the ingress record                                                       | `[]`                      |
+| `ingress.extraPaths`               | An array with additional arbitrary paths that may need to be added to the ingress under the main host                            | `[]`                      |
+| `ingress.extraTls`                 | TLS configuration for additional hostname(s) to be covered with this ingress record                                              | `[]`                      |
+| `ingress.secrets`                  | Custom TLS certificates as secrets                                                                                               | `[]`                      |
+| `ingress.extraRules`               | Additional rules to be covered with this ingress record                                                                          | `[]`                      |
+| `image.registry`                   | Gorse image registry                                                                                                             | `docker.io`               |
+| `image.repository`                 | Gorse Manager image repository                                                                                                   | `zhenghaoz/gorse-manager` |
+| `image.tag`                        | Gorse Manager image tag (immutable tags are recommended)                                                                         | `nightly`                 |
+| `image.digest`                     | Gorse Manager image digest in the way sha256:aa.... Please note this parameter, if set, will override the tag                    | `""`                      |
+| `image.pullPolicy`                 | Gorse Manager image pull policy                                                                                                  | `IfNotPresent`            |
+| `image.pullSecrets`                | Specify docker-registry secret names as an array                                                                                 | `[]`                      |
+| `autoscaling.enabled`              | Enable replica autoscaling settings                                                                                              | `false`                   |
+| `autoscaling.minReplicas`          | Minimum replicas for the pod autoscaling                                                                                         | `1`                       |
+| `autoscaling.maxReplicas`          | Maximum replicas for the pod autoscaling                                                                                         | `11`                      |
+| `autoscaling.targetCPU`            | Percentage of CPU to consider when autoscaling                                                                                   | `""`                      |
+| `autoscaling.targetMemory`         | Percentage of Memory to consider when autoscaling                                                                                | `""`                      |
+| `podAffinityPreset`                | Pod affinity preset. Ignored if `server.affinity` is set. Allowed values: `soft` or `hard`                                       | `""`                      |
+| `podAntiAffinityPreset`            | Pod anti-affinity preset. Ignored if `server.affinity` is set. Allowed values: `soft` or `hard`                                  | `soft`                    |
+| `nodeAffinityPreset.type`          | Node affinity preset type. Ignored if `server.affinity` is set. Allowed values: `soft` or `hard`                                 | `""`                      |
+| `nodeAffinityPreset.key`           | Node label key to match. Ignored if `server.affinity` is set                                                                     | `""`                      |
+| `nodeAffinityPreset.values`        | Node label values to match. Ignored if `server.affinity` is set                                                                  | `[]`                      |
+| `affinity`                         | Affinity for Gorse server pods assignment                                                                                        | `{}`                      |
+| `nodeSelector`                     | Node labels for Gorse server pods assignment                                                                                     | `{}`                      |
+| `tolerations`                      | Tolerations for Gorse server pods assignment                                                                                     | `[]`                      |
 
 
 ### MongoDB&reg; Parameters

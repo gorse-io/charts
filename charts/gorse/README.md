@@ -56,7 +56,11 @@ The command removes all the Kubernetes components associated with the chart and 
 
 ### Global parameters
 
-
+| Name                      | Description                                     | Value |
+| ------------------------- | ----------------------------------------------- | ----- |
+| `global.imageRegistry`    | Global Docker image registry                    | `""`  |
+| `global.imagePullSecrets` | Global Docker registry secret names as an array | `[]`  |
+| `global.storageClass`     | Global StorageClass for Persistent Volume(s)    | `""`  |
 
 
 ### Common parameters
@@ -285,7 +289,7 @@ The command removes all the Kubernetes components associated with the chart and 
 | `mongodb.auth.databases`           | List of custom databases to be created during the initialization          | `["gorse_cache","gorse_data"]` |
 | `mongodb.persistence.enabled`      | Enable MongoDB(&reg;) data persistence using PVC                          | `true`                         |
 | `mongodb.persistence.storageClass` | PVC Storage Class for MongoDB(&reg;) data volume                          | `""`                           |
-| `mongodb.persistence.accessModes`  | PV Access Mode                                                            | `[]`                           |
+| `mongodb.persistence.accessModes`  | PV Access Mode                                                            | `["ReadWriteOnce"]`            |
 | `mongodb.persistence.size`         | PVC Storage Request for MongoDB(&reg;) data volume                        | `8Gi`                          |
 
 
