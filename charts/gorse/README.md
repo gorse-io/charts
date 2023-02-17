@@ -274,14 +274,19 @@ The command removes all the Kubernetes components associated with the chart and 
 
 ### Database Parameters
 
-| Name                          | Description                                                                                                                                                  | Value        |
-| ----------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------------ |
-| `mongodb.enabled`             | Switch to enable or disable the MongoDb helm chart                                                                                                           | `true`       |
-| `mongodb.auth.username`       | Custom user to be created during the initialization                                                                                                          | `gorse`      |
-| `mongodb.auth.password`       | Password for the custom users set at `mongodb.auth.username`                                                                                                 | `gorse_pass` |
-| `mongodb.auth.database`       | Custom database to be created during the initialization                                                                                                      | `gorse`      |
-| `mongodb.auth.existingSecret` | Existing secret with MongoDB(&reg;) credentials (keys: `mongodb-passwords`, `mongodb-root-password`, `mongodb-metrics-password`, ` mongodb-replica-set-key`) | `""`         |
-| `mongodb.architecture`        | MongoDB(&reg;) architecture (`standalone` or `replicaset`)                                                                                                   | `standalone` |
+| Name                               | Description                                                               | Value                          |
+| ---------------------------------- | ------------------------------------------------------------------------- | ------------------------------ |
+| `mongodb.enabled`                  | Deploy a MongoDB server to satisfy the applications database requirements | `true`                         |
+| `mongodb.architecture`             | MongoDB(&reg;) architecture (`standalone` or `replicaset`)                | `standalone`                   |
+| `mongodb.auth.rootUser`            | MongoDB(&reg;) root user                                                  | `root`                         |
+| `mongodb.auth.rootPassword`        | MongoDB(&reg;) root password                                              | `""`                           |
+| `mongodb.auth.usernames`           | List of custom users to be created during the initialization              | `["gorse_username"]`           |
+| `mongodb.auth.passwords`           | List of passwords for the custom users set at `auth.usernames`            | `["gorse_password"]`           |
+| `mongodb.auth.databases`           | List of custom databases to be created during the initialization          | `["gorse_cache","gorse_data"]` |
+| `mongodb.persistence.enabled`      | Enable MongoDB(&reg;) data persistence using PVC                          | `true`                         |
+| `mongodb.persistence.storageClass` | PVC Storage Class for MongoDB(&reg;) data volume                          | `""`                           |
+| `mongodb.persistence.accessModes`  | PV Access Mode                                                            | `[]`                           |
+| `mongodb.persistence.size`         | PVC Storage Request for MongoDB(&reg;) data volume                        | `8Gi`                          |
 
 
 ## Configuration
