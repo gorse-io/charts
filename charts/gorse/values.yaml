@@ -669,6 +669,11 @@ server:
     ##
     extraRules: []
 
+  ## @param replicaCount Number of servers replicas to deploy
+  ## NOTE: ReadWriteMany PVC(s) are required if replicaCount > 1
+  ##
+  replicaCount: 1
+
   ## Autoscaling configuration
   ##
   autoscaling:
@@ -683,10 +688,10 @@ server:
     maxReplicas: 11
     ## @param server.autoscaling.targetCPU Percentage of CPU to consider when autoscaling
     ##
-    targetCPU: ""
+    targetCPU: 50
     ## @param server.autoscaling.targetMemory Percentage of Memory to consider when autoscaling
     ##
-    targetMemory: ""
+    targetMemory: 50
 
   ## Gorse replicas resource requests and limits
   ## ref: https://kubernetes.io/docs/user-guide/compute-resources/
@@ -848,6 +853,11 @@ worker:
     ##
     sessionAffinityConfig: {}
 
+  ## @param replicaCount Number of workers replicas to deploy
+  ## NOTE: ReadWriteMany PVC(s) are required if replicaCount > 1
+  ##
+  replicaCount: 1
+
   ## Autoscaling configuration
   ##
   autoscaling:
@@ -862,10 +872,10 @@ worker:
     maxReplicas: 11
     ## @param worker.autoscaling.targetCPU Percentage of CPU to consider when autoscaling
     ##
-    targetCPU: ""
+    targetCPU: 50
     ## @param worker.autoscaling.targetMemory Percentage of Memory to consider when autoscaling
     ##
-    targetMemory: ""
+    targetMemory: 50
 
   ## Gorse replicas resource requests and limits
   ## ref: https://kubernetes.io/docs/user-guide/compute-resources/
@@ -966,13 +976,9 @@ mongodb:
     ## @param mongodb.auth.passwords List of passwords for the custom users set at `auth.usernames`
     ## @param mongodb.auth.databases List of custom databases to be created during the initialization
     ##
-    usernames:
-      - gorse_username
-    passwords:
-      - gorse_password
-    databases:
-      - gorse_cache
-      - gorse_data
+    username: gorse
+    password: ""
+    database: gorse
   ## Enable persistence using Persistent Volume Claims
   ## ref: https://kubernetes.io/docs/user-guide/persistent-volumes/
   ##
@@ -994,3 +1000,24 @@ mongodb:
     ## @param mongodb.persistence.size PVC Storage Request for MongoDB(&reg;) data volume
     ##
     size: 8Gi
+## External MongoDB configuration
+## All of these values are only used when postgresql.enabled is set to false
+## @param externalDatabase.host Database host
+## @param externalDatabase.port Database port number
+## @param externalDatabase.user Non-root username for Discourse
+## @param externalDatabase.password Password for the non-root username for Discourse
+## @param externalDatabase.database Discourse database name
+## @param externalDatabase.create Switch to enable user/database creation during the installation stage
+## @param externalDatabase.postgresUser PostgreSQL admin user, used during the installation stage
+## @param externalDatabase.postgresPassword PostgreSQL admin password, used during the installation stage
+## @param externalDatabase.existingSecret Name of an existing secret resource containing the database credentials
+## @param externalDatabase.existingSecretPasswordKey Name of an existing secret key containing the database credentials
+## @param externalDatabase.existingSecretPostgresPasswordKey Name of an existing secret key containing the database admin user credentials
+##
+externalDatabase:
+  host: localhost
+  port: 5432
+  username: gorse
+  database: gorse
+  password: ""
+  existingSecret: ""
