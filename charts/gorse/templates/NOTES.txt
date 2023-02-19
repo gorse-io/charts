@@ -1,4 +1,11 @@
-1. Get the application URL by running these commands:
+CHART NAME: {{ .Chart.Name }}
+CHART VERSION: {{ .Chart.Version }}
+APP VERSION: {{ .Chart.AppVersion }}
+
+** Please be patient while the chart is being deployed **
+
+1. Get your Gorse dashboard URL by running:
+
 {{- if .Values.master.ingress.enabled }}
 {{- range $host := .Values.master.ingress.hosts }}
   {{- range .paths }}
@@ -19,3 +26,13 @@
   echo "Visit http://127.0.0.1:8080 to use your application"
   kubectl --namespace {{ .Release.Namespace }} port-forward $POD_NAME 8080:$CONTAINER_PORT
 {{- end }}
+
+2. Get your Gorse dashboard login credentials by running:
+
+3. Get your Gorse dashboard URL by running:
+
+4. Get your Gorse RESTful APIs credentials by running:
+
+{{- include "common.warnings.rollingTag" .Values.master.image }}
+{{- include "common.warnings.rollingTag" .Values.server.image }}
+{{- include "common.warnings.rollingTag" .Values.worker.image }}
