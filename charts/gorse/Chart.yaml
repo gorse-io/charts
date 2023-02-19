@@ -33,6 +33,6 @@ dependencies:
       - bitnami-common
     version: 2.x.x
   - name: mongodb
-    condition: mongdb.enabled
+    condition: mongodb.enabled
     version: 13.x.x
     repository: "https://charts.bitnami.com/bitnami"

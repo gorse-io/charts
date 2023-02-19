@@ -89,20 +89,23 @@ spec:
               value: "{{ .Values.master.service.ports.http }}"
             - name: GORSE_MASTER_JOBS
               value: "{{ .Values.gorse.master.jobs }}"
-            - name: GORSE_CACHE_TABLE_PREFIX
-              value: {{ .Values.gorse.cache.prefix }}
-            - name: GORSE_TABLE_PREFIX
-              value: {{ .Values.gorse.database.prefix }}
+            - name: GORSE_DATABASE_HOST
+              value: {{ include "gorse.databaseHost" . }}
+            - name: GORSE_DATABASE_PORT
+              value: "{{ include "gorse.databasePort" . }}"
+            - name: GORSE_DATABASE_NAME
+              value: {{ include "gorse.databaseName" . }}
+            - name: GORSE_DATABASE_USER
+              value: {{ include "gorse.databaseUser" . }}
+            - name: GORSE_DATABASE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "gorse.databaseSecretName" . }}
+                  key: {{ include "gorse.databaseSecretPasswordKey" . }}
             - name: GORSE_CACHE_STORE
-              valueFrom:
-                secretKeyRef:
-                  name: {{ template "common.names.fullname" . }}
-                  key: cache-uri
+              value: mongodb://$(GORSE_DATABASE_USER):$(GORSE_DATABASE_PASSWORD)@$(GORSE_DATABASE_HOST):$(GORSE_DATABASE_PORT)/$(GORSE_DATABASE_NAME)?connect=direct
             - name: GORSE_DATA_STORE
-              valueFrom:
-                secretKeyRef:
-                  name: {{ template "common.names.fullname" . }}
-                  key: database-uri
+              value: mongodb://$(GORSE_DATABASE_USER):$(GORSE_DATABASE_PASSWORD)@$(GORSE_DATABASE_HOST):$(GORSE_DATABASE_PORT)/$(GORSE_DATABASE_NAME)?connect=direct
           volumeMounts:
             - name: config
               mountPath: /etc/gorse/

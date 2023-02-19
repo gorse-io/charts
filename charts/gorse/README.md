@@ -80,10 +80,6 @@ The command removes all the Kubernetes components associated with the chart and 
 
 | Name                                         | Description                                                                   | Value        |
 | -------------------------------------------- | ----------------------------------------------------------------------------- | ------------ |
-| `gorse.cache.uri`                            | URI used to connect Gorse to the cache                                        | `""`         |
-| `gorse.cache.prefix`                         | Table prefix of cache                                                         | `""`         |
-| `gorse.database.uri`                         | URI used to connect Gorse to the database                                     | `""`         |
-| `gorse.database.prefix`                      | Table prefix of database and cache                                            | `""`         |
 | `gorse.auth.dashboard.enabled`               | Enable login in Gorse dashboard                                               | `false`      |
 | `gorse.auth.dashboard.username`              | Password for the custom user to dashboard.                                    | `gorse`      |
 | `gorse.auth.dashboard.password`              | Password for the custom user to create.                                       | `""`         |
@@ -213,11 +209,12 @@ The command removes all the Kubernetes components associated with the chart and 
 | `server.ingress.extraTls`                 | The tls configuration for additional hostnames to be covered with this ingress record.                                           | `[]`                     |
 | `server.ingress.secrets`                  | If you're providing your own certificates, please use this to add the certificates as secrets                                    | `[]`                     |
 | `server.ingress.extraRules`               | Additional rules to be covered with this ingress record                                                                          | `[]`                     |
+| `server.replicaCount`                     | Number of servers replicas to deploy                                                                                             | `1`                      |
 | `server.autoscaling.enabled`              | Enable replica autoscaling settings                                                                                              | `false`                  |
 | `server.autoscaling.minReplicas`          | Minimum replicas for the pod autoscaling                                                                                         | `1`                      |
 | `server.autoscaling.maxReplicas`          | Maximum replicas for the pod autoscaling                                                                                         | `11`                     |
-| `server.autoscaling.targetCPU`            | Percentage of CPU to consider when autoscaling                                                                                   | `""`                     |
-| `server.autoscaling.targetMemory`         | Percentage of Memory to consider when autoscaling                                                                                | `""`                     |
+| `server.autoscaling.targetCPU`            | Percentage of CPU to consider when autoscaling                                                                                   | `50`                     |
+| `server.autoscaling.targetMemory`         | Percentage of Memory to consider when autoscaling                                                                                | `50`                     |
 | `server.resources.limits`                 | The resources limits for the Gorse replicas containers                                                                           | `{}`                     |
 | `server.resources.requests`               | The requested resources for the Gorse replicas containers                                                                        | `{}`                     |
 | `server.podAffinityPreset`                | Pod affinity preset. Ignored if `server.affinity` is set. Allowed values: `soft` or `hard`                                       | `""`                     |
@@ -256,11 +253,12 @@ The command removes all the Kubernetes components associated with the chart and 
 | `worker.service.annotations`              | Additional custom annotations for Gorse worker service                                                       | `{}`                     |
 | `worker.service.sessionAffinity`          | Session Affinity for Kubernetes service, can be "None" or "ClientIP"                                         | `None`                   |
 | `worker.service.sessionAffinityConfig`    | Additional settings for the sessionAffinity                                                                  | `{}`                     |
+| `worker.replicaCount`                     | Number of workers replicas to deploy                                                                         | `1`                      |
 | `worker.autoscaling.enabled`              | Enable replica autoscaling settings                                                                          | `false`                  |
 | `worker.autoscaling.minReplicas`          | Minimum replicas for the pod autoscaling                                                                     | `1`                      |
 | `worker.autoscaling.maxReplicas`          | Maximum replicas for the pod autoscaling                                                                     | `11`                     |
-| `worker.autoscaling.targetCPU`            | Percentage of CPU to consider when autoscaling                                                               | `""`                     |
-| `worker.autoscaling.targetMemory`         | Percentage of Memory to consider when autoscaling                                                            | `""`                     |
+| `worker.autoscaling.targetCPU`            | Percentage of CPU to consider when autoscaling                                                               | `50`                     |
+| `worker.autoscaling.targetMemory`         | Percentage of Memory to consider when autoscaling                                                            | `50`                     |
 | `worker.resources.limits`                 | The resources limits for the Gorse replicas containers                                                       | `{}`                     |
 | `worker.resources.requests`               | The requested resources for the Gorse replicas containers                                                    | `{}`                     |
 | `worker.podAffinityPreset`                | Pod affinity preset. Ignored if `worker.affinity` is set. Allowed values: `soft` or `hard`                   | `""`                     |
@@ -278,19 +276,26 @@ The command removes all the Kubernetes components associated with the chart and 
 
 ### Database Parameters
 
-| Name                               | Description                                                               | Value                          |
-| ---------------------------------- | ------------------------------------------------------------------------- | ------------------------------ |
-| `mongodb.enabled`                  | Deploy a MongoDB server to satisfy the applications database requirements | `true`                         |
-| `mongodb.architecture`             | MongoDB(&reg;) architecture (`standalone` or `replicaset`)                | `standalone`                   |
-| `mongodb.auth.rootUser`            | MongoDB(&reg;) root user                                                  | `root`                         |
-| `mongodb.auth.rootPassword`        | MongoDB(&reg;) root password                                              | `""`                           |
-| `mongodb.auth.usernames`           | List of custom users to be created during the initialization              | `["gorse_username"]`           |
-| `mongodb.auth.passwords`           | List of passwords for the custom users set at `auth.usernames`            | `["gorse_password"]`           |
-| `mongodb.auth.databases`           | List of custom databases to be created during the initialization          | `["gorse_cache","gorse_data"]` |
-| `mongodb.persistence.enabled`      | Enable MongoDB(&reg;) data persistence using PVC                          | `true`                         |
-| `mongodb.persistence.storageClass` | PVC Storage Class for MongoDB(&reg;) data volume                          | `""`                           |
-| `mongodb.persistence.accessModes`  | PV Access Mode                                                            | `["ReadWriteOnce"]`            |
-| `mongodb.persistence.size`         | PVC Storage Request for MongoDB(&reg;) data volume                        | `8Gi`                          |
+| Name                                         | Description                                                               | Value               |
+| -------------------------------------------- | ------------------------------------------------------------------------- | ------------------- |
+| `mongodb.enabled`                            | Deploy a MongoDB server to satisfy the applications database requirements | `true`              |
+| `mongodb.architecture`                       | MongoDB(&reg;) architecture (`standalone` or `replicaset`)                | `standalone`        |
+| `mongodb.auth.rootUser`                      | MongoDB(&reg;) root user                                                  | `root`              |
+| `mongodb.auth.rootPassword`                  | MongoDB(&reg;) root password                                              | `""`                |
+| `mongodb.auth.username`                      | Custom user to be created during the initialization                       | `gorse`             |
+| `mongodb.auth.password`                      | Password for the custom users set at `auth.usernames`                     | `""`                |
+| `mongodb.auth.database`                      | Custom databases to be created during the initialization                  | `gorse`             |
+| `mongodb.persistence.enabled`                | Enable MongoDB(&reg;) data persistence using PVC                          | `true`              |
+| `mongodb.persistence.storageClass`           | PVC Storage Class for MongoDB(&reg;) data volume                          | `""`                |
+| `mongodb.persistence.accessModes`            | PV Access Mode                                                            | `["ReadWriteOnce"]` |
+| `mongodb.persistence.size`                   | PVC Storage Request for MongoDB(&reg;) data volume                        | `8Gi`               |
+| `externalDatabase.host`                      | Database host                                                             | `localhost`         |
+| `externalDatabase.port`                      | Database port number                                                      | `27017`             |
+| `externalDatabase.username`                  | Non-root username for Gorse                                               | `gorse`             |
+| `externalDatabase.password`                  | Password for the non-root username for Gorse                              | `""`                |
+| `externalDatabase.database`                  | Gorse database name                                                       | `gorse`             |
+| `externalDatabase.existingSecret`            | Name of an existing secret resource containing the database credentials   | `""`                |
+| `externalDatabase.existingSecretPasswordKey` | Name of an existing secret key containing the database credentials        | `mongodb-passwords` |
 
 
 ## Configuration

@@ -64,57 +64,77 @@ Return Gorse API Secret
 {{- end -}}
 
 {{/*
-Get MongoDb host
+Return the MongoDB Hostname
 */}}
-{{- define "gorse.mongodb.host" -}}
-{{- if eq .Values.mongodb.architecture "replication" }}
-    {{- printf "%s-primary" (include "gorse.mongodb.fullname" .) -}}
-{{- else }}
-    {{- include "gorse.mongodb.fullname" . -}}
+{{- define "gorse.databaseHost" -}}
+{{- if .Values.mongodb.enabled }}
+    {{- if eq .Values.mongodb.architecture "replication" }}
+        {{- printf "%s-primary" (include "gorse.mongodb.fullname" .) | trunc 63 | trimSuffix "-" -}}
+    {{- else -}}
+        {{- printf "%s" (include "gorse.mongodb.fullname" .) -}}
+    {{- end -}}
+{{- else -}}
+    {{- printf "%s" .Values.externalDatabase.host -}}
 {{- end -}}
 {{- end -}}
 
 {{/*
-Get MongoDb user
+Return the MongoDB Port
 */}}
-{{- define "gorse.mongodb.user" -}}
+{{- define "gorse.databasePort" -}}
+{{- if .Values.mongodb.enabled }}
+    {{- printf "27017" -}}
+{{- else -}}
+    {{- printf "%d" (.Values.externalDatabase.port | int ) -}}
+{{- end -}}
+{{- end -}}
+
+{{/*
+Return the MongoDB Database Name
+*/}}
+{{- define "gorse.databaseName" -}}
+{{- if .Values.mongodb.enabled }}
+    {{- printf "%s" .Values.mongodb.auth.database -}}
+{{- else -}}
+    {{- printf "%s" .Values.externalDatabase.database -}}
+{{- end -}}
+{{- end -}}
+
+{{/*
+Return the MongoDB User
+*/}}
+{{- define "gorse.databaseUser" -}}
 {{- if .Values.mongodb.enabled }}
     {{- .Values.mongodb.auth.username -}}
+{{- else -}}
+    {{- .Values.externalDatabase.username -}}
 {{- end -}}
 {{- end -}}
 
 {{/*
-Set the proper Database uri. If mongodb is installed as part of this chart, build uri,
-else use user-provided uri
+Return the MongoDB Secret Name
 */}}
-{{- define "gorse.database.uri" }}
-{{- if .Values.mongodb.enabled -}}
-    {{- $host := include "gorse.mongodb.host" . -}}
-    {{- $port := 27017 -}}
-    {{- $user := include "gorse.mongodb.user" . -}}
-    {{- $password := .Values.mongodb.auth.password -}}
-    {{- $database := .Values.mongodb.auth.database -}}
-
-    {{- printf "mongodb://%s:%s@%s:%d/%s?connect=direct" $user $password $host $port $database }}
+{{- define "gorse.databaseSecretName" -}}
+{{- if .Values.mongodb.enabled }}
+    {{- if .Values.mongodb.auth.existingSecret -}}
+        {{- printf "%s" .Values.mongodb.auth.existingSecret -}}
+    {{- else -}}
+        {{- printf "%s" (include "gorse.mongodb.fullname" .) -}}
+    {{- end -}}
+{{- else if .Values.externalDatabase.existingSecret -}}
+    {{- include "common.tplvalues.render" (dict "value" .Values.externalDatabase.existingSecret "context" $) -}}
 {{- else -}}
-    {{- .Values.gorse.database.uri }}
+    {{- printf "%s-externaldb" (include "common.names.fullname" .) -}}
 {{- end -}}
 {{- end -}}
-
 
 {{/*
-Set the proper mongodb uri. If MongoDB is installed as part of this chart, build uri,
-else use user-provided uri
+Return the MongoDB secret key
 */}}
-{{- define "gorse.cache.uri" }}
-{{- if .Values.mongodb.enabled -}}
-    {{- $host := include "gorse.mongodb.host" . -}}
-    {{- $port := 27017 -}}
-    {{- $user := include "gorse.mongodb.user" . -}}
-    {{- $password := .Values.mongodb.auth.password -}}
-    {{- $database := .Values.mongodb.auth.database -}}
-    {{- printf "mongodb://%s:%s@%s:%d/%s?connect=direct" $user $password $host $port $database }}
+{{- define "gorse.databaseSecretPasswordKey" -}}
+{{- if .Values.mongodb.enabled }}
+    {{- printf "mongodb-passwords" -}}
 {{- else -}}
-    {{- .Values.gorse.cache.uri }}
+    {{- .Values.externalDatabase.existingSecretPasswordKey -}}
 {{- end -}}
 {{- end -}}
