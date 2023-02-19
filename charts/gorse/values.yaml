@@ -42,30 +42,24 @@ secretAnnotations: {}
 ##
 clusterDomain: cluster.local
 
-## @section Gorse Configuration
+## @section Gorse Configuration parameters
 ##
 gorse:
-  ## Authentication parameters
-  ##
-  auth:
-    dashboard:
-      ## @param gorse.auth.dashboard.enabled Enable login in Gorse dashboard
-      ##
-      enabled: false
-      ## @param gorse.auth.dashboard.username Password for the custom user to dashboard.
-      ##
-      username: "gorse"
-      ## @param gorse.auth.dashboard.password Password for the custom user to create.
-      ##
-      password: ""
+  dashboard:
+    ## @param gorse.dashboard.username Username for the dashboard.
+    ##
+    username: "gorse"
+    ## @param gorse.dashboard.password Password for the dashboard.
+    ##
+    password: ""
+    ## @param gorse.dashboard.authServer Token server for the dashboard.
+    ##
+    authServer: ""
 
-    api:
-      ## @param gorse.auth.api.enabled Enable API security via token
-      ##
-      enabled: false
-      ## @param gorse.auth.api.key The key to secure the API andpoint
-      ##
-      key: ""
+  api:
+    ## @param gorse.api.key The key to secure the API endpoint
+    ##
+    key: ""
 
   master:
     http:

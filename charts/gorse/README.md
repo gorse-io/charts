@@ -76,15 +76,14 @@ The command removes all the Kubernetes components associated with the chart and 
 | `clusterDomain`     | Default Kubernetes cluster domain                  | `cluster.local` |
 
 
-### Gorse Configuration
+### Gorse Configuration parameters
 
 | Name                                         | Description                                                                   | Value        |
 | -------------------------------------------- | ----------------------------------------------------------------------------- | ------------ |
-| `gorse.auth.dashboard.enabled`               | Enable login in Gorse dashboard                                               | `false`      |
-| `gorse.auth.dashboard.username`              | Password for the custom user to dashboard.                                    | `gorse`      |
-| `gorse.auth.dashboard.password`              | Password for the custom user to create.                                       | `""`         |
-| `gorse.auth.api.enabled`                     | Enable API security via token                                                 | `false`      |
-| `gorse.auth.api.key`                         | The key to secure the API andpoint                                            | `""`         |
+| `gorse.dashboard.username`                   | Username for the dashboard.                                                   | `gorse`      |
+| `gorse.dashboard.password`                   | Password for the dashboard.                                                   | `""`         |
+| `gorse.dashboard.authServer`                 | Token server for the dashboard.                                               | `""`         |
+| `gorse.api.key`                              | The key to secure the API endpoint                                            | `""`         |
 | `gorse.master.http.cors.domains`             | List of allowed values for Http Origin                                        | `[]`         |
 | `gorse.master.http.cors.methods`             | List of http methods names. Checking is case-insensitive.                     | `[]`         |
 | `gorse.master.jobs`                          | Number of working jobs in the master node                                     | `1`          |

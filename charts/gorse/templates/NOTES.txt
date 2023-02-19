@@ -4,34 +4,86 @@ APP VERSION: {{ .Chart.AppVersion }}
 
 ** Please be patient while the chart is being deployed **
 
-1. Get your Gorse dashboard URL by running:
-
 {{- if .Values.master.ingress.enabled }}
-{{- range $host := .Values.master.ingress.hosts }}
-  {{- range .paths }}
-  http{{ if $.Values.master.ingress.tls }}s{{ end }}://{{ $host.host }}{{ .path }}
-  {{- end }}
-{{- end }}
-{{- else if contains "NodePort" .Values.master.service.type }}
-  export NODE_PORT=$(kubectl get --namespace {{ .Release.Namespace }} -o jsonpath="{.spec.ports[0].nodePort}" services {{ include "gorse.fullname" . }})
-  export NODE_IP=$(kubectl get nodes --namespace {{ .Release.Namespace }} -o jsonpath="{.items[0].status.addresses[0].address}")
-  echo http://$NODE_IP:$NODE_PORT
+
+1. Get the Gorse dashboard URL and associate hostname to your cluster external IP:
+
+   export CLUSTER_IP=$(minikube ip) # On Minikube. Use: `kubectl cluster-info` on others K8s clusters
+   echo "WordPress URL: http{{ if .Values.master.ingress.tls }}s{{ end }}://{{ .Values.master.ingress.hostname }}/"
+   echo "$CLUSTER_IP  {{ .Values.master.ingress.hostname }}" | sudo tee -a /etc/hosts
+
+{{- else }}
+{{- $port := .Values.master.service.ports.http | toString }}
+
+1. Get the Gorse dashboard URL by running these commands:
+
+{{- if contains "NodePort" .Values.master.service.type }}
+
+   export NODE_PORT=$(kubectl get --namespace {{ .Release.Namespace }} -o jsonpath="{.spec.ports[0].nodePort}" services {{ include "common.names.fullname" . }})
+   export NODE_IP=$(kubectl get nodes --namespace {{ .Release.Namespace }} -o jsonpath="{.items[0].status.addresses[0].address}")
+   echo "WordPress URL: http://$NODE_IP:$NODE_PORT/"
+   echo "WordPress Admin URL: http://$NODE_IP:$NODE_PORT/admin"
+
 {{- else if contains "LoadBalancer" .Values.master.service.type }}
-     NOTE: It may take a few minutes for the LoadBalancer IP to be available.
-           You can watch the status of by running 'kubectl get --namespace {{ .Release.Namespace }} svc -w {{ include "gorse.fullname" . }}'
-  export SERVICE_IP=$(kubectl get svc --namespace {{ .Release.Namespace }} {{ include "gorse.fullname" . }} --template "{{"{{ range (index .status.loadBalancer.ingress 0) }}{{.}}{{ end }}"}}")
-  echo http://$SERVICE_IP:{{ .Values.service.port }}
-{{- else if contains "ClusterIP" .Values.master.service.type }}
-  export CONTAINER_PORT=$(kubectl get pod --namespace {{ .Release.Namespace }} $POD_NAME -o jsonpath="{.spec.containers[0].ports[0].containerPort}")
-  echo "Visit http://127.0.0.1:8080 to use your application"
-  kubectl --namespace {{ .Release.Namespace }} port-forward $POD_NAME 8080:$CONTAINER_PORT
+
+  NOTE: It may take a few minutes for the LoadBalancer IP to be available.
+        Watch the status with: 'kubectl get svc --namespace {{ .Release.Namespace }} -w {{ include "common.names.fullname" . }}'
+
+   export SERVICE_IP=$(kubectl get svc --namespace {{ .Release.Namespace }} {{ include "common.names.fullname" . }} --template "{{ "{{ range (index .status.loadBalancer.ingress 0) }}{{ . }}{{ end }}" }}")
+   echo "WordPress URL: http://$SERVICE_IP{{- if ne $port "80" }}:{{ .Values.service.ports.http }}{{ end }}/"
+
+{{- else if contains "ClusterIP"  .Values.master.service.type }}
+
+   kubectl port-forward --namespace {{ .Release.Namespace }} svc/{{ include "common.names.fullname" . }} {{ .Values.master.service.ports.http }}:{{ .Values.master.service.ports.http }} &
+   echo "WordPress URL: http://127.0.0.1{{- if ne $port "80" }}:{{ .Values.service.ports.http }}{{ end }}/"
+
+{{- end }}
 {{- end }}
 
-2. Get your Gorse dashboard login credentials by running:
+2. Login dashboard with the following credentials below:
 
-3. Get your Gorse dashboard URL by running:
+  echo Username: {{ .Values.gorse.dashboard.username }}
+  echo Password: $(kubectl get secret --namespace {{ .Release.Namespace }} {{ include "common.names.fullname" . }} -o jsonpath="{.data.dashboard-password}" | base64 -d)
 
-4. Get your Gorse RESTful APIs credentials by running:
+{{- if .Values.server.ingress.enabled }}
+
+3. Get the Gorse API endpoint and associate hostname to your cluster external IP:
+
+  export CLUSTER_IP=$(minikube ip) # On Minikube. Use: `kubectl cluster-info` on others K8s clusters
+  echo "WordPress URL: http{{ if .Values.server.ingress.tls }}s{{ end }}://{{ .Values.server.ingress.hostname }}/"
+  echo "$CLUSTER_IP  {{ .Values.server.ingress.hostname }}" | sudo tee -a /etc/hosts
+
+{{- else }}
+{{- $port := .Values.master.service.ports.http | toString }}
+
+3. Get the Gorse dashboard URL by running these commands:
+
+{{- if contains "NodePort" .Values.server.service.type }}
+
+   export NODE_PORT=$(kubectl get --namespace {{ .Release.Namespace }} -o jsonpath="{.spec.ports[0].nodePort}" services {{ include "common.names.fullname" . }})
+   export NODE_IP=$(kubectl get nodes --namespace {{ .Release.Namespace }} -o jsonpath="{.items[0].status.addresses[0].address}")
+   echo "WordPress URL: http://$NODE_IP:$NODE_PORT/"
+   echo "WordPress Admin URL: http://$NODE_IP:$NODE_PORT/admin"
+
+{{- else if contains "LoadBalancer" .Values.server.service.type }}
+
+  NOTE: It may take a few minutes for the LoadBalancer IP to be available.
+        Watch the status with: 'kubectl get svc --namespace {{ .Release.Namespace }} -w {{ include "common.names.fullname" . }}'
+
+   export SERVICE_IP=$(kubectl get svc --namespace {{ .Release.Namespace }} {{ include "common.names.fullname" . }} --template "{{ "{{ range (index .status.loadBalancer.ingress 0) }}{{ . }}{{ end }}" }}")
+   echo "WordPress URL: http://$SERVICE_IP{{- if ne $port "80" }}:{{ .Values.service.ports.http }}{{ end }}/"
+
+{{- else if contains "ClusterIP"  .Values.server.service.type }}
+
+   kubectl port-forward --namespace {{ .Release.Namespace }} svc/{{ include "common.names.fullname" . }} {{ .Values.server.service.ports.http }}:{{ .Values.server.service.ports.http }} &
+   echo "WordPress URL: http://127.0.0.1{{- if ne $port "80" }}:{{ .Values.service.ports.http }}{{ end }}/"
+
+{{- end }}
+{{- end }}
+
+4. Access RESTful APIs with the following key below:
+
+  echo APIKey: $(kubectl get secret --namespace {{ .Release.Namespace }} {{ include "common.names.fullname" . }} -o jsonpath="{.data.api-key}" | base64 -d)
 
 {{- include "common.warnings.rollingTag" .Values.master.image }}
 {{- include "common.warnings.rollingTag" .Values.server.image }}

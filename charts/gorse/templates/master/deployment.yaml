@@ -64,25 +64,23 @@ spec:
               # - "--log-path /var/log/gorse/master.log"
               # - "--cache-path /var/lib/gorse/master_cache.data"
           env:
-            {{- if and .Values.gorse.auth.api.enabled }}
             - name: GORSE_SERVER_API_KEY
               valueFrom:
                 secretKeyRef:
                   name: {{ template "common.names.fullname" . }}
                   key: api-key
-            {{- end }}
-            {{- if .Values.gorse.auth.dashboard.enabled }}
             - name: GORSE_DASHBOARD_USER_NAME
               valueFrom:
                 secretKeyRef:
                   name: {{ template "common.names.fullname" . }}
-                  key: auth-username
+                  key: dashboard-username
             - name: GORSE_DASHBOARD_PASSWORD
               valueFrom:
                 secretKeyRef:
                   name: {{ template "common.names.fullname" . }}
-                  key: auth-password
-            {{- end }}
+                  key: dashboard-password
+            - name: GORSE_DASHBOARD_AUTH_SERVER
+              value: {{ .Values.gorse.dashboard.authServer }}
             - name: GORSE_MASTER_PORT
               value: "{{ .Values.master.service.ports.grpc }}"
             - name: GORSE_MASTER_HTTP_PORT

@@ -33,9 +33,9 @@ otherwise it generates a random value.
 {{/*
 Return Gorse username
 */}}
-{{- define "gorse.auth.username" -}}
-{{- if not (empty .Values.gorse.auth.dashboard.username) }}
-    {{- .Values.gorse.auth.dashboard.username -}}
+{{- define "gorse.dashboardUsername" -}}
+{{- if not (empty .Values.gorse.dashboard.username) }}
+    {{- .Values.gorse.dashboard.username -}}
 {{- else -}}
     {{- "gorse" -}}
 {{- end -}}
@@ -44,20 +44,20 @@ Return Gorse username
 {{/*
 Return Gorse password
 */}}
-{{- define "gorse.auth.password" -}}
-{{- if not (empty .Values.gorse.auth.dashboard.password) }}
-    {{- .Values.gorse.auth.dashboard.password -}}
+{{- define "gorse.dashboardPassword" -}}
+{{- if not (empty .Values.gorse.dashboard.password) }}
+    {{- .Values.gorse.dashboard.password -}}
 {{- else -}}
-    {{- include "getValueFromSecret" (dict "Namespace" .Release.Namespace "Name" (include "common.names.fullname" .) "Length" 10 "Key" "auth-password") -}}
+    {{- include "getValueFromSecret" (dict "Namespace" .Release.Namespace "Name" (include "common.names.fullname" .) "Length" 10 "Key" "dashboard-password") -}}
 {{- end -}}
 {{- end -}}
 
 {{/*
 Return Gorse API Secret
 */}}
-{{- define "gorse.auth.api" -}}
-{{- if not (empty .Values.gorse.auth.api.key) }}
-    {{- .Values.gorse.auth.api.key -}}
+{{- define "gorse.apiKey" -}}
+{{- if not (empty .Values.gorse.api.key) }}
+    {{- .Values.gorse.api.key -}}
 {{- else -}}
     {{- include "getValueFromSecret" (dict "Namespace" .Release.Namespace "Name" (include "common.names.fullname" .) "Length" 32 "Key" "api-key") -}}
 {{- end -}}
