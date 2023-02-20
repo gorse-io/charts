@@ -3,6 +3,30 @@ entries:
   gorse:
   - apiVersion: v2
     appVersion: 0.4.11
+    created: "2023-02-20T07:29:31.855957139Z"
+    dependencies:
+    - name: common
+      repository: https://charts.bitnami.com/bitnami
+      tags:
+      - bitnami-common
+      version: 2.x.x
+    - condition: mongodb.enabled
+      name: mongodb
+      repository: https://charts.bitnami.com/bitnami
+      version: 13.x.x
+    description: Gorse Recommender System Engine
+    digest: 318e2c027f9962a9456238ab2c08487433d9b96f250144095e1ec7b30e8ef702
+    icon: https://gorse.io/logo.png
+    maintainers:
+    - email: zhangzhenghao@hotmail.com
+      name: zhenghaoz
+    name: gorse
+    type: application
+    urls:
+    - https://github.com/gorse-io/charts/releases/download/gorse-0.4.0/gorse-0.4.0.tgz
+    version: 0.4.0
+  - apiVersion: v2
+    appVersion: 0.4.11
     created: "2023-02-17T12:13:29.210046634Z"
     dependencies:
     - name: common
@@ -151,4 +175,31 @@ entries:
     urls:
     - https://github.com/gorse-io/charts/releases/download/gorse-manager-0.4.0-alpha.1/gorse-manager-0.4.0-alpha.1.tgz
     version: 0.4.0-alpha.1
-generated: "2023-02-17T12:13:29.505281873Z"
+  - apiVersion: v2
+    appVersion: 0.4.0
+    created: "2023-02-20T07:29:32.092282686Z"
+    dependencies:
+    - name: common
+      repository: https://charts.bitnami.com/bitnami
+      tags:
+      - bitnami-common
+      version: 2.x.x
+    - condition: mongodb.enabled
+      name: mongodb
+      repository: https://charts.bitnami.com/bitnami
+      version: 13.x.x
+    - condition: mysql.enabled
+      name: mysql
+      repository: https://charts.bitnami.com/bitnami
+      version: 9.x.x
+    description: Gorse Cloud Manager for Kubernetes
+    digest: 17516381ba6ba805b5cf50d4d52e7b803b20990a18aee36d10a7f14a392a42cd
+    maintainers:
+    - email: zhangzhenghao@hotmail.com
+      name: zhenghaoz
+    name: gorse-manager
+    type: application
+    urls:
+    - https://github.com/gorse-io/charts/releases/download/gorse-manager-0.4.0-alpha.1/gorse-manager-0.4.0-alpha.1.tgz
+    version: 0.4.0-alpha.1
+generated: "2023-02-20T07:29:32.092331086Z"
