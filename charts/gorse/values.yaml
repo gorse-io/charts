@@ -42,44 +42,24 @@ secretAnnotations: {}
 ##
 clusterDomain: cluster.local
 
-## @section Gorse Configuration
+## @section Gorse Configuration parameters
 ##
 gorse:
-  cache:
-    ## @param gorse.cache.uri URI used to connect Gorse to the cache
-    ## The current supported connectors are [redis, postgres, mongodb]
-    uri: ""
-    ## @param gorse.cache.prefix Table prefix of cache
-    prefix: ""
+  dashboard:
+    ## @param gorse.dashboard.username Username for the dashboard.
+    ##
+    username: "gorse"
+    ## @param gorse.dashboard.password Password for the dashboard.
+    ##
+    password: ""
+    ## @param gorse.dashboard.authServer Token server for the dashboard.
+    ##
+    authServer: ""
 
-  database:
-    ## @param gorse.database.uri URI used to connect Gorse to the database
-    ## The current supported connectors are [mysql, postgres, clickhouse, mongodb]
-    uri: ""
-    ## @param gorse.database.prefix Table prefix of database and cache
-    prefix: ""
-
-  ## Authentication parameters
-  ##
-  auth:
-    dashboard:
-      ## @param gorse.auth.dashboard.enabled Enable login in Gorse dashboard
-      ##
-      enabled: false
-      ## @param gorse.auth.dashboard.username Password for the custom user to dashboard.
-      ##
-      username: "gorse"
-      ## @param gorse.auth.dashboard.password Password for the custom user to create.
-      ##
-      password: ""
-
-    api:
-      ## @param gorse.auth.api.enabled Enable API security via token
-      ##
-      enabled: false
-      ## @param gorse.auth.api.key The key to secure the API andpoint
-      ##
-      key: ""
+  api:
+    ## @param gorse.api.key The key to secure the API endpoint
+    ##
+    key: ""
 
   master:
     http:
@@ -669,7 +649,7 @@ server:
     ##
     extraRules: []
 
-  ## @param replicaCount Number of servers replicas to deploy
+  ## @param server.replicaCount Number of servers replicas to deploy
   ## NOTE: ReadWriteMany PVC(s) are required if replicaCount > 1
   ##
   replicaCount: 1
@@ -853,7 +833,7 @@ worker:
     ##
     sessionAffinityConfig: {}
 
-  ## @param replicaCount Number of workers replicas to deploy
+  ## @param worker.replicaCount Number of workers replicas to deploy
   ## NOTE: ReadWriteMany PVC(s) are required if replicaCount > 1
   ##
   replicaCount: 1
@@ -972,9 +952,9 @@ mongodb:
     rootPassword: ""
     ## MongoDB(&reg;) custom users and databases
     ## ref: https://github.com/bitnami/containers/tree/main/bitnami/mongodb#creating-a-user-and-database-on-first-run
-    ## @param mongodb.auth.usernames List of custom users to be created during the initialization
-    ## @param mongodb.auth.passwords List of passwords for the custom users set at `auth.usernames`
-    ## @param mongodb.auth.databases List of custom databases to be created during the initialization
+    ## @param mongodb.auth.username Custom user to be created during the initialization
+    ## @param mongodb.auth.password Password for the custom users set at `auth.usernames`
+    ## @param mongodb.auth.database Custom databases to be created during the initialization
     ##
     username: gorse
     password: ""
@@ -1001,23 +981,20 @@ mongodb:
     ##
     size: 8Gi
 ## External MongoDB configuration
-## All of these values are only used when postgresql.enabled is set to false
+## All of these values are only used when mongodb.enabled is set to false
 ## @param externalDatabase.host Database host
 ## @param externalDatabase.port Database port number
-## @param externalDatabase.user Non-root username for Discourse
-## @param externalDatabase.password Password for the non-root username for Discourse
-## @param externalDatabase.database Discourse database name
-## @param externalDatabase.create Switch to enable user/database creation during the installation stage
-## @param externalDatabase.postgresUser PostgreSQL admin user, used during the installation stage
-## @param externalDatabase.postgresPassword PostgreSQL admin password, used during the installation stage
+## @param externalDatabase.username Non-root username for Gorse
+## @param externalDatabase.password Password for the non-root username for Gorse
+## @param externalDatabase.database Gorse database name
 ## @param externalDatabase.existingSecret Name of an existing secret resource containing the database credentials
 ## @param externalDatabase.existingSecretPasswordKey Name of an existing secret key containing the database credentials
-## @param externalDatabase.existingSecretPostgresPasswordKey Name of an existing secret key containing the database admin user credentials
 ##
 externalDatabase:
   host: localhost
-  port: 5432
+  port: 27017
   username: gorse
   database: gorse
   password: ""
   existingSecret: ""
+  existingSecretPasswordKey: "mongodb-passwords"

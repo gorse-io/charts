@@ -1,7 +1,7 @@
 apiVersion: apps/v1
 kind: {{ .Values.master.kind }}
 metadata:
-  name: {{ printf "%s-master" (include "common.names.fullname" .) }}
+  name: {{ include "gorse.master.fullname" . }}
   namespace: {{ .Release.Namespace | quote }}
   labels: {{- include "common.labels.standard" . | nindent 4 }}
     app.kubernetes.io/component: master
@@ -64,45 +64,46 @@ spec:
               # - "--log-path /var/log/gorse/master.log"
               # - "--cache-path /var/lib/gorse/master_cache.data"
           env:
-            {{- if and .Values.gorse.auth.api.enabled }}
             - name: GORSE_SERVER_API_KEY
               valueFrom:
                 secretKeyRef:
                   name: {{ template "common.names.fullname" . }}
                   key: api-key
-            {{- end }}
-            {{- if .Values.gorse.auth.dashboard.enabled }}
             - name: GORSE_DASHBOARD_USER_NAME
               valueFrom:
                 secretKeyRef:
                   name: {{ template "common.names.fullname" . }}
-                  key: auth-username
+                  key: dashboard-username
             - name: GORSE_DASHBOARD_PASSWORD
               valueFrom:
                 secretKeyRef:
                   name: {{ template "common.names.fullname" . }}
-                  key: auth-password
-            {{- end }}
+                  key: dashboard-password
+            - name: GORSE_DASHBOARD_AUTH_SERVER
+              value: {{ .Values.gorse.dashboard.authServer }}
             - name: GORSE_MASTER_PORT
               value: "{{ .Values.master.service.ports.grpc }}"
             - name: GORSE_MASTER_HTTP_PORT
               value: "{{ .Values.master.service.ports.http }}"
             - name: GORSE_MASTER_JOBS
               value: "{{ .Values.gorse.master.jobs }}"
-            - name: GORSE_CACHE_TABLE_PREFIX
-              value: {{ .Values.gorse.cache.prefix }}
-            - name: GORSE_TABLE_PREFIX
-              value: {{ .Values.gorse.database.prefix }}
+            - name: GORSE_DATABASE_HOST
+              value: {{ include "gorse.databaseHost" . }}
+            - name: GORSE_DATABASE_PORT
+              value: "{{ include "gorse.databasePort" . }}"
+            - name: GORSE_DATABASE_NAME
+              value: {{ include "gorse.databaseName" . }}
+            - name: GORSE_DATABASE_USER
+              value: {{ include "gorse.databaseUser" . }}
+            - name: GORSE_DATABASE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "gorse.databaseSecretName" . }}
+                  key: {{ include "gorse.databaseSecretPasswordKey" . }}
             - name: GORSE_CACHE_STORE
-              valueFrom:
-                secretKeyRef:
-                  name: {{ template "common.names.fullname" . }}
-                  key: cache-uri
+              value: mongodb://$(GORSE_DATABASE_USER):$(GORSE_DATABASE_PASSWORD)@$(GORSE_DATABASE_HOST):$(GORSE_DATABASE_PORT)/$(GORSE_DATABASE_NAME)?connect=direct
             - name: GORSE_DATA_STORE
-              valueFrom:
-                secretKeyRef:
-                  name: {{ template "common.names.fullname" . }}
-                  key: database-uri
+              value: mongodb://$(GORSE_DATABASE_USER):$(GORSE_DATABASE_PASSWORD)@$(GORSE_DATABASE_HOST):$(GORSE_DATABASE_PORT)/$(GORSE_DATABASE_NAME)?connect=direct
           volumeMounts:
             - name: config
               mountPath: /etc/gorse/
