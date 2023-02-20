@@ -1,6 +1,7 @@
 apiVersion: v2
 name: gorse
 description: Gorse Recommender System Engine
+icon: https://gorse.io/logo.png
 
 # A chart can be either an 'application' or a 'library' chart.
 #

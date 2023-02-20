@@ -8,6 +8,18 @@ We truncate at 63 chars because some Kubernetes name fields are limited to this 
 {{- include "common.names.dependency.fullname" (dict "chartName" "mongodb" "chartValues" .Values.mongodb "context" $) -}}
 {{- end -}}
 
+{{- define "gorse.master.fullname" -}}
+{{ printf "%s-master" (include "common.names.fullname" .) }}
+{{- end -}}
+
+{{- define "gorse.server.fullname" -}}
+{{ printf "%s-server" (include "common.names.fullname" .) }}
+{{- end -}}
+
+{{- define "gorse.worker.fullname" -}}
+{{ printf "%s-worker" (include "common.names.fullname" .) }}
+{{- end -}}
+
 {{/*
 Returns the available value for certain key in an existing secret (if it exists),
 otherwise it generates a random value.

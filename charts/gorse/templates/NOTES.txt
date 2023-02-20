@@ -9,7 +9,7 @@ APP VERSION: {{ .Chart.AppVersion }}
 1. Get the Gorse dashboard URL and associate hostname to your cluster external IP:
 
    export CLUSTER_IP=$(minikube ip) # On Minikube. Use: `kubectl cluster-info` on others K8s clusters
-   echo "WordPress URL: http{{ if .Values.master.ingress.tls }}s{{ end }}://{{ .Values.master.ingress.hostname }}/"
+   echo "Gorse dashboard URL: http{{ if .Values.master.ingress.tls }}s{{ end }}://{{ .Values.master.ingress.hostname }}/"
    echo "$CLUSTER_IP  {{ .Values.master.ingress.hostname }}" | sudo tee -a /etc/hosts
 
 {{- else }}
@@ -21,8 +21,7 @@ APP VERSION: {{ .Chart.AppVersion }}
 
    export NODE_PORT=$(kubectl get --namespace {{ .Release.Namespace }} -o jsonpath="{.spec.ports[0].nodePort}" services {{ include "common.names.fullname" . }})
    export NODE_IP=$(kubectl get nodes --namespace {{ .Release.Namespace }} -o jsonpath="{.items[0].status.addresses[0].address}")
-   echo "WordPress URL: http://$NODE_IP:$NODE_PORT/"
-   echo "WordPress Admin URL: http://$NODE_IP:$NODE_PORT/admin"
+   echo "Gorse dashboard URL: http://$NODE_IP:$NODE_PORT/"
 
 {{- else if contains "LoadBalancer" .Values.master.service.type }}
 
@@ -30,12 +29,12 @@ APP VERSION: {{ .Chart.AppVersion }}
         Watch the status with: 'kubectl get svc --namespace {{ .Release.Namespace }} -w {{ include "common.names.fullname" . }}'
 
    export SERVICE_IP=$(kubectl get svc --namespace {{ .Release.Namespace }} {{ include "common.names.fullname" . }} --template "{{ "{{ range (index .status.loadBalancer.ingress 0) }}{{ . }}{{ end }}" }}")
-   echo "WordPress URL: http://$SERVICE_IP{{- if ne $port "80" }}:{{ .Values.service.ports.http }}{{ end }}/"
+   echo "Gorse dashboard URL: http://$SERVICE_IP{{- if ne $port "80" }}:{{ .Values.service.ports.http }}{{ end }}/"
 
 {{- else if contains "ClusterIP"  .Values.master.service.type }}
 
-   kubectl port-forward --namespace {{ .Release.Namespace }} svc/{{ include "common.names.fullname" . }} {{ .Values.master.service.ports.http }}:{{ .Values.master.service.ports.http }} &
-   echo "WordPress URL: http://127.0.0.1{{- if ne $port "80" }}:{{ .Values.service.ports.http }}{{ end }}/"
+   kubectl port-forward --namespace {{ .Release.Namespace }} svc/{{ include "gorse.master.fullname" . }} {{ .Values.master.service.ports.http }}:{{ .Values.master.service.ports.http }} &
+   echo "Gorse dashboard URL: http://127.0.0.1{{- if ne $port "80" }}:{{ .Values.service.ports.http }}{{ end }}/"
 
 {{- end }}
 {{- end }}
@@ -50,7 +49,7 @@ APP VERSION: {{ .Chart.AppVersion }}
 3. Get the Gorse API endpoint and associate hostname to your cluster external IP:
 
   export CLUSTER_IP=$(minikube ip) # On Minikube. Use: `kubectl cluster-info` on others K8s clusters
-  echo "WordPress URL: http{{ if .Values.server.ingress.tls }}s{{ end }}://{{ .Values.server.ingress.hostname }}/"
+  echo "Gorse API endpoint: http{{ if .Values.server.ingress.tls }}s{{ end }}://{{ .Values.server.ingress.hostname }}/"
   echo "$CLUSTER_IP  {{ .Values.server.ingress.hostname }}" | sudo tee -a /etc/hosts
 
 {{- else }}
@@ -62,8 +61,7 @@ APP VERSION: {{ .Chart.AppVersion }}
 
    export NODE_PORT=$(kubectl get --namespace {{ .Release.Namespace }} -o jsonpath="{.spec.ports[0].nodePort}" services {{ include "common.names.fullname" . }})
    export NODE_IP=$(kubectl get nodes --namespace {{ .Release.Namespace }} -o jsonpath="{.items[0].status.addresses[0].address}")
-   echo "WordPress URL: http://$NODE_IP:$NODE_PORT/"
-   echo "WordPress Admin URL: http://$NODE_IP:$NODE_PORT/admin"
+   echo "Gorse API endpoint: http://$NODE_IP:$NODE_PORT/"
 
 {{- else if contains "LoadBalancer" .Values.server.service.type }}
 
@@ -71,12 +69,12 @@ APP VERSION: {{ .Chart.AppVersion }}
         Watch the status with: 'kubectl get svc --namespace {{ .Release.Namespace }} -w {{ include "common.names.fullname" . }}'
 
    export SERVICE_IP=$(kubectl get svc --namespace {{ .Release.Namespace }} {{ include "common.names.fullname" . }} --template "{{ "{{ range (index .status.loadBalancer.ingress 0) }}{{ . }}{{ end }}" }}")
-   echo "WordPress URL: http://$SERVICE_IP{{- if ne $port "80" }}:{{ .Values.service.ports.http }}{{ end }}/"
+   echo "Gorse API endpoint: http://$SERVICE_IP{{- if ne $port "80" }}:{{ .Values.service.ports.http }}{{ end }}/"
 
 {{- else if contains "ClusterIP"  .Values.server.service.type }}
 
-   kubectl port-forward --namespace {{ .Release.Namespace }} svc/{{ include "common.names.fullname" . }} {{ .Values.server.service.ports.http }}:{{ .Values.server.service.ports.http }} &
-   echo "WordPress URL: http://127.0.0.1{{- if ne $port "80" }}:{{ .Values.service.ports.http }}{{ end }}/"
+   kubectl port-forward --namespace {{ .Release.Namespace }} svc/{{ include "gorse.server.fullname" . }} {{ .Values.server.service.ports.http }}:{{ .Values.server.service.ports.http }} &
+   echo "Gorse API endpoint: http://127.0.0.1{{- if ne $port "80" }}:{{ .Values.service.ports.http }}{{ end }}/"
 
 {{- end }}
 {{- end }}
