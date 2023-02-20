@@ -291,6 +291,7 @@ The command removes all the Kubernetes components associated with the chart and 
 | `externalDatabase.existingSecretPasswordKey` | Name of an existing secret key containing the database credentials        | `mongodb-passwords` |
 
 
+```bash
 helm install gorse \
   --set gorse.dashboard.username=admin \
   --set gorse.dashboard.password=password \
