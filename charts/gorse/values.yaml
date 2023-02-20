@@ -60,65 +60,56 @@ gorse:
     ## @param gorse.api.key The key to secure the API endpoint
     ##
     key: ""
+    ## @param gorse.api.corsDomains List of allowed values for Http Origin
+    ##
+    corsDomains: []
+    ## @param gorse.api.corsMethods List of http methods names. Checking is case-insensitive.
+    ##
+    corsMethods: []
+    ## @param gorse.api.autoInsertUsers Insert new users while inserting feedback
+    ##
+    autoInsertUsers: true
+    ## @param gorse.api.autoInsertItems Insert new items while inserting feedback.
+    ##
+    autoInsertItems: true
+    ## @param gorse.api.returnSize Default number of returned items
+    ##
+    returnSize: 10
+    ## @param gorse.api.serverCacheExpire Server-side cache expire time
+    ##
+    serverCacheExpire: "10s"
 
   master:
-    http:
-      cors:
-        ## @param gorse.master.http.cors.domains List of allowed values for Http Origin
-        ##
-        domains: []
-        ## @param gorse.master.http.cors.methods List of http methods names. Checking is case-insensitive.
-        ##
-        methods: []
     ## @param gorse.master.jobs Number of working jobs in the master node
     ##
     jobs: 1
 
-  server:
-    ## @param gorse.server.items Default number of returned items
+  cache:
+    ## @param gorse.cache.size The cache size for recommended/popular/latest items
     ##
-    items: 10
+    size: 10
+    ## @param gorse.cache.expire Recommended cache expire time
+    ##
+    expire: "72h"
 
-    insert:
-      ## @param gorse.server.insert.users Insert new users while inserting feedback
-      ##
-      users: true
-      ## @param gorse.server.insert.items Insert new items while inserting feedback.
-      ##
-      items: true
-
-    cache:
-      ## @param gorse.server.cache.expire Server-side cache expire time
-      ##
-      expire: "10s"
+  dataSource:
+    ## @param gorse.dataSource.feedbackTimeToLive The time-to-live (days) of positive feedback
+    ##
+    feedbackTimeToLive: 0
+    ## @param gorse.dataSource.itemTimeToLive The time-to-live (days) of items
+    ##
+    itemTimeToLive: 0
+    ## @param gorse.dataSource.positiveFeedbacks The feedback types for positive events
+    ##
+    positiveFeedbacks: []
+    ## @param gorse.dataSource.readFeedbacks The feedback types for read events.
+    ##
+    readFeedbacks: []
 
   recommend:
-    cache:
-      ## @param gorse.recommend.cache.size The cache size for recommended/popular/latest items
-      ##
-      size: 10
-      ## @param gorse.recommend.cache.expire Recommended cache expire time
-      ##
-      expire: "72h"
-
-    ttl:
-      ## @param gorse.recommend.ttl.feedback The time-to-live (days) of positive feedback
-      ##
-      feedback: 0
-      ## @param gorse.recommend.ttl.item The time-to-live (days) of items
-      ##
-      item: 0
-      ## @param gorse.recommend.ttl.popular The time window of popular items
-      ##
-      popular: "4320h"
-
-    feedback:
-      ## @param gorse.recommend.feedback.positive The feedback types for positive events
-      ##
-      positive: []
-      ## @param gorse.recommend.feedback.read The feedback types for read events.
-      ##
-      read: []
+    ## @param gorse.recommend.popular The time window of popular items
+    ##
+    popular: "4320h"
 
     neighbors:
       users:
@@ -148,9 +139,9 @@ gorse:
         read: 0.6
 
     online:
-      ## @param gorse.recommend.online.failback The fallback recommendation method is used when cached recommendation drained
+      ## @param gorse.recommend.online.fallback The fallback recommendation method is used when cached recommendation drained
       ##
-      failback:
+      fallback:
         - "latest"
 
 ## @section Gorse master node parameters

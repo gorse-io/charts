@@ -2,19 +2,19 @@
 
 [Gorse](https://gorse.io) An open-source recommender system service written in Go.
 
-## TL;DR;
+## TL;DR
 
 ```bash
-$ helm repo add bitnami https://charts.bitnami.com/bitnami
-$ helm repo add gorse-io https://charts.gorse.io
-$ helm upgrade --name my-release --install gorse-io/gorse --devel
+helm repo add bitnami https://charts.bitnami.com/bitnami
+helm repo add gorse-io https://charts.gorse.io
+helm install gorse gorse-io/gorse
 ```
 
 ## Introduction
 
 This chart bootstraps a Gorse deployment on a [Kubernetes](http://kubernetes.io) cluster using the [Helm](https://helm.sh) package manager.
 
-> **Note**: This chart doesn't support horizontal scaling yet.
+It also packages the [Bitnami MongoDB chart](https://github.com/bitnami/charts/tree/main/bitnami/mongodb) which is required for bootstrapping a MongoDB deployment for the database requirements of the Gorse application.
 
 ## Prerequisites
 
@@ -24,30 +24,24 @@ This chart bootstraps a Gorse deployment on a [Kubernetes](http://kubernetes.io)
 
 ## Installing the Chart
 
-To install the chart with the release name `my-release` in the `gorse` namespace:
+To install the chart with the release name `gorse`:
 
 ```bash
-$ helm repo add bitnami https://charts.bitnami.com/bitnami
-$ helm repo add gorse-io https://charts.gorse.io
-$ helm upgrade --name my-release --install gorse-io/gorse --create-namespace --namespace gorse --devel
+helm repo add bitnami https://charts.bitnami.com/bitnami
+helm repo add gorse-io https://charts.gorse.io
+helm install gorse gorse-io/gorse
 ```
 
 The command deploys Gorse on the Kubernetes cluster in the default configuration. The [Parameters](#parameters) section lists the parameters that can be configured during installation.
-
-> **Tip**: Tou can override the default values by passing `-f ./values.yaml` to the `helm upgrade` command.
-
-**Note**: Gorse requires a properly configured database in order to initialize. See the `values.yaml` file for the configuration values that need to be set. Also, if preferred you can set `postgresql.enabled` to `true` and Helm will deploy the PostgreSQL chart, and Gorse will be able to initialize properly using the default values. (**UNTESTED**)
-
-**Note**: Gorse requires a properly configured cahce in order to initialize. See the `values.yaml` file for the configuration values that need to be set. Also, if preferred you can set `redis.enabled` to `true` and Helm will deploy the Redis chart, and Gorse will be able to initialize properly using the default values. (**UNTESTED**)
 
 > **Tip**: List all releases using `helm list`
 
 ## Uninstalling the Chart
 
-To uninstall/delete the `my-release` deployment in the `gorse` namespace:
+To uninstall/delete the `gorse` deployment:
 
 ```bash
-$ helm unistall my-release --namespace gorse
+helm unistall gorse
 ```
 
 The command removes all the Kubernetes components associated with the chart and deletes the release.
@@ -84,27 +78,27 @@ The command removes all the Kubernetes components associated with the chart and 
 | `gorse.dashboard.password`                   | Password for the dashboard.                                                   | `""`         |
 | `gorse.dashboard.authServer`                 | Token server for the dashboard.                                               | `""`         |
 | `gorse.api.key`                              | The key to secure the API endpoint                                            | `""`         |
-| `gorse.master.http.cors.domains`             | List of allowed values for Http Origin                                        | `[]`         |
-| `gorse.master.http.cors.methods`             | List of http methods names. Checking is case-insensitive.                     | `[]`         |
+| `gorse.api.corsDomains`                      | List of allowed values for Http Origin                                        | `[]`         |
+| `gorse.api.corsMethods`                      | List of http methods names. Checking is case-insensitive.                     | `[]`         |
+| `gorse.api.autoInsertUsers`                  | Insert new users while inserting feedback                                     | `true`       |
+| `gorse.api.autoInsertItems`                  | Insert new items while inserting feedback.                                    | `true`       |
+| `gorse.api.returnSize`                       | Default number of returned items                                              | `10`         |
+| `gorse.api.serverCacheExpire`                | Server-side cache expire time                                                 | `10s`        |
 | `gorse.master.jobs`                          | Number of working jobs in the master node                                     | `1`          |
-| `gorse.server.items`                         | Default number of returned items                                              | `10`         |
-| `gorse.server.insert.users`                  | Insert new users while inserting feedback                                     | `true`       |
-| `gorse.server.insert.items`                  | Insert new items while inserting feedback.                                    | `true`       |
-| `gorse.server.cache.expire`                  | Server-side cache expire time                                                 | `10s`        |
-| `gorse.recommend.cache.size`                 | The cache size for recommended/popular/latest items                           | `10`         |
-| `gorse.recommend.cache.expire`               | Recommended cache expire time                                                 | `72h`        |
-| `gorse.recommend.ttl.feedback`               | The time-to-live (days) of positive feedback                                  | `0`          |
-| `gorse.recommend.ttl.item`                   | The time-to-live (days) of items                                              | `0`          |
-| `gorse.recommend.ttl.popular`                | The time window of popular items                                              | `4320h`      |
-| `gorse.recommend.feedback.positive`          | The feedback types for positive events                                        | `[]`         |
-| `gorse.recommend.feedback.read`              | The feedback types for read events.                                           | `[]`         |
+| `gorse.cache.size`                           | The cache size for recommended/popular/latest items                           | `10`         |
+| `gorse.cache.expire`                         | Recommended cache expire time                                                 | `72h`        |
+| `gorse.dataSource.feedbackTimeToLive`        | The time-to-live (days) of positive feedback                                  | `0`          |
+| `gorse.dataSource.itemTimeToLive`            | The time-to-live (days) of items                                              | `0`          |
+| `gorse.dataSource.positiveFeedbacks`         | The feedback types for positive events                                        | `[]`         |
+| `gorse.dataSource.readFeedbacks`             | The feedback types for read events.                                           | `[]`         |
+| `gorse.recommend.popular`                    | The time window of popular items                                              | `4320h`      |
 | `gorse.recommend.neighbors.users.type`       | The type of neighbors for users                                               | `similar`    |
 | `gorse.recommend.neighbors.items.type`       | The type of neighbors for items.                                              | `similar`    |
 | `gorse.recommend.collaborative.enable`       | Enable approximate collaborative filtering recommend using vector index       | `true`       |
 | `gorse.recommend.replacement.enable`         | Replace historical items back to recommendations                              | `false`      |
 | `gorse.recommend.replacement.decay.positive` | Decay the weights of replaced items from positive feedbacks                   | `0.8`        |
 | `gorse.recommend.replacement.decay.read`     | Decay the weights of replaced items from read feedbacks                       | `0.6`        |
-| `gorse.recommend.online.failback`            | The fallback recommendation method is used when cached recommendation drained | `["latest"]` |
+| `gorse.recommend.online.fallback`            | The fallback recommendation method is used when cached recommendation drained | `["latest"]` |
 
 
 ### Gorse master node parameters
@@ -297,10 +291,21 @@ The command removes all the Kubernetes components associated with the chart and 
 | `externalDatabase.existingSecretPasswordKey` | Name of an existing secret key containing the database credentials        | `mongodb-passwords` |
 
 
-## Configuration
+helm install gorse \
+  --set gorse.dashboard.username=admin \
+  --set gorse.dashboard.password=password \
+  --set gorse.api.key=api_key \
+    gorse-io/gorse
+```
 
-Additional configuration parameters for the Redis chart deployed with Gorse can be found [here](https://github.com/bitnami/charts/tree/master/bitnami/redis).
+The above command sets the Gorse administrator account username and password to `admin` and `password` respectively. Additionally, it sets the RESTful API key to `api_key`.
 
-Additional configuration parameters for the PostgreSQL chart deployed with Gorse can be found [here](https://github.com/bitnami/charts/tree/master/bitnami/postgresql).
+> NOTE: Once this chart is deployed, it is not possible to change the application's access credentials, such as usernames or passwords, using Helm. To change these application credentials after deployment, delete any persistent volumes (PVs) used by the chart and re-deploy it, or use the application's built-in administrative tools if available.
 
-> **Tip**: You can use the default [values.yaml](values.yaml). this will auto generate some secrets.
+Alternatively, a YAML file that specifies the values for the above parameters can be provided while installing the chart. For example,
+
+```bash
+helm install gorse -f values.yaml gorse-io/gorse
+```
+
+> **Tip:** You can use the default values.yaml
