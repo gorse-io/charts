@@ -78,27 +78,27 @@ The command removes all the Kubernetes components associated with the chart and 
 | `gorse.dashboard.password`                   | Password for the dashboard.                                                   | `""`         |
 | `gorse.dashboard.authServer`                 | Token server for the dashboard.                                               | `""`         |
 | `gorse.api.key`                              | The key to secure the API endpoint                                            | `""`         |
-| `gorse.master.http.cors.domains`             | List of allowed values for Http Origin                                        | `[]`         |
-| `gorse.master.http.cors.methods`             | List of http methods names. Checking is case-insensitive.                     | `[]`         |
+| `gorse.api.corsDomains`                      | List of allowed values for Http Origin                                        | `[]`         |
+| `gorse.api.corsMethods`                      | List of http methods names. Checking is case-insensitive.                     | `[]`         |
+| `gorse.api.autoInsertUsers`                  | Insert new users while inserting feedback                                     | `true`       |
+| `gorse.api.autoInsertItems`                  | Insert new items while inserting feedback.                                    | `true`       |
+| `gorse.api.returnSize`                       | Default number of returned items                                              | `10`         |
+| `gorse.api.serverCacheExpire`                | Server-side cache expire time                                                 | `10s`        |
 | `gorse.master.jobs`                          | Number of working jobs in the master node                                     | `1`          |
-| `gorse.server.items`                         | Default number of returned items                                              | `10`         |
-| `gorse.server.insert.users`                  | Insert new users while inserting feedback                                     | `true`       |
-| `gorse.server.insert.items`                  | Insert new items while inserting feedback.                                    | `true`       |
-| `gorse.server.cache.expire`                  | Server-side cache expire time                                                 | `10s`        |
-| `gorse.recommend.cache.size`                 | The cache size for recommended/popular/latest items                           | `10`         |
-| `gorse.recommend.cache.expire`               | Recommended cache expire time                                                 | `72h`        |
-| `gorse.recommend.ttl.feedback`               | The time-to-live (days) of positive feedback                                  | `0`          |
-| `gorse.recommend.ttl.item`                   | The time-to-live (days) of items                                              | `0`          |
-| `gorse.recommend.ttl.popular`                | The time window of popular items                                              | `4320h`      |
-| `gorse.recommend.feedback.positive`          | The feedback types for positive events                                        | `[]`         |
-| `gorse.recommend.feedback.read`              | The feedback types for read events.                                           | `[]`         |
+| `gorse.cache.size`                           | The cache size for recommended/popular/latest items                           | `10`         |
+| `gorse.cache.expire`                         | Recommended cache expire time                                                 | `72h`        |
+| `gorse.dataSource.feedbackTimeToLive`        | The time-to-live (days) of positive feedback                                  | `0`          |
+| `gorse.dataSource.itemTimeToLive`            | The time-to-live (days) of items                                              | `0`          |
+| `gorse.dataSource.positiveFeedbacks`         | The feedback types for positive events                                        | `[]`         |
+| `gorse.dataSource.readFeedbacks`             | The feedback types for read events.                                           | `[]`         |
+| `gorse.recommend.popular`                    | The time window of popular items                                              | `4320h`      |
 | `gorse.recommend.neighbors.users.type`       | The type of neighbors for users                                               | `similar`    |
 | `gorse.recommend.neighbors.items.type`       | The type of neighbors for items.                                              | `similar`    |
 | `gorse.recommend.collaborative.enable`       | Enable approximate collaborative filtering recommend using vector index       | `true`       |
 | `gorse.recommend.replacement.enable`         | Replace historical items back to recommendations                              | `false`      |
 | `gorse.recommend.replacement.decay.positive` | Decay the weights of replaced items from positive feedbacks                   | `0.8`        |
 | `gorse.recommend.replacement.decay.read`     | Decay the weights of replaced items from read feedbacks                       | `0.6`        |
-| `gorse.recommend.online.failback`            | The fallback recommendation method is used when cached recommendation drained | `["latest"]` |
+| `gorse.recommend.online.fallback`            | The fallback recommendation method is used when cached recommendation drained | `["latest"]` |
 
 
 ### Gorse master node parameters
@@ -290,7 +290,7 @@ The command removes all the Kubernetes components associated with the chart and 
 | `externalDatabase.existingSecret`            | Name of an existing secret resource containing the database credentials   | `""`                |
 | `externalDatabase.existingSecretPasswordKey` | Name of an existing secret key containing the database credentials        | `mongodb-passwords` |
 
-```bash
+
 helm install gorse \
   --set gorse.dashboard.username=admin \
   --set gorse.dashboard.password=password \
