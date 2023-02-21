@@ -1,0 +1,991 @@
+## @section Global parameters
+## Global Docker image parameters
+## Please, note that this will override the image parameters, including dependencies, configured to use the global value
+## Current available global Docker image parameters: imageRegistry, imagePullSecrets and storageClass
+##
+
+## @param global.imageRegistry Global Docker image registry
+## @param global.imagePullSecrets Global Docker registry secret names as an array
+## @param global.storageClass Global StorageClass for Persistent Volume(s)
+##
+global:
+  imageRegistry: ""
+  ## E.g.
+  ## imagePullSecrets:
+  ##   - myRegistryKeySecretName
+  ##
+  imagePullSecrets: []
+  storageClass: ""
+
+## @section Common parameters
+##
+
+## @param kubeVersion Override Kubernetes version
+##
+kubeVersion: ""
+## @param nameOverride String to partially override common.names.fullname
+##
+nameOverride: ""
+## @param fullnameOverride String to fully override common.names.fullname
+##
+fullnameOverride: ""
+## @param commonLabels Labels to add to all deployed objects
+##
+commonLabels: {}
+## @param commonAnnotations Annotations to add to all deployed objects
+##
+commonAnnotations: {}
+## @param secretAnnotations Annotations to add to secret
+##
+secretAnnotations: {}
+## @param clusterDomain Default Kubernetes cluster domain
+##
+clusterDomain: cluster.local
+
+## @section Gorse Configuration parameters
+##
+gorse:
+  dashboard:
+    ## @param gorse.dashboard.username Username for the dashboard.
+    ##
+    username: "gorse"
+    ## @param gorse.dashboard.password Password for the dashboard.
+    ##
+    password: ""
+    ## @param gorse.dashboard.authServer Token server for the dashboard.
+    ##
+    authServer: ""
+
+  api:
+    ## @param gorse.api.key The key to secure the API endpoint
+    ##
+    key: ""
+    ## @param gorse.api.corsDomains List of allowed values for Http Origin
+    ##
+    corsDomains: []
+    ## @param gorse.api.corsMethods List of http methods names. Checking is case-insensitive.
+    ##
+    corsMethods: []
+    ## @param gorse.api.autoInsertUsers Insert new users while inserting feedback
+    ##
+    autoInsertUsers: true
+    ## @param gorse.api.autoInsertItems Insert new items while inserting feedback.
+    ##
+    autoInsertItems: true
+    ## @param gorse.api.returnSize Default number of returned items
+    ##
+    returnSize: 10
+    ## @param gorse.api.serverCacheExpire Server-side cache expire time
+    ##
+    serverCacheExpire: "10s"
+
+  master:
+    ## @param gorse.master.jobs Number of working jobs in the master node
+    ##
+    jobs: 1
+
+  cache:
+    ## @param gorse.cache.size The cache size for recommended/popular/latest items
+    ##
+    size: 10
+    ## @param gorse.cache.expire Recommended cache expire time
+    ##
+    expire: "72h"
+
+  dataSource:
+    ## @param gorse.dataSource.feedbackTimeToLive The time-to-live (days) of positive feedback
+    ##
+    feedbackTimeToLive: 0
+    ## @param gorse.dataSource.itemTimeToLive The time-to-live (days) of items
+    ##
+    itemTimeToLive: 0
+    ## @param gorse.dataSource.positiveFeedbacks The feedback types for positive events
+    ##
+    positiveFeedbacks: []
+    ## @param gorse.dataSource.readFeedbacks The feedback types for read events.
+    ##
+    readFeedbacks: []
+
+  recommend:
+    ## @param gorse.recommend.popular The time window of popular items
+    ##
+    popular: "4320h"
+
+    neighbors:
+      users:
+        ## @param gorse.recommend.neighbors.users.type The type of neighbors for users
+        ##
+        type: "similar"
+      items:
+        ## @param gorse.recommend.neighbors.items.type The type of neighbors for items.
+        ##
+        type: "similar"
+
+    collaborative:
+      ## @param gorse.recommend.collaborative.enable Enable approximate collaborative filtering recommend using vector index
+      ##
+      enable: true
+
+    replacement:
+      ## @param gorse.recommend.replacement.enable Replace historical items back to recommendations
+      ##
+      enable: false
+      decay:
+        ## @param gorse.recommend.replacement.decay.positive Decay the weights of replaced items from positive feedbacks
+        ##
+        positive: 0.8
+        ## @param gorse.recommend.replacement.decay.read Decay the weights of replaced items from read feedbacks
+        ##
+        read: 0.6
+
+    online:
+      ## @param gorse.recommend.online.fallback The fallback recommendation method is used when cached recommendation drained
+      ##
+      fallback:
+        - "latest"
+
+## @section Gorse master node parameters
+##
+master:
+  ## Gorse Master image version
+  ## ref: https://hub.docker.com/r/zhenghaoz/gorse-master
+  ## @param master.image.registry Gorse image registry
+  ## @param master.image.repository Gorse Master image repository
+  ## @param master.image.tag Gorse Master image tag (immutable tags are recommended)
+  ## @param master.image.digest Gorse Master image digest in the way sha256:aa.... Please note this parameter, if set, will override the tag
+  ## @param master.image.pullPolicy Gorse Master image pull policy
+  ## @param master.image.pullSecrets Specify docker-registry secret names as an array
+  ##
+  image:
+    registry: docker.io
+    repository: zhenghaoz/gorse-master
+    tag: 0.4.11
+    digest: ""
+    ## Specify an imagePullPolicy
+    ## ref: http://kubernetes.io/docs/user-guide/images/#pre-pulling-images
+    ##
+    pullPolicy: IfNotPresent
+    ## Optionally specify an array of imagePullSecrets.
+    ## Secrets must be manually created in the namespace.
+    ## ref: https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/
+    ## Example:
+    ## pullSecrets:
+    ##   - myRegistryKeySecretName
+    ##
+    pullSecrets: []
+
+  ## @param master.kind Use either Deployment or StatefulSet (default)
+  ## ref: https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/
+  ##
+  kind: StatefulSet
+
+  ## Persistence parameters
+  ## ref: https://kubernetes.io/docs/user-guide/persistent-volumes/
+  ##
+  persistence:
+    ## @param master.persistence.enabled Enable persistence on Gorse master nodes using Persistent Volume Claims
+    ##
+    enabled: true
+    ## @param master.persistence.medium Provide a medium for `emptyDir` volumes.
+    ##
+    medium: ""
+    ## @param master.persistence.sizeLimit Set this to enable a size limit for `emptyDir` volumes.
+    ##
+    sizeLimit: ""
+    ## @param master.persistence.path The path the volume will be mounted at on Gorse master containers
+    ## NOTE: Useful when using different Gorse images
+    ##
+    path: /var/lib/gorse
+    ## @param master.persistence.subPath The subdirectory of the volume to mount on Gorse master containers
+    ## NOTE: Useful in dev environments
+    ##
+    subPath: ""
+    ## @param master.persistence.subPathExpr Used to construct the subPath subdirectory of the volume to mount on Gorse master containers
+    ##
+    subPathExpr: ""
+    ## @param master.persistence.storageClass Persistent Volume storage class
+    ## If defined, storageClassName: <storageClass>
+    ## If set to "-", storageClassName: "", which disables dynamic provisioning
+    ## If undefined (the default) or set to null, no storageClassName spec is set, choosing the default provisioner
+    ##
+    storageClass: ""
+    ## @param master.persistence.accessModes Persistent Volume access modes
+    ##
+    accessModes:
+      - ReadWriteOnce
+    ## @param master.persistence.size Persistent Volume size
+    ##
+    size: 8Gi
+    ## @param master.persistence.annotations Additional custom annotations for the PVC
+    ##
+    annotations: {}
+    ## @param master.persistence.selector Additional labels to match for the PVC
+    ## e.g:
+    ## selector:
+    ##   matchLabels:
+    ##     app: my-app
+    ##
+    selector: {}
+    ## @param master.persistence.dataSource Custom PVC data source
+    ##
+    dataSource: {}
+    ## @param master.persistence.existingClaim Use a existing PVC which must be created manually before bound
+    ## NOTE: requires master.persistence.enabled: true
+    ##
+    existingClaim: ""
+
+  ## Gorse master service parameters
+  ##
+  service:
+    ## @param master.service.type Gorse master service type
+    ##
+    type: ClusterIP
+    ## @param master.service.ports.http HTTP port of the master node (dashboard)
+    ## @param master.service.ports.grpc GRPC port of the master node
+    ##
+    ports:
+      http: 80
+      grpc: 8086
+    ## @param master.service.nodePorts.http HTTP port of the master node (dashboard)
+    ## @param master.service.nodePorts.grpc GRPC port of the master node
+    ## ref: https://kubernetes.io/docs/concepts/services-networking/service/#type-nodeport
+    ## NOTE: choose port between <30000-32767>
+    ##
+    nodePorts:
+      http: ""
+      grpc: ""
+    ## @param master.service.externalTrafficPolicy Gorse master service external traffic policy
+    ## ref: https://kubernetes.io/docs/tasks/access-application-cluster/create-external-load-balancer/#preserving-the-client-source-ip
+    ##
+    externalTrafficPolicy: Cluster
+    ## @param master.service.extraPorts Extra ports to expose (normally used with the `sidecar` value)
+    ##
+    extraPorts: []
+    ## @param master.service.internalTrafficPolicy Gorse master service internal traffic policy (requires Kubernetes v1.22 or greater to be usable)
+    ## ref: https://kubernetes.io/docs/concepts/services-networking/service-traffic-policy/
+    ##
+    internalTrafficPolicy: Cluster
+    ## @param master.service.clusterIP Gorse master service Cluster IP
+    ##
+    clusterIP: ""
+    ## @param master.service.loadBalancerIP Gorse master service Load Balancer IP
+    ## ref: https://kubernetes.io/docs/concepts/services-networking/service/#internal-load-balancer
+    ##
+    loadBalancerIP: ""
+    ## @param master.service.loadBalancerSourceRanges Gorse master service Load Balancer sources
+    ## https://kubernetes.io/docs/tasks/access-application-cluster/configure-cloud-provider-firewall/#restrict-access-for-loadbalancer-service
+    ## e.g.
+    ## loadBalancerSourceRanges:
+    ##   - 10.10.10.0/24
+    ##
+    loadBalancerSourceRanges: []
+    ## @param master.service.annotations Additional custom annotations for Gorse master service
+    ##
+    annotations: {}
+    ## @param master.service.sessionAffinity Session Affinity for Kubernetes service, can be "None" or "ClientIP"
+    ## If "ClientIP", consecutive client requests will be directed to the same Pod
+    ## ref: https://kubernetes.io/docs/concepts/services-networking/service/#virtual-ips-and-service-proxies
+    ##
+    sessionAffinity: None
+    ## @param master.service.sessionAffinityConfig Additional settings for the sessionAffinity
+    ## sessionAffinityConfig:
+    ##   clientIP:
+    ##     timeoutSeconds: 300
+    ##
+    sessionAffinityConfig: {}
+
+  ## Configure the ingress resource that allows you to access the
+  ## Gorse dashboard. Set up the URL
+  ## ref: https://kubernetes.io/docs/user-guide/ingress/
+  ##
+  ingress:
+    ## @param master.ingress.enabled Enable ingress controller resource
+    ##
+    enabled: false
+
+    ## @param master.ingress.pathType Ingress Path type
+    ##
+    pathType: ImplementationSpecific
+    ## @param master.ingress.apiVersion Override API Version (automatically detected if not set)
+    ##
+    apiVersion: ""
+    ## @param master.ingress.ingressClassName IngressClass that will be be used to implement the Ingress (Kubernetes 1.18+)
+    ## This is supported in Kubernetes 1.18+ and required if you have more than one IngressClass marked as the default for your cluster .
+    ## ref: https://kubernetes.io/blog/2020/04/02/improvements-to-the-ingress-api-in-kubernetes-1.18/
+    ##
+    ingressClassName: ""
+    ## @param master.ingress.hostname Default host for the ingress resource
+    ##
+    hostname: gorse.local
+    ## @param master.ingress.path The Path to Gorse. You may need to set this to '/*' in order to use this
+    ## with ALB ingress controllers.
+    ##
+    path: /
+    ## @param master.ingress.annotations Additional annotations for the Ingress resource. To enable certificate autogeneration, place here your cert-manager annotations.
+    ## For a full list of possible ingress annotations, please see
+    ## ref: https://github.com/kubernetes/ingress-nginx/blob/master/docs/user-guide/nginx-configuration/annotations.md
+    ## Use this parameter to set the required annotations for cert-manager, see
+    ## ref: https://cert-manager.io/docs/usage/ingress/#supported-annotations
+    ##
+    ## e.g:
+    ## annotations:
+    ##   kubernetes.io/ingress.class: nginx
+    ##   cert-manager.io/cluster-issuer: cluster-issuer-name
+    ##
+    annotations: {}
+    ## @param master.ingress.tls Enable TLS configuration for the hostname defined at ingress.hostname parameter
+    ## TLS certificates will be retrieved from a TLS secret with name: {{- printf "%s-tls" .Values.ingress.hostname }}
+    ## You can use the ingress.secrets parameter to create this TLS secret or relay on cert-manager to create it
+    ##
+    tls: false
+    ## @param master.ingress.extraHosts The list of additional hostnames to be covered with this ingress record.
+    ## Most likely the hostname above will be enough, but in the event more hosts are needed, this is an array
+    ## extraHosts:
+    ## - name: gorse.local
+    ##   path: /
+    extraHosts: []
+    ## @param master.ingress.extraPaths Any additional arbitrary paths that may need to be added to the ingress under the main host.
+    ## For example: The ALB ingress controller requires a special rule for handling SSL redirection.
+    ## extraPaths:
+    ## - path: /*
+    ##   backend:
+    ##     serviceName: ssl-redirect
+    ##     servicePort: use-annotation
+    extraPaths: []
+    ## @param master.ingress.extraTls The tls configuration for additional hostnames to be covered with this ingress record.
+    ## see: https://kubernetes.io/docs/concepts/services-networking/ingress/#tls
+    ## extraTls:
+    ## - hosts:
+    ##     - gorse.local
+    ##   secretName: gorse.local-tls
+    extraTls: []
+    ## @param master.ingress.secrets If you're providing your own certificates, please use this to add the certificates as secrets
+    ## key and certificate should start with -----BEGIN CERTIFICATE----- or
+    ## -----BEGIN RSA PRIVATE KEY-----
+    ##
+    ## name should line up with a tlsSecret set further up
+    ## If you're using cert-manager, this is unneeded, as it will create the secret for you if it is not set
+    ##
+    ## It is also possible to create and manage the certificates outside of this helm chart
+    ## Please see README.md for more information
+    ## Example:
+    ## - name: gorse.local-tls
+    ##   key:
+    ##   certificate:
+    ##
+    secrets: []
+    ## @param master.ingress.extraRules Additional rules to be covered with this ingress record
+    ## ref: https://kubernetes.io/docs/concepts/services-networking/ingress/#ingress-rules
+    ## e.g:
+    ## extraRules:
+    ## - host: example.local
+    ##     http:
+    ##       path: /
+    ##       backend:
+    ##         service:
+    ##           name: example-svc
+    ##           port:
+    ##             name: http
+    ##
+    extraRules: []
+
+  ## Gorse replicas resource requests and limits
+  ## ref: https://kubernetes.io/docs/user-guide/compute-resources/
+  ## @param master.resources.limits The resources limits for the Gorse replicas containers
+  ## @param master.resources.requests The requested resources for the Gorse replicas containers
+  ##
+  resources:
+    # We usually recommend not to specify default resources and to leave this as a conscious
+    # choice for the user. This also increases chances charts run on environments with little
+    # resources, such as Minikube. If you do want to specify resources, uncomment the following
+    # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
+    limits: {}
+    #   cpu: 250m
+    #   memory: 256Mi
+    requests: {}
+    #   cpu: 250m
+    #   memory: 256Mi
+
+  ## @param master.podAffinityPreset Pod affinity preset. Ignored if `master.affinity` is set. Allowed values: `soft` or `hard`
+  ## ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#inter-pod-affinity-and-anti-affinity
+  ##
+  podAffinityPreset: ""
+  ## @param master.podAntiAffinityPreset Pod anti-affinity preset. Ignored if `master.affinity` is set. Allowed values: `soft` or `hard`
+  ## ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#inter-pod-affinity-and-anti-affinity
+  ##
+  podAntiAffinityPreset: soft
+  ## Node master.affinity preset
+  ## ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#node-affinity
+  ##
+  nodeAffinityPreset:
+    ## @param master.nodeAffinityPreset.type Node affinity preset type. Ignored if `master.affinity` is set. Allowed values: `soft` or `hard`
+    ##
+    type: ""
+    ## @param master.nodeAffinityPreset.key Node label key to match. Ignored if `master.affinity` is set
+    ##
+    key: ""
+    ## @param master.nodeAffinityPreset.values Node label values to match. Ignored if `master.affinity` is set
+    ## E.g.
+    ## values:
+    ##   - e2e-az1
+    ##   - e2e-az2
+    ##
+    values: []
+  ## @param master.affinity Affinity for Gorse master pods assignment
+  ## ref: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/#affinity-and-anti-affinity
+  ## NOTE: `master.podAffinityPreset`, `master.podAntiAffinityPreset`, and `master.nodeAffinityPreset` will be ignored when it's set
+  ##
+  affinity: {}
+  ## @param master.nodeSelector Node labels for Gorse master pods assignment
+  ## ref: https://kubernetes.io/docs/user-guide/node-selection/
+  ##
+  nodeSelector: {}
+  ## @param master.tolerations Tolerations for Gorse master pods assignment
+  ## ref: https://kubernetes.io/docs/concepts/configuration/taint-and-toleration/
+  ##
+  tolerations: []
+
+  ## Master Pod Disruption Budget configuration
+  ## ref: https://kubernetes.io/docs/tasks/run-application/configure-pdb/
+  ##
+  pdb:
+    ## @param master.pdb.create Specifies whether a PodDisruptionBudget should be created
+    ##
+    create: false
+    ## @param master.pdb.minAvailable Min number of pods that must still be available after the eviction
+    ##
+    minAvailable: 1
+    ## @param master.pdb.maxUnavailable Max number of pods that can be unavailable after the eviction
+    ##
+    maxUnavailable: ""
+
+## @section Gorse server node parameters
+##
+server:
+  ## Gorse Server image version
+  ## ref: https://hub.docker.com/r/zhenghaoz/gorse-server
+  ## @param server.image.registry Gorse image registry
+  ## @param server.image.repository Gorse Server image repository
+  ## @param server.image.tag Gorse Server image tag (immutable tags are recommended)
+  ## @param server.image.digest Gorse Server image digest in the way sha256:aa.... Please note this parameter, if set, will override the tag
+  ## @param server.image.pullPolicy Gorse Server image pull policy
+  ## @param server.image.pullSecrets Specify docker-registry secret names as an array
+  ##
+  image:
+    registry: docker.io
+    repository: zhenghaoz/gorse-server
+    tag: 0.4.11
+    digest: ""
+    ## Specify an imagePullPolicy
+    ## ref: http://kubernetes.io/docs/user-guide/images/#pre-pulling-images
+    ##
+    pullPolicy: IfNotPresent
+    ## Optionally specify an array of imagePullSecrets.
+    ## Secrets must be manually created in the namespace.
+    ## ref: https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/
+    ## Example:
+    ## pullSecrets:
+    ##   - myRegistryKeySecretName
+    ##
+    pullSecrets: []
+
+  ## Gorse server service parameters
+  ##
+  service:
+    ## @param server.service.type Gorse server service type
+    ##
+    type: ClusterIP
+    ## @param server.service.ports.http Gorse server service port
+    ##
+    ports:
+      http: 80
+    ## @param server.service.nodePorts.http Node port for Gorse server
+    ## ref: https://kubernetes.io/docs/concepts/services-networking/service/#type-nodeport
+    ## NOTE: choose port between <30000-32767>
+    ##
+    nodePorts:
+      http: ""
+    ## @param server.service.externalTrafficPolicy Gorse server service external traffic policy
+    ## ref: https://kubernetes.io/docs/tasks/access-application-cluster/create-external-load-balancer/#preserving-the-client-source-ip
+    ##
+    externalTrafficPolicy: Cluster
+    ## @param server.service.extraPorts Extra ports to expose (normally used with the `sidecar` value)
+    ##
+    extraPorts: []
+    ## @param server.service.internalTrafficPolicy Gorse server service internal traffic policy (requires Kubernetes v1.22 or greater to be usable)
+    ## ref: https://kubernetes.io/docs/concepts/services-networking/service-traffic-policy/
+    ##
+    internalTrafficPolicy: Cluster
+    ## @param server.service.clusterIP Gorse server service Cluster IP
+    ##
+    clusterIP: ""
+    ## @param server.service.loadBalancerIP Gorse server service Load Balancer IP
+    ## ref: https://kubernetes.io/docs/concepts/services-networking/service/#internal-load-balancer
+    ##
+    loadBalancerIP: ""
+    ## @param server.service.loadBalancerSourceRanges Gorse server service Load Balancer sources
+    ## https://kubernetes.io/docs/tasks/access-application-cluster/configure-cloud-provider-firewall/#restrict-access-for-loadbalancer-service
+    ## e.g.
+    ## loadBalancerSourceRanges:
+    ##   - 10.10.10.0/24
+    ##
+    loadBalancerSourceRanges: []
+    ## @param server.service.annotations Additional custom annotations for Gorse server service
+    ##
+    annotations: {}
+    ## @param server.service.sessionAffinity Session Affinity for Kubernetes service, can be "None" or "ClientIP"
+    ## If "ClientIP", consecutive client requests will be directed to the same Pod
+    ## ref: https://kubernetes.io/docs/concepts/services-networking/service/#virtual-ips-and-service-proxies
+    ##
+    sessionAffinity: None
+    ## @param server.service.sessionAffinityConfig Additional settings for the sessionAffinity
+    ## sessionAffinityConfig:
+    ##   clientIP:
+    ##     timeoutSeconds: 300
+    ##
+    sessionAffinityConfig: {}
+
+  ## Configure the ingress resource that allows you to access the
+  ## Gorse API. Set up the URL
+  ## ref: https://kubernetes.io/docs/user-guide/ingress/
+  ##
+  ingress:
+    ## @param server.ingress.enabled Enable ingress controller resource
+    ##
+    enabled: false
+
+    ## @param server.ingress.pathType Ingress Path type
+    ##
+    pathType: ImplementationSpecific
+    ## @param server.ingress.apiVersion Override API Version (automatically detected if not set)
+    ##
+    apiVersion: ""
+    ## @param server.ingress.ingressClassName IngressClass that will be be used to implement the Ingress (Kubernetes 1.18+)
+    ## This is supported in Kubernetes 1.18+ and required if you have more than one IngressClass marked as the default for your cluster .
+    ## ref: https://kubernetes.io/blog/2020/04/02/improvements-to-the-ingress-api-in-kubernetes-1.18/
+    ##
+    ingressClassName: ""
+    ## @param server.ingress.hostname Default host for the ingress resource
+    ##
+    hostname: api.gorse.local
+    ## @param server.ingress.path The Path to Gorse. You may need to set this to '/*' in order to use this
+    ## with ALB ingress controllers.
+    ##
+    path: /
+    ## @param server.ingress.annotations Additional annotations for the Ingress resource. To enable certificate autogeneration, place here your cert-manager annotations.
+    ## For a full list of possible ingress annotations, please see
+    ## ref: https://github.com/kubernetes/ingress-nginx/blob/master/docs/user-guide/nginx-configuration/annotations.md
+    ## Use this parameter to set the required annotations for cert-manager, see
+    ## ref: https://cert-manager.io/docs/usage/ingress/#supported-annotations
+    ##
+    ## e.g:
+    ## annotations:
+    ##   kubernetes.io/ingress.class: nginx
+    ##   cert-manager.io/cluster-issuer: cluster-issuer-name
+    ##
+    annotations: {}
+    ## @param server.ingress.tls Enable TLS configuration for the hostname defined at ingress.hostname parameter
+    ## TLS certificates will be retrieved from a TLS secret with name: {{- printf "%s-tls" .Values.ingress.hostname }}
+    ## You can use the ingress.secrets parameter to create this TLS secret or relay on cert-manager to create it
+    ##
+    tls: false
+    ## @param server.ingress.extraHosts The list of additional hostnames to be covered with this ingress record.
+    ## Most likely the hostname above will be enough, but in the event more hosts are needed, this is an array
+    ## extraHosts:
+    ## - name: api.gorse.local
+    ##   path: /
+    extraHosts: []
+    ## @param server.ingress.extraPaths Any additional arbitrary paths that may need to be added to the ingress under the main host.
+    ## For example: The ALB ingress controller requires a special rule for handling SSL redirection.
+    ## extraPaths:
+    ## - path: /*
+    ##   backend:
+    ##     serviceName: ssl-redirect
+    ##     servicePort: use-annotation
+    extraPaths: []
+    ## @param server.ingress.extraTls The tls configuration for additional hostnames to be covered with this ingress record.
+    ## see: https://kubernetes.io/docs/concepts/services-networking/ingress/#tls
+    ## extraTls:
+    ## - hosts:
+    ##     - api.gorse.local
+    ##   secretName: gorse.local-tls
+    extraTls: []
+    ## @param server.ingress.secrets If you're providing your own certificates, please use this to add the certificates as secrets
+    ## key and certificate should start with -----BEGIN CERTIFICATE----- or
+    ## -----BEGIN RSA PRIVATE KEY-----
+    ##
+    ## name should line up with a tlsSecret set further up
+    ## If you're using cert-manager, this is unneeded, as it will create the secret for you if it is not set
+    ##
+    ## It is also possible to create and manage the certificates outside of this helm chart
+    ## Please see README.md for more information
+    ## Example:
+    ## - name: api.gorse.local-tls
+    ##   key:
+    ##   certificate:
+    ##
+    secrets: []
+    ## @param server.ingress.extraRules Additional rules to be covered with this ingress record
+    ## ref: https://kubernetes.io/docs/concepts/services-networking/ingress/#ingress-rules
+    ## e.g:
+    ## extraRules:
+    ## - host: example.local
+    ##     http:
+    ##       path: /
+    ##       backend:
+    ##         service:
+    ##           name: example-svc
+    ##           port:
+    ##             name: http
+    ##
+    extraRules: []
+
+  ## @param server.replicaCount Number of servers replicas to deploy
+  ## NOTE: ReadWriteMany PVC(s) are required if replicaCount > 1
+  ##
+  replicaCount: 1
+
+  ## Autoscaling configuration
+  ##
+  autoscaling:
+    ## @param server.autoscaling.enabled Enable replica autoscaling settings
+    ##
+    enabled: false
+    ## @param server.autoscaling.minReplicas Minimum replicas for the pod autoscaling
+    ##
+    minReplicas: 1
+    ## @param server.autoscaling.maxReplicas Maximum replicas for the pod autoscaling
+    ##
+    maxReplicas: 11
+    ## @param server.autoscaling.targetCPU Percentage of CPU to consider when autoscaling
+    ##
+    targetCPU: 50
+    ## @param server.autoscaling.targetMemory Percentage of Memory to consider when autoscaling
+    ##
+    targetMemory: 50
+
+  ## Gorse replicas resource requests and limits
+  ## ref: https://kubernetes.io/docs/user-guide/compute-resources/
+  ## @param server.resources.limits The resources limits for the Gorse replicas containers
+  ## @param server.resources.requests The requested resources for the Gorse replicas containers
+  ##
+  resources:
+    # We usually recommend not to specify default resources and to leave this as a conscious
+    # choice for the user. This also increases chances charts run on environments with little
+    # resources, such as Minikube. If you do want to specify resources, uncomment the following
+    # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
+    limits: {}
+    #   cpu: 250m
+    #   memory: 256Mi
+    requests: {}
+    #   cpu: 250m
+    #   memory: 256Mi
+
+  ## @param server.podAffinityPreset Pod affinity preset. Ignored if `server.affinity` is set. Allowed values: `soft` or `hard`
+  ## ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#inter-pod-affinity-and-anti-affinity
+  ##
+  podAffinityPreset: ""
+  ## @param server.podAntiAffinityPreset Pod anti-affinity preset. Ignored if `server.affinity` is set. Allowed values: `soft` or `hard`
+  ## ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#inter-pod-affinity-and-anti-affinity
+  ##
+  podAntiAffinityPreset: soft
+  ## Node server.affinity preset
+  ## ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#node-affinity
+  ##
+  nodeAffinityPreset:
+    ## @param server.nodeAffinityPreset.type Node affinity preset type. Ignored if `server.affinity` is set. Allowed values: `soft` or `hard`
+    ##
+    type: ""
+    ## @param server.nodeAffinityPreset.key Node label key to match. Ignored if `server.affinity` is set
+    ##
+    key: ""
+    ## @param server.nodeAffinityPreset.values Node label values to match. Ignored if `server.affinity` is set
+    ## E.g.
+    ## values:
+    ##   - e2e-az1
+    ##   - e2e-az2
+    ##
+    values: []
+  ## @param server.affinity Affinity for Gorse server pods assignment
+  ## ref: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/#affinity-and-anti-affinity
+  ## NOTE: `server.podAffinityPreset`, `server.podAntiAffinityPreset`, and `server.nodeAffinityPreset` will be ignored when it's set
+  ##
+  affinity: {}
+  ## @param server.nodeSelector Node labels for Gorse server pods assignment
+  ## ref: https://kubernetes.io/docs/user-guide/node-selection/
+  ##
+  nodeSelector: {}
+  ## @param server.tolerations Tolerations for Gorse server pods assignment
+  ## ref: https://kubernetes.io/docs/concepts/configuration/taint-and-toleration/
+  ##
+  tolerations: []
+
+  ## Server Pod Disruption Budget configuration
+  ## ref: https://kubernetes.io/docs/tasks/run-application/configure-pdb/
+  ##
+  pdb:
+    ## @param server.pdb.create Specifies whether a PodDisruptionBudget should be created
+    ##
+    create: false
+    ## @param server.pdb.minAvailable Min number of pods that must still be available after the eviction
+    ##
+    minAvailable: 1
+    ## @param server.pdb.maxUnavailable Max number of pods that can be unavailable after the eviction
+    ##
+    maxUnavailable: ""
+
+## @section Gorse worker node parameters
+##
+
+worker:
+  ## Gorse Worker image version
+  ## ref: https://hub.docker.com/r/zhenghaoz/gorse-master
+  ## @param worker.image.registry Gorse image registry
+  ## @param worker.image.repository Gorse Worker image repository
+  ## @param worker.image.tag Gorse Worker image tag (immutable tags are recommended)
+  ## @param worker.image.digest Gorse Worker image digest in the way sha256:aa.... Please note this parameter, if set, will override the tag
+  ## @param worker.image.pullPolicy Gorse Worker image pull policy
+  ## @param worker.image.pullSecrets Specify docker-registry secret names as an array
+  ##
+  image:
+    registry: docker.io
+    repository: zhenghaoz/gorse-worker
+    tag: 0.4.11
+    digest: ""
+    ## Specify an imagePullPolicy
+    ## ref: http://kubernetes.io/docs/user-guide/images/#pre-pulling-images
+    ##
+    pullPolicy: IfNotPresent
+    ## Optionally specify an array of imagePullSecrets.
+    ## Secrets must be manually created in the namespace.
+    ## ref: https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/
+    ## Example:
+    ## pullSecrets:
+    ##   - myRegistryKeySecretName
+    ##
+    pullSecrets: []
+
+  ## Gorse worker service parameters
+  ##
+  service:
+    ## @param worker.service.enable Enable service for Gorse workers
+    ##
+    enable: false
+    ## @param worker.service.type Gorse worker service type
+    ##
+    type: ClusterIP
+    ## @param worker.service.ports.http Gorse worker service port
+    ##
+    ports:
+      http: 8087
+    ## @param worker.service.nodePorts.http Node port for Gorse worker
+    ## ref: https://kubernetes.io/docs/concepts/services-networking/service/#type-nodeport
+    ## NOTE: choose port between <30000-32767>
+    ##
+    nodePorts:
+      http: ""
+    ## @param worker.service.externalTrafficPolicy Gorse worker service external traffic policy
+    ## ref: https://kubernetes.io/docs/tasks/access-application-cluster/create-external-load-balancer/#preserving-the-client-source-ip
+    ##
+    externalTrafficPolicy: Cluster
+    ## @param worker.service.extraPorts Extra ports to expose (normally used with the `sidecar` value)
+    ##
+    extraPorts: []
+    ## @param worker.service.internalTrafficPolicy Gorse worker service internal traffic policy (requires Kubernetes v1.22 or greater to be usable)
+    ## ref: https://kubernetes.io/docs/concepts/services-networking/service-traffic-policy/
+    ##
+    internalTrafficPolicy: Cluster
+    ## @param worker.service.clusterIP Gorse worker service Cluster IP
+    ##
+    clusterIP: ""
+    ## @param worker.service.loadBalancerIP Gorse worker service Load Balancer IP
+    ## ref: https://kubernetes.io/docs/concepts/services-networking/service/#internal-load-balancer
+    ##
+    loadBalancerIP: ""
+    ## @param worker.service.loadBalancerSourceRanges Gorse worker service Load Balancer sources
+    ## https://kubernetes.io/docs/tasks/access-application-cluster/configure-cloud-provider-firewall/#restrict-access-for-loadbalancer-service
+    ## e.g.
+    ## loadBalancerSourceRanges:
+    ##   - 10.10.10.0/24
+    ##
+    loadBalancerSourceRanges: []
+    ## @param worker.service.annotations Additional custom annotations for Gorse worker service
+    ##
+    annotations: {}
+    ## @param worker.service.sessionAffinity Session Affinity for Kubernetes service, can be "None" or "ClientIP"
+    ## If "ClientIP", consecutive client requests will be directed to the same Pod
+    ## ref: https://kubernetes.io/docs/concepts/services-networking/service/#virtual-ips-and-service-proxies
+    ##
+    sessionAffinity: None
+    ## @param worker.service.sessionAffinityConfig Additional settings for the sessionAffinity
+    ## sessionAffinityConfig:
+    ##   clientIP:
+    ##     timeoutSeconds: 300
+    ##
+    sessionAffinityConfig: {}
+
+  ## @param worker.replicaCount Number of workers replicas to deploy
+  ## NOTE: ReadWriteMany PVC(s) are required if replicaCount > 1
+  ##
+  replicaCount: 1
+
+  ## Autoscaling configuration
+  ##
+  autoscaling:
+    ## @param worker.autoscaling.enabled Enable replica autoscaling settings
+    ##
+    enabled: false
+    ## @param worker.autoscaling.minReplicas Minimum replicas for the pod autoscaling
+    ##
+    minReplicas: 1
+    ## @param worker.autoscaling.maxReplicas Maximum replicas for the pod autoscaling
+    ##
+    maxReplicas: 11
+    ## @param worker.autoscaling.targetCPU Percentage of CPU to consider when autoscaling
+    ##
+    targetCPU: 50
+    ## @param worker.autoscaling.targetMemory Percentage of Memory to consider when autoscaling
+    ##
+    targetMemory: 50
+
+  ## Gorse replicas resource requests and limits
+  ## ref: https://kubernetes.io/docs/user-guide/compute-resources/
+  ## @param worker.resources.limits The resources limits for the Gorse replicas containers
+  ## @param worker.resources.requests The requested resources for the Gorse replicas containers
+  ##
+  resources:
+    # We usually recommend not to specify default resources and to leave this as a conscious
+    # choice for the user. This also increases chances charts run on environments with little
+    # resources, such as Minikube. If you do want to specify resources, uncomment the following
+    # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
+    limits: {}
+    #   cpu: 250m
+    #   memory: 256Mi
+    requests: {}
+    #   cpu: 250m
+    #   memory: 256Mi
+
+  ## @param worker.podAffinityPreset Pod affinity preset. Ignored if `worker.affinity` is set. Allowed values: `soft` or `hard`
+  ## ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#inter-pod-affinity-and-anti-affinity
+  ##
+  podAffinityPreset: ""
+  ## @param worker.podAntiAffinityPreset Pod anti-affinity preset. Ignored if `worker.affinity` is set. Allowed values: `soft` or `hard`
+  ## ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#inter-pod-affinity-and-anti-affinity
+  ##
+  podAntiAffinityPreset: soft
+  ## Node worker.affinity preset
+  ## ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#node-affinity
+  ##
+  nodeAffinityPreset:
+    ## @param worker.nodeAffinityPreset.type Node affinity preset type. Ignored if `worker.affinity` is set. Allowed values: `soft` or `hard`
+    ##
+    type: ""
+    ## @param worker.nodeAffinityPreset.key Node label key to match. Ignored if `worker.affinity` is set
+    ##
+    key: ""
+    ## @param worker.nodeAffinityPreset.values Node label values to match. Ignored if `worker.affinity` is set
+    ## E.g.
+    ## values:
+    ##   - e2e-az1
+    ##   - e2e-az2
+    ##
+    values: []
+  ## @param worker.affinity Affinity for Gorse worker pods assignment
+  ## ref: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/#affinity-and-anti-affinity
+  ## NOTE: `worker.podAffinityPreset`, `worker.podAntiAffinityPreset`, and `worker.nodeAffinityPreset` will be ignored when it's set
+  ##
+  affinity: {}
+  ## @param worker.nodeSelector Node labels for Gorse worker pods assignment
+  ## ref: https://kubernetes.io/docs/user-guide/node-selection/
+  ##
+  nodeSelector: {}
+  ## @param worker.tolerations Tolerations for Gorse worker pods assignment
+  ## ref: https://kubernetes.io/docs/concepts/configuration/taint-and-toleration/
+  ##
+  tolerations: []
+
+  ## Worker Pod Disruption Budget configuration
+  ## ref: https://kubernetes.io/docs/tasks/run-application/configure-pdb/
+  ##
+  pdb:
+    ## @param worker.pdb.create Specifies whether a PodDisruptionBudget should be created
+    ##
+    create: false
+    ## @param worker.pdb.minAvailable Min number of pods that must still be available after the eviction
+    ##
+    minAvailable: 1
+    ## @param worker.pdb.maxUnavailable Max number of pods that can be unavailable after the eviction
+    ##
+    maxUnavailable: ""
+
+## @section Database Parameters
+##
+
+## MongoDB chart configuration
+## ref: https://github.com/bitnami/charts/blob/main/bitnami/mongodb/values.yaml
+##
+mongodb:
+  ## @param mongodb.enabled Deploy a MongoDB server to satisfy the applications database requirements
+  ##
+  enabled: true
+  ## @param mongodb.architecture MongoDB(&reg;) architecture (`standalone` or `replicaset`)
+  ##
+  architecture: standalone
+  ## MongoDB(&reg;) Authentication parameters
+  ##
+  auth:
+    ## @param mongodb.auth.rootUser MongoDB(&reg;) root user
+    ##
+    rootUser: "root"
+    ## @param mongodb.auth.rootPassword MongoDB(&reg;) root password
+    ## ref: https://github.com/bitnami/containers/tree/main/bitnami/mongodb#setting-the-root-user-and-password-on-first-run
+    ##
+    rootPassword: ""
+    ## MongoDB(&reg;) custom users and databases
+    ## ref: https://github.com/bitnami/containers/tree/main/bitnami/mongodb#creating-a-user-and-database-on-first-run
+    ## @param mongodb.auth.username Custom user to be created during the initialization
+    ## @param mongodb.auth.password Password for the custom users set at `auth.usernames`
+    ## @param mongodb.auth.database Custom databases to be created during the initialization
+    ##
+    username: gorse
+    password: ""
+    database: gorse
+  ## Enable persistence using Persistent Volume Claims
+  ## ref: https://kubernetes.io/docs/user-guide/persistent-volumes/
+  ##
+  persistence:
+    ## @param mongodb.persistence.enabled Enable MongoDB(&reg;) data persistence using PVC
+    ##
+    enabled: true
+    ## @param mongodb.persistence.storageClass PVC Storage Class for MongoDB(&reg;) data volume
+    ## If defined, storageClassName: <storageClass>
+    ## If set to "-", storageClassName: "", which disables dynamic provisioning
+    ## If undefined (the default) or set to null, no storageClassName spec is
+    ## set, choosing the default provisioner.
+    ##
+    storageClass: ""
+    ## @param mongodb.persistence.accessModes PV Access Mode
+    ##
+    accessModes:
+      - ReadWriteOnce
+    ## @param mongodb.persistence.size PVC Storage Request for MongoDB(&reg;) data volume
+    ##
+    size: 8Gi
+## External MongoDB configuration
+## All of these values are only used when mongodb.enabled is set to false
+## @param externalDatabase.host Database host
+## @param externalDatabase.port Database port number
+## @param externalDatabase.username Non-root username for Gorse
+## @param externalDatabase.password Password for the non-root username for Gorse
+## @param externalDatabase.database Gorse database name
+## @param externalDatabase.existingSecret Name of an existing secret resource containing the database credentials
+## @param externalDatabase.existingSecretPasswordKey Name of an existing secret key containing the database credentials
+##
+externalDatabase:
+  host: localhost
+  port: 27017
+  username: gorse
+  database: gorse
+  password: ""
+  existingSecret: ""
+  existingSecretPasswordKey: "mongodb-passwords"

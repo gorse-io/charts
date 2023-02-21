@@ -1,0 +1,63 @@
+{{- if .Values.master.ingress.enabled }}
+apiVersion: {{ include "common.capabilities.ingress.apiVersion" . }}
+kind: Ingress
+metadata:
+  name: {{ printf "%s-dashboard" (include "common.names.fullname" .) }}
+  namespace: {{ include "common.names.namespace" . | quote }}
+  labels: {{- include "common.labels.standard" . | nindent 4 }}
+    {{- if .Values.commonLabels }}
+    {{- include "common.tplvalues.render" ( dict "value" .Values.commonLabels "context" $ ) | nindent 4 }}
+    {{- end }}
+  annotations:
+    {{- if .Values.master.ingress.certManager }}
+    kubernetes.io/tls-acme: "true"
+    {{- end }}
+    {{- if .Values.master.ingress.annotations }}
+    {{- include "common.tplvalues.render" (dict "value" .Values.master.ingress.annotations "context" $) | nindent 4 }}
+    {{- end }}
+    {{- if .Values.commonAnnotations }}
+    {{- include "common.tplvalues.render" ( dict "value" .Values.commonAnnotations "context" $ ) | nindent 4 }}
+    {{- end }}
+spec:
+  {{- if and .Values.master.ingress.ingressClassName (eq "true" (include "common.ingress.supportsIngressClassname" .)) }}
+  ingressClassName: {{ .Values.master.ingress.ingressClassName | quote }}
+  {{- end }}
+  rules:
+    {{- if .Values.master.ingress.hostname }}
+    - host: {{ .Values.master.ingress.hostname | quote }}
+      http:
+        paths:
+          - path: {{ .Values.master.ingress.path }}
+            {{- if eq "true" (include "common.ingress.supportsPathType" .) }}
+            pathType: {{ .Values.master.ingress.pathType }}
+            {{- end }}
+            backend: {{- include "common.ingress.backend" (dict "serviceName" (printf "%s-master" (include "common.names.fullname" .) ) "servicePort" "http" "context" $)  | nindent 14 }}
+          {{- if .Values.master.ingress.extraPaths }}
+          {{- toYaml .Values.master.ingress.extraPaths | nindent 10 }}
+          {{- end }}
+    {{- end }}
+    {{- range (coalesce .Values.master.ingress.extraHosts .Values.master.ingress.hosts) }}
+    - host: {{ .name | quote }}
+      http:
+        paths:
+          - path: {{ default "/" .path }}
+            {{- if eq "true" (include "common.ingress.supportsPathType" $) }}
+            pathType: {{ default "ImplementationSpecific" .pathType }}
+            {{- end }}
+            backend: {{- include "common.ingress.backend" (dict "serviceName" (printf "%s-master" (include "common.names.fullname" .) $) "servicePort" "http" "context" $) | nindent 14 }}
+    {{- end }}
+    {{- if .Values.master.ingress.extraRules }}
+    {{- include "common.tplvalues.render" (dict "value" .Values.master.ingress.extraRules "context" $) | nindent 4 }}
+    {{- end }}
+  {{- if or .Values.master.ingress.tls .Values.master.ingress.extraTls }}
+  tls:
+     {{- if .Values.master.ingress.tls }}
+    - hosts:
+        - {{ .Values.master.ingress.hostname | quote }}
+      secretName: {{ printf "%s-dashboard-tls" (include "common.names.fullname" .) }}
+    {{- end }}
+    {{- if .Values.master.ingress.extraTls }}
+    {{- include "common.tplvalues.render" (dict "value" .Values.master.ingress.extraTls "context" $) | nindent 4 }}
+    {{- end }}
+  {{- end }}
+{{- end }}
