@@ -1,4 +1,21 @@
 ## @section Global parameters
+## Global Docker image parameters
+## Please, note that this will override the image parameters, including dependencies, configured to use the global value
+## Current available global Docker image parameters: imageRegistry, imagePullSecrets and storageClass
+##
+
+## @param global.imageRegistry Global Docker image registry
+## @param global.imagePullSecrets Global Docker registry secret names as an array
+## @param global.storageClass Global StorageClass for Persistent Volume(s)
+##
+global:
+  imageRegistry: ""
+  ## E.g.
+  ## imagePullSecrets:
+  ##   - myRegistryKeySecretName
+  ##
+  imagePullSecrets: []
+  storageClass: ""
 
 ## @section Common parameters
 ##
@@ -36,7 +53,7 @@ database: ""
 service:
   ## @param service.type Gorse Manager service type
   ##
-  type: LoadBalancer
+  type: ClusterIP
   ## @param service.ports.http Gorse Manager service HTTP port
   ## @param service.ports.https Gorse Manager service HTTPS port
   ##
@@ -231,25 +248,6 @@ image:
   ##
   pullSecrets: []
 
-## Autoscaling configuration
-##
-autoscaling:
-  ## @param autoscaling.enabled Enable replica autoscaling settings
-  ##
-  enabled: false
-  ## @param autoscaling.minReplicas Minimum replicas for the pod autoscaling
-  ##
-  minReplicas: 1
-  ## @param autoscaling.maxReplicas Maximum replicas for the pod autoscaling
-  ##
-  maxReplicas: 11
-  ## @param autoscaling.targetCPU Percentage of CPU to consider when autoscaling
-  ##
-  targetCPU: ""
-  ## @param autoscaling.targetMemory Percentage of Memory to consider when autoscaling
-  ##
-  targetMemory: ""
-
 ## @param podAffinityPreset Pod affinity preset. Ignored if `server.affinity` is set. Allowed values: `soft` or `hard`
 ## ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#inter-pod-affinity-and-anti-affinity
 ##
@@ -289,21 +287,77 @@ nodeSelector: {}
 ##
 tolerations: []
 
-## @section MongoDB&reg; Parameters
+## @section Database Parameters
+##
 
-## MongoDB&reg; chart configuration
-## ref: https://github.com/bitnami/charts/tree/main/bitnami/mongodb
-## @param mongodb.enabled Switch to enable or disable the MongoDB helm chart
-## @param mongodb.auth.enabled Enable authentication
-## @param mongodb.auth.rootPassword MongoDB(®) root password
-## @param mongodb.architecture MongoDB(®) architecture (`standalone`` or `replicaset`)
+## MongoDB chart configuration
+## ref: https://github.com/bitnami/charts/blob/main/bitnami/mongodb/values.yaml
 ##
 mongodb:
+  ## @param mongodb.enabled Deploy a MongoDB server to satisfy the applications database requirements
+  ##
   enabled: true
+  ## @param mongodb.architecture MongoDB(&reg;) architecture (`standalone` or `replicaset`)
+  ##
+  architecture: standalone
+  ## MongoDB(&reg;) Authentication parameters
+  ##
   auth:
-    enabled: false
+    ## @param mongodb.auth.rootUser MongoDB(&reg;) root user
+    ##
+    rootUser: "root"
+    ## @param mongodb.auth.rootPassword MongoDB(&reg;) root password
+    ## ref: https://github.com/bitnami/containers/tree/main/bitnami/mongodb#setting-the-root-user-and-password-on-first-run
+    ##
     rootPassword: ""
-  architecture: "standalone"
+    ## MongoDB(&reg;) custom users and databases
+    ## ref: https://github.com/bitnami/containers/tree/main/bitnami/mongodb#creating-a-user-and-database-on-first-run
+    ## @param mongodb.auth.username Custom user to be created during the initialization
+    ## @param mongodb.auth.password Password for the custom users set at `auth.usernames`
+    ## @param mongodb.auth.database Custom databases to be created during the initialization
+    ##
+    username: gorse
+    password: ""
+    database: gorse
+  ## Enable persistence using Persistent Volume Claims
+  ## ref: https://kubernetes.io/docs/user-guide/persistent-volumes/
+  ##
+  persistence:
+    ## @param mongodb.persistence.enabled Enable MongoDB(&reg;) data persistence using PVC
+    ##
+    enabled: true
+    ## @param mongodb.persistence.storageClass PVC Storage Class for MongoDB(&reg;) data volume
+    ## If defined, storageClassName: <storageClass>
+    ## If set to "-", storageClassName: "", which disables dynamic provisioning
+    ## If undefined (the default) or set to null, no storageClassName spec is
+    ## set, choosing the default provisioner.
+    ##
+    storageClass: ""
+    ## @param mongodb.persistence.accessModes PV Access Mode
+    ##
+    accessModes:
+      - ReadWriteOnce
+    ## @param mongodb.persistence.size PVC Storage Request for MongoDB(&reg;) data volume
+    ##
+    size: 8Gi
+## External MongoDB configuration
+## All of these values are only used when mongodb.enabled is set to false
+## @param externalDatabase.host Database host
+## @param externalDatabase.port Database port number
+## @param externalDatabase.username Non-root username for Gorse
+## @param externalDatabase.password Password for the non-root username for Gorse
+## @param externalDatabase.database Gorse database name
+## @param externalDatabase.existingSecret Name of an existing secret resource containing the database credentials
+## @param externalDatabase.existingSecretPasswordKey Name of an existing secret key containing the database credentials
+##
+externalDatabase:
+  host: localhost
+  port: 27017
+  username: gorse
+  database: gorse
+  password: ""
+  existingSecret: ""
+  existingSecretPasswordKey: "mongodb-passwords"
 
 ## @section MySQL Parameters
 

@@ -47,7 +47,11 @@ This starts an HTTP proxy for secure access to the Gorse Manager Dashboard. Visi
 
 ### Global parameters
 
-
+| Name                      | Description                                     | Value |
+| ------------------------- | ----------------------------------------------- | ----- |
+| `global.imageRegistry`    | Global Docker image registry                    | `""`  |
+| `global.imagePullSecrets` | Global Docker registry secret names as an array | `[]`  |
+| `global.storageClass`     | Global StorageClass for Persistent Volume(s)    | `""`  |
 
 
 ### Common parameters
@@ -68,7 +72,7 @@ This starts an HTTP proxy for secure access to the Gorse Manager Dashboard. Visi
 | Name                               | Description                                                                                                                      | Value                     |
 | ---------------------------------- | -------------------------------------------------------------------------------------------------------------------------------- | ------------------------- |
 | `database`                         | URI used to connect Gorse manager to the database for user data.                                                                 | `""`                      |
-| `service.type`                     | Gorse Manager service type                                                                                                       | `LoadBalancer`            |
+| `service.type`                     | Gorse Manager service type                                                                                                       | `ClusterIP`               |
 | `service.ports.http`               | Gorse Manager service HTTP port                                                                                                  | `80`                      |
 | `service.ports.https`              | Gorse Manager service HTTPS port                                                                                                 | `443`                     |
 | `service.httpsTargetPort`          | Target port for HTTPS                                                                                                            | `https`                   |
@@ -103,11 +107,6 @@ This starts an HTTP proxy for secure access to the Gorse Manager Dashboard. Visi
 | `image.digest`                     | Gorse Manager image digest in the way sha256:aa.... Please note this parameter, if set, will override the tag                    | `""`                      |
 | `image.pullPolicy`                 | Gorse Manager image pull policy                                                                                                  | `IfNotPresent`            |
 | `image.pullSecrets`                | Specify docker-registry secret names as an array                                                                                 | `[]`                      |
-| `autoscaling.enabled`              | Enable replica autoscaling settings                                                                                              | `false`                   |
-| `autoscaling.minReplicas`          | Minimum replicas for the pod autoscaling                                                                                         | `1`                       |
-| `autoscaling.maxReplicas`          | Maximum replicas for the pod autoscaling                                                                                         | `11`                      |
-| `autoscaling.targetCPU`            | Percentage of CPU to consider when autoscaling                                                                                   | `""`                      |
-| `autoscaling.targetMemory`         | Percentage of Memory to consider when autoscaling                                                                                | `""`                      |
 | `podAffinityPreset`                | Pod affinity preset. Ignored if `server.affinity` is set. Allowed values: `soft` or `hard`                                       | `""`                      |
 | `podAntiAffinityPreset`            | Pod anti-affinity preset. Ignored if `server.affinity` is set. Allowed values: `soft` or `hard`                                  | `soft`                    |
 | `nodeAffinityPreset.type`          | Node affinity preset type. Ignored if `server.affinity` is set. Allowed values: `soft` or `hard`                                 | `""`                      |
@@ -118,14 +117,28 @@ This starts an HTTP proxy for secure access to the Gorse Manager Dashboard. Visi
 | `tolerations`                      | Tolerations for Gorse server pods assignment                                                                                     | `[]`                      |
 
 
-### MongoDB&reg; Parameters
+### Database Parameters
 
-| Name                        | Description                                             | Value        |
-| --------------------------- | ------------------------------------------------------- | ------------ |
-| `mongodb.enabled`           | Switch to enable or disable the MongoDB helm chart      | `true`       |
-| `mongodb.auth.enabled`      | Enable authentication                                   | `false`      |
-| `mongodb.auth.rootPassword` | MongoDB(®) root password                                | `""`         |
-| `mongodb.architecture`      | MongoDB(®) architecture (`standalone`` or `replicaset`) | `standalone` |
+| Name                                         | Description                                                               | Value               |
+| -------------------------------------------- | ------------------------------------------------------------------------- | ------------------- |
+| `mongodb.enabled`                            | Deploy a MongoDB server to satisfy the applications database requirements | `true`              |
+| `mongodb.architecture`                       | MongoDB(&reg;) architecture (`standalone` or `replicaset`)                | `standalone`        |
+| `mongodb.auth.rootUser`                      | MongoDB(&reg;) root user                                                  | `root`              |
+| `mongodb.auth.rootPassword`                  | MongoDB(&reg;) root password                                              | `""`                |
+| `mongodb.auth.username`                      | Custom user to be created during the initialization                       | `gorse`             |
+| `mongodb.auth.password`                      | Password for the custom users set at `auth.usernames`                     | `""`                |
+| `mongodb.auth.database`                      | Custom databases to be created during the initialization                  | `gorse`             |
+| `mongodb.persistence.enabled`                | Enable MongoDB(&reg;) data persistence using PVC                          | `true`              |
+| `mongodb.persistence.storageClass`           | PVC Storage Class for MongoDB(&reg;) data volume                          | `""`                |
+| `mongodb.persistence.accessModes`            | PV Access Mode                                                            | `["ReadWriteOnce"]` |
+| `mongodb.persistence.size`                   | PVC Storage Request for MongoDB(&reg;) data volume                        | `8Gi`               |
+| `externalDatabase.host`                      | Database host                                                             | `localhost`         |
+| `externalDatabase.port`                      | Database port number                                                      | `27017`             |
+| `externalDatabase.username`                  | Non-root username for Gorse                                               | `gorse`             |
+| `externalDatabase.password`                  | Password for the non-root username for Gorse                              | `""`                |
+| `externalDatabase.database`                  | Gorse database name                                                       | `gorse`             |
+| `externalDatabase.existingSecret`            | Name of an existing secret resource containing the database credentials   | `""`                |
+| `externalDatabase.existingSecretPasswordKey` | Name of an existing secret key containing the database credentials        | `mongodb-passwords` |
 
 
 ### MySQL Parameters
