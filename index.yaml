@@ -226,4 +226,31 @@ entries:
     urls:
     - https://github.com/gorse-io/charts/releases/download/gorse-manager-0.4.0-alpha.1/gorse-manager-0.4.0-alpha.1.tgz
     version: 0.4.0-alpha.1
-generated: "2023-02-20T08:46:58.581700565Z"
+  - apiVersion: v2
+    appVersion: 0.4.0
+    created: "2023-02-21T13:31:50.249103121Z"
+    dependencies:
+    - name: common
+      repository: https://charts.bitnami.com/bitnami
+      tags:
+      - bitnami-common
+      version: 2.x.x
+    - condition: mongodb.enabled
+      name: mongodb
+      repository: https://charts.bitnami.com/bitnami
+      version: 13.x.x
+    - condition: mysql.enabled
+      name: mysql
+      repository: https://charts.bitnami.com/bitnami
+      version: 9.x.x
+    description: Gorse Cloud Manager for Kubernetes
+    digest: a345fc61004e96595cc99aff989556154b4349fb264baab24aaaa13fe91573e6
+    maintainers:
+    - email: zhangzhenghao@hotmail.com
+      name: zhenghaoz
+    name: gorse-manager
+    type: application
+    urls:
+    - https://github.com/gorse-io/charts/releases/download/gorse-manager-0.4.0-alpha.1/gorse-manager-0.4.0-alpha.1.tgz
+    version: 0.4.0-alpha.1
+generated: "2023-02-21T13:31:50.249141223Z"
