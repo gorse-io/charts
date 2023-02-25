@@ -13,7 +13,7 @@ There are charts available in this repo:
 | Name | Description |
 |-|-|
 | [gorse](./charts/gorse) | Gorse Recommender System Engine |
-| [gorse-enterprise](./charts/gorse-enterprise) | Helm Chart used by Gorse Manager |
+| [gorse-enterprise](./charts/gorse-enterprise) | Gorse Enterprise Recommender System Engine |
 | [gorse-manager](./charts/gorse-manager) | Gorse Cloud Manager for Kubernetes | 
 
 > **NOTE:** The [bitnami](https://github.com/bitnami/charts) repository is required.

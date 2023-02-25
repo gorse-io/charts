@@ -1,7 +1,4 @@
-# Helm Chart used by Gorse Manager
-
-> **Warning**
-> Don't use this Helm Chart manually. It used by the Gorse Cloud Manager solely.
+# Gorse Enterprise Helm Chart
 
 ## Parameters
 
