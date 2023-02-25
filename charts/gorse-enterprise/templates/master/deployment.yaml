@@ -140,7 +140,7 @@ spec:
       volumes:
         - name: config
           configMap:
-            name: {{ printf "%s" (include "common.names.fullname" $) }}
+            name: {{ printf "%s-%s" (include "common.names.fullname" $ ) $recommend.name }}
   {{- if not $.Values.master.persistence.enabled }}
         - name: data
           {{- if $.Values.master.persistence.medium }}
@@ -156,7 +156,7 @@ spec:
   {{- else if (eq $.Values.master.kind "Deployment") }}
         - name: data
           persistentVolumeClaim:
-            claimName: {{ printf "data-%s-master" (include "common.names.fullname" .) }}
+            claimName: {{ printf "%s-%s" (include "gorse.master.fullname" $ ) $recommend.name }}
   {{- else }}
   volumeClaimTemplates:
     - metadata:
