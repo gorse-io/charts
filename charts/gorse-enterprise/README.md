@@ -26,39 +26,40 @@
 
 ### Gorse Configuration parameters
 
-| Name                                         | Description                                                                   | Value        |
-| -------------------------------------------- | ----------------------------------------------------------------------------- | ------------ |
-| `gorse.dashboard.username`                   | Username for the dashboard.                                                   | `gorse`      |
-| `gorse.dashboard.password`                   | Password for the dashboard.                                                   | `""`         |
-| `gorse.dashboard.authServer`                 | Token server for the dashboard.                                               | `""`         |
-| `gorse.api.key`                              | The key to secure the API endpoint                                            | `""`         |
-| `gorse.api.corsDomains`                      | List of allowed values for Http Origin                                        | `[]`         |
-| `gorse.api.corsMethods`                      | List of http methods names. Checking is case-insensitive.                     | `[]`         |
-| `gorse.api.autoInsertUsers`                  | Insert new users while inserting feedback                                     | `true`       |
-| `gorse.api.autoInsertItems`                  | Insert new items while inserting feedback.                                    | `true`       |
-| `gorse.api.returnSize`                       | Default number of returned items                                              | `10`         |
-| `gorse.api.serverCacheExpire`                | Server-side cache expire time                                                 | `10s`        |
-| `gorse.master.jobs`                          | Number of working jobs in the master node                                     | `1`          |
-| `gorse.cache.size`                           | The cache size for recommended/popular/latest items                           | `10`         |
-| `gorse.cache.expire`                         | Recommended cache expire time                                                 | `72h`        |
-| `gorse.dataSource.feedbackTimeToLive`        | The time-to-live (days) of positive feedback                                  | `0`          |
-| `gorse.dataSource.itemTimeToLive`            | The time-to-live (days) of items                                              | `0`          |
-| `gorse.dataSource.positiveFeedbacks`         | The feedback types for positive events                                        | `[]`         |
-| `gorse.dataSource.readFeedbacks`             | The feedback types for read events.                                           | `[]`         |
-| `gorse.recommend.popular`                    | The time window of popular items                                              | `4320h`      |
-| `gorse.recommend.neighbors.users.type`       | The type of neighbors for users                                               | `similar`    |
-| `gorse.recommend.neighbors.items.type`       | The type of neighbors for items.                                              | `similar`    |
-| `gorse.recommend.collaborative.enable`       | Enable approximate collaborative filtering recommend using vector index       | `true`       |
-| `gorse.recommend.replacement.enable`         | Replace historical items back to recommendations                              | `false`      |
-| `gorse.recommend.replacement.decay.positive` | Decay the weights of replaced items from positive feedbacks                   | `0.8`        |
-| `gorse.recommend.replacement.decay.read`     | Decay the weights of replaced items from read feedbacks                       | `0.6`        |
-| `gorse.recommend.online.fallback`            | The fallback recommendation method is used when cached recommendation drained | `["latest"]` |
+| Name                                                | Description                                                                   | Value        |
+| --------------------------------------------------- | ----------------------------------------------------------------------------- | ------------ |
+| `gorse.dashboard.username`                          | Username for the dashboard.                                                   | `gorse`      |
+| `gorse.dashboard.password`                          | Password for the dashboard.                                                   | `""`         |
+| `gorse.dashboard.authServer`                        | Token server for the dashboard.                                               | `""`         |
+| `gorse.api.key`                                     | The key to secure the API endpoint                                            | `""`         |
+| `gorse.api.corsDomains`                             | List of allowed values for Http Origin                                        | `[]`         |
+| `gorse.api.corsMethods`                             | List of http methods names. Checking is case-insensitive.                     | `[]`         |
+| `gorse.api.autoInsertUsers`                         | Insert new users while inserting feedback                                     | `true`       |
+| `gorse.api.autoInsertItems`                         | Insert new items while inserting feedback.                                    | `true`       |
+| `gorse.api.returnSize`                              | Default number of returned items                                              | `10`         |
+| `gorse.api.serverCacheExpire`                       | Server-side cache expire time                                                 | `10s`        |
+| `gorse.recommends[0].name`                          | The name of recommend channel                                                 | `Default`    |
+| `gorse.recommends[0].dataSource.feedbackTimeToLive` | The time-to-live (days) of positive feedback                                  | `0`          |
+| `gorse.recommends[0].dataSource.itemTimeToLive`     | The time-to-live (days) of items                                              | `0`          |
+| `gorse.recommends[0].dataSource.positiveFeedbacks`  | The feedback types for positive events                                        | `[]`         |
+| `gorse.recommends[0].dataSource.readFeedbacks`      | The feedback types for read events.                                           | `[]`         |
+| `gorse.recommends[0].cache.size`                    | The cache size for recommended/popular/latest items                           | `10`         |
+| `gorse.recommends[0].cache.expire`                  | Recommended cache expire time                                                 | `72h`        |
+| `gorse.recommends[0].popular`                       | The time window of popular items                                              | `4320h`      |
+| `gorse.recommends[0].neighbors.users.type`          | The type of neighbors for users                                               | `similar`    |
+| `gorse.recommends[0].neighbors.items.type`          | The type of neighbors for items.                                              | `similar`    |
+| `gorse.recommends[0].collaborative.enable`          | Enable approximate collaborative filtering recommend using vector index       | `true`       |
+| `gorse.recommends[0].replacement.enable`            | Replace historical items back to recommendations                              | `false`      |
+| `gorse.recommends[0].replacement.decay.positive`    | Decay the weights of replaced items from positive feedbacks                   | `0.8`        |
+| `gorse.recommends[0].replacement.decay.read`        | Decay the weights of replaced items from read feedbacks                       | `0.6`        |
+| `gorse.recommends[0].online.fallback`               | The fallback recommendation method is used when cached recommendation drained | `["latest"]` |
 
 
 ### Gorse master node parameters
 
 | Name                                      | Description                                                                                                                      | Value                    |
 | ----------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------- | ------------------------ |
+| `master.jobs`                             | Number of working jobs in the master node                                                                                        | `1`                      |
 | `master.image.registry`                   | Gorse image registry                                                                                                             | `docker.io`              |
 | `master.image.repository`                 | Gorse Master image repository                                                                                                    | `zhenghaoz/gorse-master` |
 | `master.image.tag`                        | Gorse Master image tag (immutable tags are recommended)                                                                          | `0.4.11`                 |
@@ -181,6 +182,7 @@
 
 | Name                                      | Description                                                                                                  | Value                    |
 | ----------------------------------------- | ------------------------------------------------------------------------------------------------------------ | ------------------------ |
+| `worker.jobs`                             | Number of working jobs in the worker node                                                                    | `1`                      |
 | `worker.image.registry`                   | Gorse image registry                                                                                         | `docker.io`              |
 | `worker.image.repository`                 | Gorse Worker image repository                                                                                | `zhenghaoz/gorse-worker` |
 | `worker.image.tag`                        | Gorse Worker image tag (immutable tags are recommended)                                                      | `0.4.11`                 |
