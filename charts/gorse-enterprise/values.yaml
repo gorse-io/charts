@@ -82,7 +82,7 @@ gorse:
   recommends:
     ## @param gorse.recommends[0].name The name of recommend channel
     ##
-    - name: Default
+    - name: default
       dataSource:
         ## @param gorse.recommends[0].dataSource.feedbackTimeToLive The time-to-live (days) of positive feedback
         ##

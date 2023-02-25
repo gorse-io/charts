@@ -5,8 +5,8 @@ apiVersion: {{ include "common.capabilities.hpa.apiVersion" ( dict "context" $ )
 kind: HorizontalPodAutoscaler
 metadata:
   name: {{ printf "%s-%s" (include "gorse.worker.fullname" $ ) $recommend.name }}
-  namespace: {{ .Release.Namespace | quote }}
-  labels: {{- include "common.labels.standard" . | nindent 4 }}
+  namespace: {{ $.Release.Namespace | quote }}
+  labels: {{- include "common.labels.standard" $ | nindent 4 }}
     app.kubernetes.io/component: worker
     {{- if $.Values.commonLabels }}
     {{- include "common.tplvalues.render" (dict "value" $.Values.commonLabels "context" $) | nindent 4 }}
@@ -16,9 +16,9 @@ metadata:
   {{- end }}
 spec:
   scaleTargetRef:
-    apiVersion: {{ include "common.capabilities.deployment.apiVersion" . }}
+    apiVersion: {{ include "common.capabilities.deployment.apiVersion" $ }}
     kind: StatefulSet
-    name: {{ printf "%s-worker" (include "common.names.fullname" .) }}
+    name: {{ printf "%s-worker" (include "common.names.fullname" $) }}
   minReplicas: {{ $.Values.worker.autoscaling.minReplicas }}
   maxReplicas: {{ $.Values.worker.autoscaling.maxReplicas }}
   metrics:
@@ -26,7 +26,7 @@ spec:
     - type: Resource
       resource:
         name: memory
-        {{- if semverCompare "<1.23-0" (include "common.capabilities.kubeVersion" .) }}
+        {{- if semverCompare "<1.23-0" (include "common.capabilities.kubeVersion" $) }}
         targetAverageUtilization: {{ $.Values.worker.autoscaling.targetMemory }}
         {{- else }}
         target:
@@ -38,7 +38,7 @@ spec:
     - type: Resource
       resource:
         name: cpu
-        {{- if semverCompare "<1.23-0" (include "common.capabilities.kubeVersion" .) }}
+        {{- if semverCompare "<1.23-0" (include "common.capabilities.kubeVersion" $) }}
         targetAverageUtilization: {{ $.Values.worker.autoscaling.targetCPU }}
         {{- else }}
         target:
