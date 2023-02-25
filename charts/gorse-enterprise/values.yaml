@@ -79,74 +79,76 @@ gorse:
     ##
     serverCacheExpire: "10s"
 
-  master:
-    ## @param gorse.master.jobs Number of working jobs in the master node
+  recommends:
+    ## @param gorse.recommends[0].name The name of recommend channel
     ##
-    jobs: 1
-
-  cache:
-    ## @param gorse.cache.size The cache size for recommended/popular/latest items
-    ##
-    size: 10
-    ## @param gorse.cache.expire Recommended cache expire time
-    ##
-    expire: "72h"
-
-  dataSource:
-    ## @param gorse.dataSource.feedbackTimeToLive The time-to-live (days) of positive feedback
-    ##
-    feedbackTimeToLive: 0
-    ## @param gorse.dataSource.itemTimeToLive The time-to-live (days) of items
-    ##
-    itemTimeToLive: 0
-    ## @param gorse.dataSource.positiveFeedbacks The feedback types for positive events
-    ##
-    positiveFeedbacks: []
-    ## @param gorse.dataSource.readFeedbacks The feedback types for read events.
-    ##
-    readFeedbacks: []
-
-  recommend:
-    ## @param gorse.recommend.popular The time window of popular items
-    ##
-    popular: "4320h"
-
-    neighbors:
-      users:
-        ## @param gorse.recommend.neighbors.users.type The type of neighbors for users
+    - name: Default
+      dataSource:
+        ## @param gorse.recommends[0].dataSource.feedbackTimeToLive The time-to-live (days) of positive feedback
         ##
-        type: "similar"
-      items:
-        ## @param gorse.recommend.neighbors.items.type The type of neighbors for items.
+        feedbackTimeToLive: 0
+        ## @param gorse.recommends[0].dataSource.itemTimeToLive The time-to-live (days) of items
         ##
-        type: "similar"
+        itemTimeToLive: 0
+        ## @param gorse.recommends[0].dataSource.positiveFeedbacks The feedback types for positive events
+        ##
+        positiveFeedbacks: []
+        ## @param gorse.recommends[0].dataSource.readFeedbacks The feedback types for read events.
+        ##
+        readFeedbacks: []
 
-    collaborative:
-      ## @param gorse.recommend.collaborative.enable Enable approximate collaborative filtering recommend using vector index
+      cache:
+        ## @param gorse.recommends[0].cache.size The cache size for recommended/popular/latest items
+        ##
+        size: 10
+        ## @param gorse.recommends[0].cache.expire Recommended cache expire time
+        ##
+        expire: "72h"
+
+      ## @param gorse.recommends[0].popular The time window of popular items
       ##
-      enable: true
+      popular: "4320h"
 
-    replacement:
-      ## @param gorse.recommend.replacement.enable Replace historical items back to recommendations
-      ##
-      enable: false
-      decay:
-        ## @param gorse.recommend.replacement.decay.positive Decay the weights of replaced items from positive feedbacks
-        ##
-        positive: 0.8
-        ## @param gorse.recommend.replacement.decay.read Decay the weights of replaced items from read feedbacks
-        ##
-        read: 0.6
+      neighbors:
+        users:
+          ## @param gorse.recommends[0].neighbors.users.type The type of neighbors for users
+          ##
+          type: "similar"
+        items:
+          ## @param gorse.recommends[0].neighbors.items.type The type of neighbors for items.
+          ##
+          type: "similar"
 
-    online:
-      ## @param gorse.recommend.online.fallback The fallback recommendation method is used when cached recommendation drained
-      ##
-      fallback:
-        - "latest"
+      collaborative:
+        ## @param gorse.recommends[0].collaborative.enable Enable approximate collaborative filtering recommend using vector index
+        ##
+        enable: true
+
+      replacement:
+        ## @param gorse.recommends[0].replacement.enable Replace historical items back to recommendations
+        ##
+        enable: false
+        decay:
+          ## @param gorse.recommends[0].replacement.decay.positive Decay the weights of replaced items from positive feedbacks
+          ##
+          positive: 0.8
+          ## @param gorse.recommends[0].replacement.decay.read Decay the weights of replaced items from read feedbacks
+          ##
+          read: 0.6
+
+      online:
+        ## @param gorse.recommends[0].online.fallback The fallback recommendation method is used when cached recommendation drained
+        ##
+        fallback:
+          - "latest"
 
 ## @section Gorse master node parameters
 ##
 master:
+  ## @param master.jobs Number of working jobs in the master node
+  ##
+  jobs: 1
+
   ## Gorse Master image version
   ## ref: https://hub.docker.com/r/zhenghaoz/gorse-master
   ## @param master.image.registry Gorse image registry
@@ -738,6 +740,10 @@ server:
 ##
 
 worker:
+  ## @param worker.jobs Number of working jobs in the worker node
+  ##
+  jobs: 1
+
   ## Gorse Worker image version
   ## ref: https://hub.docker.com/r/zhenghaoz/gorse-master
   ## @param worker.image.registry Gorse image registry

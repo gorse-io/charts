@@ -1,13 +1,15 @@
+{{- range $recommend := .Values.gorse.recommends }}
+---
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: {{ printf "%s" (include "common.names.fullname" .) }}
-  namespace: {{ .Release.Namespace | quote }}
-  labels: {{- include "common.labels.standard" . | nindent 4 }}
-    {{- if .Values.commonLabels }}
+  name: {{ printf "%s-%s" (include "common.names.fullname" $ ) $recommend.name }}
+  namespace: {{ $.Release.Namespace | quote }}
+  labels: {{- include "common.labels.standard" $ | nindent 4 }}
+    {{- if $.Values.commonLabels }}
     {{- include "common.tplvalues.render" ( dict "value" .Values.commonLabels "context" $ ) | nindent 4 }}
     {{- end }}
-  {{- if .Values.commonAnnotations }}
+  {{- if $.Values.commonAnnotations }}
   annotations: {{- include "common.tplvalues.render" ( dict "value" .Values.commonAnnotations "context" $ ) | nindent 4 }}
   {{- end }}
 data:
@@ -55,10 +57,10 @@ data:
     # AllowedDomains is a list of allowed values for Http Origin.
     # The list may contain the special wildcard string ".*" ; all is allowed
     # If empty all are allowed.
-    http_cors_domains = {{ include "gorse.toTOMLArray" (dict "List" .Values.gorse.api.corsDomains) }}
+    http_cors_domains = {{ include "gorse.toTOMLArray" (dict "List" $.Values.gorse.api.corsDomains) }}
 
     # AllowedMethods is either empty or has a list of http methods names. Checking is case-insensitive.
-    http_cors_methods = {{ include "gorse.toTOMLArray" (dict "List" .Values.gorse.api.corsMethods) }}
+    http_cors_methods = {{ include "gorse.toTOMLArray" (dict "List" $.Values.gorse.api.corsMethods) }}
 
     # Number of working jobs in the master node. The default value is 1.
     n_jobs = 1
@@ -78,49 +80,49 @@ data:
     [server]
 
     # Default number of returned items. The default value is 10.
-    default_n = {{ .Values.gorse.api.returnSize }}
+    default_n = {{ $.Values.gorse.api.returnSize }}
 
     # Secret key for RESTful APIs (SSL required).
     api_key = ""
 
     # Clock error in the cluster. The default value is 5s.
-    clock_error = "5s"
+    clock_error = "5s".recommend
 
     # Insert new users while inserting feedback. The default value is true.
-    auto_insert_user = {{ .Values.gorse.api.autoInsertUsers }}
+    auto_insert_user = {{ $.Values.gorse.api.autoInsertUsers }}
 
     # Insert new items while inserting feedback. The default value is true.
-    auto_insert_item = {{ .Values.gorse.api.autoInsertItems }}
+    auto_insert_item = {{ $.Values.gorse.api.autoInsertItems }}
 
     # Server-side cache expire time. The default value is 10s.
-    cache_expire = {{ .Values.gorse.api.serverCacheExpire | quote }}
+    cache_expire = {{ $.Values.gorse.api.serverCacheExpire | quote }}
 
     [recommend]
 
     # The cache size for recommended/popular/latest items. The default value is 10.
-    cache_size = {{ .Values.gorse.cache.size }}
+    cache_size = {{ $recommend.cache.size }}
 
     # Recommended cache expire time. The default value is 72h.
-    cache_expire = {{ .Values.gorse.cache.expire | quote }}
+    cache_expire = {{ $recommend.cache.expire | quote }}
 
     [recommend.data_source]
 
     # The feedback types for positive events.
-    positive_feedback_types = {{ include "gorse.toTOMLArray" (dict "List" .Values.gorse.dataSource.positiveFeedbacks) }}
+    positive_feedback_types = {{ include "gorse.toTOMLArray" (dict "List" $recommend.dataSource.positiveFeedbacks) }}
 
     # The feedback types for read events.
-    read_feedback_types = {{ include "gorse.toTOMLArray" (dict "List" .Values.gorse.dataSource.readFeedbacks) }}
+    read_feedback_types = {{ include "gorse.toTOMLArray" (dict "List" $recommend.dataSource.readFeedbacks) }}
 
     # The time-to-live (days) of positive feedback, 0 means disabled. The default value is 0.
-    positive_feedback_ttl = {{ .Values.gorse.dataSource.feedbackTimeToLive }}
+    positive_feedback_ttl = {{ $recommend.dataSource.feedbackTimeToLive }}
 
     # The time-to-live (days) of items, 0 means disabled. The default value is 0.
-    item_ttl = {{ .Values.gorse.dataSource.itemTimeToLive }}
+    item_ttl = {{ $recommend.dataSource.itemTimeToLive }}
 
     [recommend.popular]
 
     # The time window of popular items. The default values is 4320h.
-    popular_window = {{ .Values.gorse.recommend.popular | quote }}
+    popular_window = {{ $recommend.popular | quote }}
 
     [recommend.user_neighbors]
 
@@ -130,7 +132,7 @@ data:
     #   auto: If a user have labels, neighbors are found by number of common labels.
     #         If this user have no labels, neighbors are found by number of common liked items.
     # The default value is "auto".
-    neighbor_type = {{ .Values.gorse.recommend.neighbors.users.type | quote }}
+    neighbor_type = {{ $recommend.neighbors.users.type | quote }}
 
     # Enable approximate user neighbor searching using vector index. The default value is true.
     enable_index = true
@@ -149,7 +151,7 @@ data:
     #   auto: If a item have labels, neighbors are found by number of common labels.
     #         If this item have no labels, neighbors are found by number of common users.
     # The default value is "auto".
-    neighbor_type = {{ .Values.gorse.recommend.neighbors.items.type | quote }}
+    neighbor_type = {{ $recommend.neighbors.items.type | quote }}
 
     # Enable approximate item neighbor searching using vector index. The default value is true.
     enable_index = true
@@ -163,7 +165,7 @@ data:
     [recommend.collaborative]
 
     # Enable approximate collaborative filtering recommend using vector index. The default value is true.
-    enable_index = {{ .Values.gorse.recommend.collaborative.enable }}
+    enable_index = {{ $recommend.collaborative.enable }}
 
     # Minimal recall for approximate collaborative filtering recommend. The default value is 0.9.
     index_recall = 0.9
@@ -189,13 +191,13 @@ data:
     [recommend.replacement]
 
     # Replace historical items back to recommendations. The default value is false.
-    enable_replacement = {{ .Values.gorse.recommend.replacement.enable }}
+    enable_replacement = {{ $recommend.replacement.enable }}
 
     # Decay the weights of replaced items from positive feedbacks. The default value is 0.8.
-    positive_replacement_decay = {{ .Values.gorse.recommend.replacement.decay.positive }}
+    positive_replacement_decay = {{ $recommend.replacement.decay.positive }}
 
     # Decay the weights of replaced items from read feedbacks. The default value is 0.6.
-    read_replacement_decay = {{ .Values.gorse.recommend.replacement.decay.read }}
+    read_replacement_decay = {{ $recommend.replacement.decay.read }}
 
     [recommend.offline]
 
@@ -237,7 +239,7 @@ data:
     #   popular: Recommend popular items to cold-start users.
     #   latest: Recommend latest items to cold-start users.
     # Recommenders are used in order. The default values is ["latest"].
-    fallback_recommend = {{ include "gorse.toTOMLArray" (dict "List" .Values.gorse.recommend.online.failback) }}
+    fallback_recommend = {{ include "gorse.toTOMLArray" (dict "List" $recommend.online.failback) }}
 
     # The number of feedback used in fallback item-based similar recommendation. The default values is 10.
     num_feedback_fallback_item_based = 10
@@ -258,3 +260,4 @@ data:
 
     # The ratio of ratio based sampler. The default value is 1.
     ratio = 1
+{{- end }}
