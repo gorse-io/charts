@@ -79,34 +79,29 @@ gorse:
     ##
     serverCacheExpire: "10s"
 
-  master:
-    ## @param gorse.master.jobs Number of working jobs in the master node
-    ##
-    jobs: 1
-
-  cache:
-    ## @param gorse.cache.size The cache size for recommended/popular/latest items
-    ##
-    size: 10
-    ## @param gorse.cache.expire Recommended cache expire time
-    ##
-    expire: "72h"
-
-  dataSource:
-    ## @param gorse.dataSource.feedbackTimeToLive The time-to-live (days) of positive feedback
-    ##
-    feedbackTimeToLive: 0
-    ## @param gorse.dataSource.itemTimeToLive The time-to-live (days) of items
-    ##
-    itemTimeToLive: 0
-    ## @param gorse.dataSource.positiveFeedbacks The feedback types for positive events
-    ##
-    positiveFeedbacks: []
-    ## @param gorse.dataSource.readFeedbacks The feedback types for read events.
-    ##
-    readFeedbacks: []
-
   recommend:
+    dataSource:
+      ## @param gorse.recommend.dataSource.feedbackTimeToLive The time-to-live (days) of positive feedback
+      ##
+      feedbackTimeToLive: 0
+      ## @param gorse.recommend.dataSource.itemTimeToLive The time-to-live (days) of items
+      ##
+      itemTimeToLive: 0
+      ## @param gorse.recommend.dataSource.positiveFeedbacks The feedback types for positive events
+      ##
+      positiveFeedbacks: []
+      ## @param gorse.recommend.dataSource.readFeedbacks The feedback types for read events.
+      ##
+      readFeedbacks: []
+
+    cache:
+      ## @param gorse.recommend.cache.size The cache size for recommended/popular/latest items
+      ##
+      size: 10
+      ## @param gorse.recommend.cache.expire Recommended cache expire time
+      ##
+      expire: "72h"
+
     ## @param gorse.recommend.popular The time window of popular items
     ##
     popular: "4320h"
@@ -147,6 +142,10 @@ gorse:
 ## @section Gorse master node parameters
 ##
 master:
+  ## @param master.jobs Number of working jobs in the master node
+  ##
+  jobs: 1
+
   ## Gorse Master image version
   ## ref: https://hub.docker.com/r/zhenghaoz/gorse-master
   ## @param master.image.registry Gorse image registry
@@ -738,6 +737,10 @@ server:
 ##
 
 worker:
+  ## @param worker.jobs Number of working jobs in the worker node
+  ##
+  jobs: 1
+
   ## Gorse Worker image version
   ## ref: https://hub.docker.com/r/zhenghaoz/gorse-master
   ## @param worker.image.registry Gorse image registry

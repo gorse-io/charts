@@ -86,7 +86,7 @@ spec:
             - name: GORSE_MASTER_HTTP_PORT
               value: "{{ .Values.master.service.ports.http }}"
             - name: GORSE_MASTER_JOBS
-              value: "{{ .Values.gorse.master.jobs }}"
+              value: "{{ .Values.master.jobs }}"
             - name: GORSE_DATABASE_HOST
               value: {{ include "gorse.databaseHost" . }}
             - name: GORSE_DATABASE_PORT

@@ -10,6 +10,7 @@
 | `global.imagePullSecrets` | Global Docker registry secret names as an array | `[]`  |
 | `global.storageClass`     | Global StorageClass for Persistent Volume(s)    | `""`  |
 
+
 ### Common parameters
 
 | Name                | Description                                        | Value           |
@@ -21,6 +22,7 @@
 | `commonAnnotations` | Annotations to add to all deployed objects         | `{}`            |
 | `secretAnnotations` | Annotations to add to secret                       | `{}`            |
 | `clusterDomain`     | Default Kubernetes cluster domain                  | `cluster.local` |
+
 
 ### Gorse Configuration parameters
 
@@ -51,6 +53,7 @@
 | `gorse.recommend.replacement.decay.positive` | Decay the weights of replaced items from positive feedbacks                   | `0.8`        |
 | `gorse.recommend.replacement.decay.read`     | Decay the weights of replaced items from read feedbacks                       | `0.6`        |
 | `gorse.recommend.online.fallback`            | The fallback recommendation method is used when cached recommendation drained | `["latest"]` |
+
 
 ### Gorse master node parameters
 
@@ -117,6 +120,7 @@
 | `master.pdb.minAvailable`                 | Min number of pods that must still be available after the eviction                                                               | `1`                      |
 | `master.pdb.maxUnavailable`               | Max number of pods that can be unavailable after the eviction                                                                    | `""`                     |
 
+
 ### Gorse server node parameters
 
 | Name                                      | Description                                                                                                                      | Value                    |
@@ -172,6 +176,7 @@
 | `server.pdb.minAvailable`                 | Min number of pods that must still be available after the eviction                                                               | `1`                      |
 | `server.pdb.maxUnavailable`               | Max number of pods that can be unavailable after the eviction                                                                    | `""`                     |
 
+
 ### Gorse worker node parameters
 
 | Name                                      | Description                                                                                                  | Value                    |
@@ -215,6 +220,7 @@
 | `worker.pdb.minAvailable`                 | Min number of pods that must still be available after the eviction                                           | `1`                      |
 | `worker.pdb.maxUnavailable`               | Max number of pods that can be unavailable after the eviction                                                | `""`                     |
 
+
 ### Database Parameters
 
 | Name                                         | Description                                                               | Value               |
@@ -237,3 +243,4 @@
 | `externalDatabase.database`                  | Gorse database name                                                       | `gorse`             |
 | `externalDatabase.existingSecret`            | Name of an existing secret resource containing the database credentials   | `""`                |
 | `externalDatabase.existingSecretPasswordKey` | Name of an existing secret key containing the database credentials        | `mongodb-passwords` |
+
