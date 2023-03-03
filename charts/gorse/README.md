@@ -107,7 +107,7 @@ The command removes all the Kubernetes components associated with the chart and 
 | `master.jobs`                             | Number of working jobs in the master node                                                                                        | `1`                      |
 | `master.image.registry`                   | Gorse image registry                                                                                                             | `docker.io`              |
 | `master.image.repository`                 | Gorse Master image repository                                                                                                    | `zhenghaoz/gorse-master` |
-| `master.image.tag`                        | Gorse Master image tag (immutable tags are recommended)                                                                          | `0.4.11`                 |
+| `master.image.tag`                        | Gorse Master image tag (immutable tags are recommended)                                                                          | `0.4.12`                 |
 | `master.image.digest`                     | Gorse Master image digest in the way sha256:aa.... Please note this parameter, if set, will override the tag                     | `""`                     |
 | `master.image.pullPolicy`                 | Gorse Master image pull policy                                                                                                   | `IfNotPresent`           |
 | `master.image.pullSecrets`                | Specify docker-registry secret names as an array                                                                                 | `[]`                     |
@@ -173,7 +173,7 @@ The command removes all the Kubernetes components associated with the chart and 
 | ----------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------- | ------------------------ |
 | `server.image.registry`                   | Gorse image registry                                                                                                             | `docker.io`              |
 | `server.image.repository`                 | Gorse Server image repository                                                                                                    | `zhenghaoz/gorse-server` |
-| `server.image.tag`                        | Gorse Server image tag (immutable tags are recommended)                                                                          | `0.4.11`                 |
+| `server.image.tag`                        | Gorse Server image tag (immutable tags are recommended)                                                                          | `0.4.12`                 |
 | `server.image.digest`                     | Gorse Server image digest in the way sha256:aa.... Please note this parameter, if set, will override the tag                     | `""`                     |
 | `server.image.pullPolicy`                 | Gorse Server image pull policy                                                                                                   | `IfNotPresent`           |
 | `server.image.pullSecrets`                | Specify docker-registry secret names as an array                                                                                 | `[]`                     |
@@ -230,7 +230,7 @@ The command removes all the Kubernetes components associated with the chart and 
 | `worker.jobs`                             | Number of working jobs in the worker node                                                                    | `1`                      |
 | `worker.image.registry`                   | Gorse image registry                                                                                         | `docker.io`              |
 | `worker.image.repository`                 | Gorse Worker image repository                                                                                | `zhenghaoz/gorse-worker` |
-| `worker.image.tag`                        | Gorse Worker image tag (immutable tags are recommended)                                                      | `0.4.11`                 |
+| `worker.image.tag`                        | Gorse Worker image tag (immutable tags are recommended)                                                      | `0.4.12`                 |
 | `worker.image.digest`                     | Gorse Worker image digest in the way sha256:aa.... Please note this parameter, if set, will override the tag | `""`                     |
 | `worker.image.pullPolicy`                 | Gorse Worker image pull policy                                                                               | `IfNotPresent`           |
 | `worker.image.pullSecrets`                | Specify docker-registry secret names as an array                                                             | `[]`                     |
