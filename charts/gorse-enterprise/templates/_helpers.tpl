@@ -20,6 +20,19 @@ We truncate at 63 chars because some Kubernetes name fields are limited to this 
 {{ printf "%s-worker" (include "common.names.fullname" .) }}
 {{- end -}}
 
+{{- define "gorse.proxy.fullname" -}}
+{{ printf "%s-proxy" (include "common.names.fullname" .) }}
+{{- end -}}
+
+{{- define "gorse.proxy.endpoints" -}}
+{{- range $i, $recommend := .Values.gorse.recommends -}}
+    {{- printf "http://%s:%d" (printf "%s-%s" (include "gorse.server.fullname" $) .name) ($.Values.server.service.ports.http | int) -}}
+    {{- if not (eq (add $i 1) (len $.Values.gorse.recommends)) -}}
+        {{- printf "," -}}
+    {{- end -}}
+{{- end -}}
+{{- end -}}
+
 {{/*
 Returns the available value for certain key in an existing secret (if it exists),
 otherwise it generates a random value.

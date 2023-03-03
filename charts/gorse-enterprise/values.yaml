@@ -924,6 +924,190 @@ worker:
     ##
     maxUnavailable: ""
 
+## @section Gorse proxy parameters
+##
+
+proxy:
+  ## Gorse Worker image version
+  ## ref: https://hub.docker.com/r/zhenghaoz/gorse-master
+  ## @param proxy.image.registry Gorse image registry
+  ## @param proxy.image.repository Gorse Worker image repository
+  ## @param proxy.image.tag Gorse Worker image tag (immutable tags are recommended)
+  ## @param proxy.image.digest Gorse Worker image digest in the way sha256:aa.... Please note this parameter, if set, will override the tag
+  ## @param proxy.image.pullPolicy Gorse Worker image pull policy
+  ## @param proxy.image.pullSecrets Specify docker-registry secret names as an array
+  ##
+  image:
+    registry: docker.io
+    repository: zhenghaoz/gorse-proxy
+    tag: 0.4.0
+    digest: ""
+    ## Specify an imagePullPolicy
+    ## ref: http://kubernetes.io/docs/user-guide/images/#pre-pulling-images
+    ##
+    pullPolicy: IfNotPresent
+    ## Optionally specify an array of imagePullSecrets.
+    ## Secrets must be manually created in the namespace.
+    ## ref: https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/
+    ## Example:
+    ## pullSecrets:
+    ##   - myRegistryKeySecretName
+    ##
+    pullSecrets: []
+
+  ## Gorse proxy service parameters
+  ##
+  service:
+    ## @param proxy.service.enable Enable service for Gorse proxies
+    ##
+    enable: false
+    ## @param proxy.service.type Gorse worker service type
+    ##
+    type: ClusterIP
+    ## @param proxy.service.ports.http Gorse worker service port
+    ##
+    ports:
+      http: 9000
+    ## @param proxy.service.nodePorts.http Node port for Gorse proxy
+    ## ref: https://kubernetes.io/docs/concepts/services-networking/service/#type-nodeport
+    ## NOTE: choose port between <30000-32767>
+    ##
+    nodePorts:
+      http: ""
+    ## @param proxy.service.externalTrafficPolicy Gorse proxy service external traffic policy
+    ## ref: https://kubernetes.io/docs/tasks/access-application-cluster/create-external-load-balancer/#preserving-the-client-source-ip
+    ##
+    externalTrafficPolicy: Cluster
+    ## @param proxy.service.extraPorts Extra ports to expose (normally used with the `sidecar` value)
+    ##
+    extraPorts: []
+    ## @param proxy.service.internalTrafficPolicy Gorse proxy service internal traffic policy (requires Kubernetes v1.22 or greater to be usable)
+    ## ref: https://kubernetes.io/docs/concepts/services-networking/service-traffic-policy/
+    ##
+    internalTrafficPolicy: Cluster
+    ## @param proxy.service.clusterIP Gorse proxy service Cluster IP
+    ##
+    clusterIP: ""
+    ## @param proxy.service.loadBalancerIP Gorse proxy service Load Balancer IP
+    ## ref: https://kubernetes.io/docs/concepts/services-networking/service/#internal-load-balancer
+    ##
+    loadBalancerIP: ""
+    ## @param proxy.service.loadBalancerSourceRanges Gorse proxy service Load Balancer sources
+    ## https://kubernetes.io/docs/tasks/access-application-cluster/configure-cloud-provider-firewall/#restrict-access-for-loadbalancer-service
+    ## e.g.
+    ## loadBalancerSourceRanges:
+    ##   - 10.10.10.0/24
+    ##
+    loadBalancerSourceRanges: []
+    ## @param proxy.service.annotations Additional custom annotations for Gorse proxy service
+    ##
+    annotations: {}
+    ## @param proxy.service.sessionAffinity Session Affinity for Kubernetes service, can be "None" or "ClientIP"
+    ## If "ClientIP", consecutive client requests will be directed to the same Pod
+    ## ref: https://kubernetes.io/docs/concepts/services-networking/service/#virtual-ips-and-service-proxies
+    ##
+    sessionAffinity: None
+    ## @param proxy.service.sessionAffinityConfig Additional settings for the sessionAffinity
+    ## sessionAffinityConfig:
+    ##   clientIP:
+    ##     timeoutSeconds: 300
+    ##
+    sessionAffinityConfig: {}
+
+  ## @param proxy.replicaCount Number of proxies replicas to deploy
+  ## NOTE: ReadWriteMany PVC(s) are required if replicaCount > 1
+  ##
+  replicaCount: 1
+
+  ## Autoscaling configuration
+  ##
+  autoscaling:
+    ## @param proxy.autoscaling.enabled Enable replica autoscaling settings
+    ##
+    enabled: false
+    ## @param proxy.autoscaling.minReplicas Minimum replicas for the pod autoscaling
+    ##
+    minReplicas: 1
+    ## @param proxy.autoscaling.maxReplicas Maximum replicas for the pod autoscaling
+    ##
+    maxReplicas: 11
+    ## @param proxy.autoscaling.targetCPU Percentage of CPU to consider when autoscaling
+    ##
+    targetCPU: 50
+    ## @param proxy.autoscaling.targetMemory Percentage of Memory to consider when autoscaling
+    ##
+    targetMemory: 50
+
+  ## Gorse replicas resource requests and limits
+  ## ref: https://kubernetes.io/docs/user-guide/compute-resources/
+  ## @param proxy.resources.limits The resources limits for the Gorse replicas containers
+  ## @param proxy.resources.requests The requested resources for the Gorse replicas containers
+  ##
+  resources:
+    # We usually recommend not to specify default resources and to leave this as a conscious
+    # choice for the user. This also increases chances charts run on environments with little
+    # resources, such as Minikube. If you do want to specify resources, uncomment the following
+    # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
+    limits: {}
+    #   cpu: 250m
+    #   memory: 256Mi
+    requests: {}
+    #   cpu: 250m
+    #   memory: 256Mi
+
+  ## @param proxy.podAffinityPreset Pod affinity preset. Ignored if `proxy.affinity` is set. Allowed values: `soft` or `hard`
+  ## ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#inter-pod-affinity-and-anti-affinity
+  ##
+  podAffinityPreset: ""
+  ## @param proxy.podAntiAffinityPreset Pod anti-affinity preset. Ignored if `proxy.affinity` is set. Allowed values: `soft` or `hard`
+  ## ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#inter-pod-affinity-and-anti-affinity
+  ##
+  podAntiAffinityPreset: soft
+  ## Node proxy.affinity preset
+  ## ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#node-affinity
+  ##
+  nodeAffinityPreset:
+    ## @param proxy.nodeAffinityPreset.type Node affinity preset type. Ignored if `proxy.affinity` is set. Allowed values: `soft` or `hard`
+    ##
+    type: ""
+    ## @param proxy.nodeAffinityPreset.key Node label key to match. Ignored if `proxy.affinity` is set
+    ##
+    key: ""
+    ## @param proxy.nodeAffinityPreset.values Node label values to match. Ignored if `proxy.affinity` is set
+    ## E.g.
+    ## values:
+    ##   - e2e-az1
+    ##   - e2e-az2
+    ##
+    values: []
+  ## @param proxy.affinity Affinity for Gorse proxy pods assignment
+  ## ref: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/#affinity-and-anti-affinity
+  ## NOTE: `proxy.podAffinityPreset`, `proxy.podAntiAffinityPreset`, and `proxy.nodeAffinityPreset` will be ignored when it's set
+  ##
+  affinity: {}
+  ## @param proxy.nodeSelector Node labels for Gorse proxy pods assignment
+  ## ref: https://kubernetes.io/docs/user-guide/node-selection/
+  ##
+  nodeSelector: {}
+  ## @param proxy.tolerations Tolerations for Gorse proxy pods assignment
+  ## ref: https://kubernetes.io/docs/concepts/configuration/taint-and-toleration/
+  ##
+  tolerations: []
+
+  ## Worker Pod Disruption Budget configuration
+  ## ref: https://kubernetes.io/docs/tasks/run-application/configure-pdb/
+  ##
+  pdb:
+    ## @param proxy.pdb.create Specifies whether a PodDisruptionBudget should be created
+    ##
+    create: false
+    ## @param proxy.pdb.minAvailable Min number of pods that must still be available after the eviction
+    ##
+    minAvailable: 1
+    ## @param proxy.pdb.maxUnavailable Max number of pods that can be unavailable after the eviction
+    ##
+    maxUnavailable: ""
+
 ## @section Database Parameters
 ##
 
