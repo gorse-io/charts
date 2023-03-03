@@ -1,0 +1,54 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "gorse.proxy.fullname" $ }}
+  namespace: {{ .Release.Namespace | quote }}
+  labels: {{- include "common.labels.standard" . | nindent 4 }}
+    app.kubernetes.io/component: proxy
+    {{- if $.Values.commonLabels }}
+    {{- include "common.tplvalues.render" ( dict "value" $.Values.commonLabels "context" $ ) | nindent 4 }}
+    {{- end }}
+  {{- if or $.Values.proxy.service.annotations $.Values.commonAnnotations }}
+  annotations:
+    {{- if $.Values.proxy.service.annotations }}
+    {{- include "common.tplvalues.render" ( dict "value" $.Values.proxy.service.annotations "context" $ ) | nindent 4 }}
+    {{- end }}
+    {{- if $.Values.commonAnnotations }}
+    {{- include "common.tplvalues.render" ( dict "value" $.Values.commonAnnotations "context" $ ) | nindent 4 }}
+    {{- end }}
+  {{- end }}
+spec:
+  type: {{ $.Values.proxy.service.type }}
+  {{- if or (eq $.Values.proxy.service.type "LoadBalancer") (eq $.Values.proxy.service.type "NodePort") }}
+  externalTrafficPolicy: {{ $.Values.proxy.service.externalTrafficPolicy | quote }}
+  {{- end }}
+  {{- if (semverCompare ">=1.22-0" (include "common.capabilities.kubeVersion" .)) }}
+  internalTrafficPolicy: {{ $.Values.proxy.service.internalTrafficPolicy }}
+  {{- end }}
+  {{- if and (eq $.Values.proxy.service.type "LoadBalancer") (not (empty $.Values.proxy.service.loadBalancerIP)) }}
+  loadBalancerIP: {{ $.Values.proxy.service.loadBalancerIP }}
+  {{- end }}
+  {{- if and (eq $.Values.proxy.service.type "LoadBalancer") (not (empty $.Values.proxy.service.loadBalancerSourceRanges)) }}
+  loadBalancerSourceRanges: {{ $.Values.proxy.service.loadBalancerSourceRanges }}
+  {{- end }}
+  {{- if and $.Values.proxy.service.clusterIP (eq $.Values.proxy.service.type "ClusterIP") }}
+  clusterIP: {{ $.Values.proxy.service.clusterIP }}
+  {{- end }}
+  {{- if $.Values.proxy.service.sessionAffinity }}
+  sessionAffinity: {{ $.Values.proxy.service.sessionAffinity }}
+  {{- end }}
+  {{- if $.Values.proxy.service.sessionAffinityConfig }}
+  sessionAffinityConfig: {{- include "common.tplvalues.render" (dict "value" $.Values.proxy.service.sessionAffinityConfig "context" $) | nindent 4 }}
+  {{- end }}
+  ports:
+    - name: http
+      port: {{ $.Values.proxy.service.ports.http }}
+      protocol: TCP
+      targetPort: http
+      {{- if and (or (eq $.Values.proxy.service.type "NodePort") (eq $.Values.proxy.service.type "LoadBalancer")) $.Values.proxy.service.nodePorts.http}}
+      nodePort: {{ $.Values.proxy.service.nodePorts.http}}
+      {{- else if eq $.Values.proxy.service.type "ClusterIP" }}
+      nodePort: null
+      {{- end }}
+  selector: {{- include "common.labels.matchLabels" . | nindent 4 }}
+    app.kubernetes.io/component: worker

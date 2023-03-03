@@ -223,6 +223,50 @@
 | `worker.pdb.maxUnavailable`               | Max number of pods that can be unavailable after the eviction                                                | `""`                     |
 
 
+### Gorse proxy parameters
+
+| Name                                     | Description                                                                                                  | Value                   |
+| ---------------------------------------- | ------------------------------------------------------------------------------------------------------------ | ----------------------- |
+| `proxy.image.registry`                   | Gorse image registry                                                                                         | `docker.io`             |
+| `proxy.image.repository`                 | Gorse Worker image repository                                                                                | `zhenghaoz/gorse-proxy` |
+| `proxy.image.tag`                        | Gorse Worker image tag (immutable tags are recommended)                                                      | `latest`                |
+| `proxy.image.digest`                     | Gorse Worker image digest in the way sha256:aa.... Please note this parameter, if set, will override the tag | `""`                    |
+| `proxy.image.pullPolicy`                 | Gorse Worker image pull policy                                                                               | `IfNotPresent`          |
+| `proxy.image.pullSecrets`                | Specify docker-registry secret names as an array                                                             | `[]`                    |
+| `proxy.service.enable`                   | Enable service for Gorse proxies                                                                             | `false`                 |
+| `proxy.service.type`                     | Gorse worker service type                                                                                    | `ClusterIP`             |
+| `proxy.service.ports.http`               | Gorse worker service port                                                                                    | `9000`                  |
+| `proxy.service.nodePorts.http`           | Node port for Gorse proxy                                                                                    | `""`                    |
+| `proxy.service.externalTrafficPolicy`    | Gorse proxy service external traffic policy                                                                  | `Cluster`               |
+| `proxy.service.extraPorts`               | Extra ports to expose (normally used with the `sidecar` value)                                               | `[]`                    |
+| `proxy.service.internalTrafficPolicy`    | Gorse proxy service internal traffic policy (requires Kubernetes v1.22 or greater to be usable)              | `Cluster`               |
+| `proxy.service.clusterIP`                | Gorse proxy service Cluster IP                                                                               | `""`                    |
+| `proxy.service.loadBalancerIP`           | Gorse proxy service Load Balancer IP                                                                         | `""`                    |
+| `proxy.service.loadBalancerSourceRanges` | Gorse proxy service Load Balancer sources                                                                    | `[]`                    |
+| `proxy.service.annotations`              | Additional custom annotations for Gorse proxy service                                                        | `{}`                    |
+| `proxy.service.sessionAffinity`          | Session Affinity for Kubernetes service, can be "None" or "ClientIP"                                         | `None`                  |
+| `proxy.service.sessionAffinityConfig`    | Additional settings for the sessionAffinity                                                                  | `{}`                    |
+| `proxy.replicaCount`                     | Number of proxies replicas to deploy                                                                         | `1`                     |
+| `proxy.autoscaling.enabled`              | Enable replica autoscaling settings                                                                          | `false`                 |
+| `proxy.autoscaling.minReplicas`          | Minimum replicas for the pod autoscaling                                                                     | `1`                     |
+| `proxy.autoscaling.maxReplicas`          | Maximum replicas for the pod autoscaling                                                                     | `11`                    |
+| `proxy.autoscaling.targetCPU`            | Percentage of CPU to consider when autoscaling                                                               | `50`                    |
+| `proxy.autoscaling.targetMemory`         | Percentage of Memory to consider when autoscaling                                                            | `50`                    |
+| `proxy.resources.limits`                 | The resources limits for the Gorse replicas containers                                                       | `{}`                    |
+| `proxy.resources.requests`               | The requested resources for the Gorse replicas containers                                                    | `{}`                    |
+| `proxy.podAffinityPreset`                | Pod affinity preset. Ignored if `proxy.affinity` is set. Allowed values: `soft` or `hard`                    | `""`                    |
+| `proxy.podAntiAffinityPreset`            | Pod anti-affinity preset. Ignored if `proxy.affinity` is set. Allowed values: `soft` or `hard`               | `soft`                  |
+| `proxy.nodeAffinityPreset.type`          | Node affinity preset type. Ignored if `proxy.affinity` is set. Allowed values: `soft` or `hard`              | `""`                    |
+| `proxy.nodeAffinityPreset.key`           | Node label key to match. Ignored if `proxy.affinity` is set                                                  | `""`                    |
+| `proxy.nodeAffinityPreset.values`        | Node label values to match. Ignored if `proxy.affinity` is set                                               | `[]`                    |
+| `proxy.affinity`                         | Affinity for Gorse proxy pods assignment                                                                     | `{}`                    |
+| `proxy.nodeSelector`                     | Node labels for Gorse proxy pods assignment                                                                  | `{}`                    |
+| `proxy.tolerations`                      | Tolerations for Gorse proxy pods assignment                                                                  | `[]`                    |
+| `proxy.pdb.create`                       | Specifies whether a PodDisruptionBudget should be created                                                    | `false`                 |
+| `proxy.pdb.minAvailable`                 | Min number of pods that must still be available after the eviction                                           | `1`                     |
+| `proxy.pdb.maxUnavailable`               | Max number of pods that can be unavailable after the eviction                                                | `""`                    |
+
+
 ### Database Parameters
 
 | Name                                         | Description                                                               | Value               |
