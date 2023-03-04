@@ -38,7 +38,7 @@
 | `gorse.api.autoInsertItems`                         | Insert new items while inserting feedback.                                    | `true`       |
 | `gorse.api.returnSize`                              | Default number of returned items                                              | `10`         |
 | `gorse.api.serverCacheExpire`                       | Server-side cache expire time                                                 | `10s`        |
-| `gorse.recommends[0].name`                          | The name of recommend channel                                                 | `Default`    |
+| `gorse.recommends[0].name`                          | The name of recommend channel                                                 | `default`    |
 | `gorse.recommends[0].dataSource.feedbackTimeToLive` | The time-to-live (days) of positive feedback                                  | `0`          |
 | `gorse.recommends[0].dataSource.itemTimeToLive`     | The time-to-live (days) of items                                              | `0`          |
 | `gorse.recommends[0].dataSource.positiveFeedbacks`  | The feedback types for positive events                                        | `[]`         |
@@ -62,7 +62,7 @@
 | `master.jobs`                             | Number of working jobs in the master node                                                                                        | `1`                      |
 | `master.image.registry`                   | Gorse image registry                                                                                                             | `docker.io`              |
 | `master.image.repository`                 | Gorse Master image repository                                                                                                    | `zhenghaoz/gorse-master` |
-| `master.image.tag`                        | Gorse Master image tag (immutable tags are recommended)                                                                          | `0.4.11`                 |
+| `master.image.tag`                        | Gorse Master image tag (immutable tags are recommended)                                                                          | `0.4.12`                 |
 | `master.image.digest`                     | Gorse Master image digest in the way sha256:aa.... Please note this parameter, if set, will override the tag                     | `""`                     |
 | `master.image.pullPolicy`                 | Gorse Master image pull policy                                                                                                   | `IfNotPresent`           |
 | `master.image.pullSecrets`                | Specify docker-registry secret names as an array                                                                                 | `[]`                     |
@@ -128,7 +128,7 @@
 | ----------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------- | ------------------------ |
 | `server.image.registry`                   | Gorse image registry                                                                                                             | `docker.io`              |
 | `server.image.repository`                 | Gorse Server image repository                                                                                                    | `zhenghaoz/gorse-server` |
-| `server.image.tag`                        | Gorse Server image tag (immutable tags are recommended)                                                                          | `0.4.11`                 |
+| `server.image.tag`                        | Gorse Server image tag (immutable tags are recommended)                                                                          | `0.4.12`                 |
 | `server.image.digest`                     | Gorse Server image digest in the way sha256:aa.... Please note this parameter, if set, will override the tag                     | `""`                     |
 | `server.image.pullPolicy`                 | Gorse Server image pull policy                                                                                                   | `IfNotPresent`           |
 | `server.image.pullSecrets`                | Specify docker-registry secret names as an array                                                                                 | `[]`                     |
@@ -185,7 +185,7 @@
 | `worker.jobs`                             | Number of working jobs in the worker node                                                                    | `1`                      |
 | `worker.image.registry`                   | Gorse image registry                                                                                         | `docker.io`              |
 | `worker.image.repository`                 | Gorse Worker image repository                                                                                | `zhenghaoz/gorse-worker` |
-| `worker.image.tag`                        | Gorse Worker image tag (immutable tags are recommended)                                                      | `0.4.11`                 |
+| `worker.image.tag`                        | Gorse Worker image tag (immutable tags are recommended)                                                      | `0.4.12`                 |
 | `worker.image.digest`                     | Gorse Worker image digest in the way sha256:aa.... Please note this parameter, if set, will override the tag | `""`                     |
 | `worker.image.pullPolicy`                 | Gorse Worker image pull policy                                                                               | `IfNotPresent`           |
 | `worker.image.pullSecrets`                | Specify docker-registry secret names as an array                                                             | `[]`                     |
@@ -229,7 +229,7 @@
 | ---------------------------------------- | ------------------------------------------------------------------------------------------------------------ | ----------------------- |
 | `proxy.image.registry`                   | Gorse image registry                                                                                         | `docker.io`             |
 | `proxy.image.repository`                 | Gorse Worker image repository                                                                                | `zhenghaoz/gorse-proxy` |
-| `proxy.image.tag`                        | Gorse Worker image tag (immutable tags are recommended)                                                      | `latest`                |
+| `proxy.image.tag`                        | Gorse Worker image tag (immutable tags are recommended)                                                      | `0.4.0`                 |
 | `proxy.image.digest`                     | Gorse Worker image digest in the way sha256:aa.... Please note this parameter, if set, will override the tag | `""`                    |
 | `proxy.image.pullPolicy`                 | Gorse Worker image pull policy                                                                               | `IfNotPresent`          |
 | `proxy.image.pullSecrets`                | Specify docker-registry secret names as an array                                                             | `[]`                    |

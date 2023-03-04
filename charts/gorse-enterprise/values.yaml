@@ -161,7 +161,7 @@ master:
   image:
     registry: docker.io
     repository: zhenghaoz/gorse-master
-    tag: 0.4.11
+    tag: 0.4.12
     digest: ""
     ## Specify an imagePullPolicy
     ## ref: http://kubernetes.io/docs/user-guide/images/#pre-pulling-images
@@ -476,7 +476,7 @@ server:
   image:
     registry: docker.io
     repository: zhenghaoz/gorse-server
-    tag: 0.4.11
+    tag: 0.4.12
     digest: ""
     ## Specify an imagePullPolicy
     ## ref: http://kubernetes.io/docs/user-guide/images/#pre-pulling-images
@@ -756,7 +756,7 @@ worker:
   image:
     registry: docker.io
     repository: zhenghaoz/gorse-worker
-    tag: 0.4.11
+    tag: 0.4.12
     digest: ""
     ## Specify an imagePullPolicy
     ## ref: http://kubernetes.io/docs/user-guide/images/#pre-pulling-images
