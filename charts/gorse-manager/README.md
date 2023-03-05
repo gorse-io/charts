@@ -117,6 +117,16 @@ This starts an HTTP proxy for secure access to the Gorse Manager Dashboard. Visi
 | `tolerations`                      | Tolerations for Gorse server pods assignment                                                                                     | `[]`                      |
 
 
+### Other Parameters
+
+| Name                                          | Description                                                            | Value   |
+| --------------------------------------------- | ---------------------------------------------------------------------- | ------- |
+| `serviceAccount.create`                       | Enable creation of ServiceAccount for Gorse Manager pod                | `false` |
+| `serviceAccount.name`                         | The name of the ServiceAccount to use.                                 | `""`    |
+| `serviceAccount.automountServiceAccountToken` | Allows auto mount of ServiceAccountToken on the serviceAccount created | `true`  |
+| `serviceAccount.annotations`                  | Additional custom annotations for the ServiceAccount                   | `{}`    |
+
+
 ### Database Parameters
 
 | Name                                         | Description                                                               | Value               |
