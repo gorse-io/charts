@@ -237,7 +237,7 @@ data:
     #   popular: Recommend popular items to cold-start users.
     #   latest: Recommend latest items to cold-start users.
     # Recommenders are used in order. The default values is ["latest"].
-    fallback_recommend = {{ include "gorse.toTOMLArray" (dict "List" .Values.gorse.recommend.online.failback) }}
+    fallback_recommend = {{ include "gorse.toTOMLArray" (dict "List" .Values.gorse.recommend.online.fallback) }}
 
     # The number of feedback used in fallback item-based similar recommendation. The default values is 10.
     num_feedback_fallback_item_based = 10
