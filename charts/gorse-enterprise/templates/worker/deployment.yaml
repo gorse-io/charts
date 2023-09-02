@@ -63,6 +63,8 @@ spec:
               - {{ printf "%s-master" (include "common.names.fullname" $) | quote}}
               - "--master-port"
               - {{ $.Values.master.service.ports.grpc | quote }}
+              - "--jobs"
+              - {{ $.Values.work.jobs | quote }}
           ports:
             - name: http
               containerPort: 8089
