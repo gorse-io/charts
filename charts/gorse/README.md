@@ -84,6 +84,9 @@ The command removes all the Kubernetes components associated with the chart and 
 | `gorse.api.autoInsertItems`                     | Insert new items while inserting feedback.                                    | `true`       |
 | `gorse.api.returnSize`                          | Default number of returned items                                              | `10`         |
 | `gorse.api.serverCacheExpire`                   | Server-side cache expire time                                                 | `10s`        |
+| `gorse.database.tablePrefix`                    | The naming prefix for tables (collections, keys) in databases.                | `""`         |
+| `gorse.database.cacheTablePrefix`               | The naming prefix for tables (collections, keys) in cache storage databases.  | `""`         |
+| `gorse.database.databaseTablePrefix`            | The naming prefix for tables (collections, keys) in data storage databases.   | `""`         |
 | `gorse.recommend.dataSource.feedbackTimeToLive` | The time-to-live (days) of positive feedback                                  | `0`          |
 | `gorse.recommend.dataSource.itemTimeToLive`     | The time-to-live (days) of items                                              | `0`          |
 | `gorse.recommend.dataSource.positiveFeedbacks`  | The feedback types for positive events                                        | `[]`         |

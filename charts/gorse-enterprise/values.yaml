@@ -78,6 +78,16 @@ gorse:
     ## @param gorse.api.serverCacheExpire Server-side cache expire time
     ##
     serverCacheExpire: "10s"
+    
+  database:
+    ## @param gorse.database.tablePrefix The naming prefix for tables (collections, keys) in databases.
+    tablePrefix: ""
+
+    ## @param gorse.database.cacheTablePrefix The naming prefix for tables (collections, keys) in cache storage databases. The default value is `table_prefix`.
+    cacheTablePrefix: ""
+
+    ## @param gorse.database.dataTablePrefix The naming prefix for tables (collections, keys) in data storage databases. The default value is `table_prefix`.
+    dataTablePrefix: ""
 
   recommends:
     ## @param gorse.recommends[0].name The name of recommend channel
