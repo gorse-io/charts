@@ -292,4 +292,3 @@
 | `externalDatabase.database`                  | Gorse database name                                                       | `gorse`             |
 | `externalDatabase.existingSecret`            | Name of an existing secret resource containing the database credentials   | `""`                |
 | `externalDatabase.existingSecretPasswordKey` | Name of an existing secret key containing the database credentials        | `mongodb-passwords` |
-
