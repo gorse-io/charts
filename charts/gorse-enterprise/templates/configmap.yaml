@@ -41,7 +41,7 @@ data:
     table_prefix = {{ .Values.gorse.database.tablePrefix | quote }}
 
     # The naming prefix for tables (collections, keys) in cache storage databases. The default value is `table_prefix`.
-    cache_table_prefix: {{ .Values.gorse.database.cacheTablePrefix | quote }}
+    cache_table_prefix = {{ .Values.gorse.database.cacheTablePrefix | quote }}
 
     # The naming prefix for tables (collections, keys) in data storage databases. The default value is `table_prefix`.
     data_table_prefix: {{ .Values.gorse.dataTablePrefix | quote }}
