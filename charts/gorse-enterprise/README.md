@@ -38,6 +38,9 @@
 | `gorse.api.autoInsertItems`                         | Insert new items while inserting feedback.                                    | `true`       |
 | `gorse.api.returnSize`                              | Default number of returned items                                              | `10`         |
 | `gorse.api.serverCacheExpire`                       | Server-side cache expire time                                                 | `10s`        |
+| `gorse.database.tablePrefix`                        | The naming prefix for tables (collections, keys) in databases.                | `""`         |
+| `gorse.database.cacheTablePrefix`                   | The naming prefix for tables (collections, keys) in cache storage databases.  | `""`         |
+| `gorse.database.databaseTablePrefix`                | The naming prefix for tables (collections, keys) in data storage databases.   | `""`         |
 | `gorse.recommends[0].name`                          | The name of recommend channel                                                 | `default`    |
 | `gorse.recommends[0].dataSource.feedbackTimeToLive` | The time-to-live (days) of positive feedback                                  | `0`          |
 | `gorse.recommends[0].dataSource.itemTimeToLive`     | The time-to-live (days) of items                                              | `0`          |
@@ -289,4 +292,3 @@
 | `externalDatabase.database`                  | Gorse database name                                                       | `gorse`             |
 | `externalDatabase.existingSecret`            | Name of an existing secret resource containing the database credentials   | `""`                |
 | `externalDatabase.existingSecretPasswordKey` | Name of an existing secret key containing the database credentials        | `mongodb-passwords` |
-
