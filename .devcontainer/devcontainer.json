@@ -17,6 +17,7 @@
       "moby": false
     },
     "ghcr.io/devcontainers/features/kubectl-helm-minikube": {},
+    "ghcr.io/mpriscella/features/helm-chart-testing": {},
     "ghcr.io/devcontainers/features/node": {}
   },
   "postCreateCommand": "npm install -g @bitnami/readme-generator-for-helm"
