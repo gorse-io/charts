@@ -13,9 +13,7 @@
   // Features add additional features to your environment. See https://containers.dev/features
   // Beware: features are not supported on all platforms and may have unintended side-effects.
   "features": {
-    "ghcr.io/devcontainers/features/docker-in-docker": {
-      "moby": false
-    },
+    "ghcr.io/devcontainers/features/docker-in-docker": {},
     "ghcr.io/devcontainers/features/kubectl-helm-minikube": {},
     "ghcr.io/mpriscella/features/helm-chart-testing": {},
     "ghcr.io/devcontainers/features/node": {}
