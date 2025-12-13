@@ -56,7 +56,6 @@ The command removes all the Kubernetes components associated with the chart and 
 | `global.imagePullSecrets` | Global Docker registry secret names as an array | `[]`  |
 | `global.storageClass`     | Global StorageClass for Persistent Volume(s)    | `""`  |
 
-
 ### Common parameters
 
 | Name                | Description                                        | Value           |
@@ -69,36 +68,132 @@ The command removes all the Kubernetes components associated with the chart and 
 | `secretAnnotations` | Annotations to add to secret                       | `{}`            |
 | `clusterDomain`     | Default Kubernetes cluster domain                  | `cluster.local` |
 
-
 ### Gorse Configuration parameters
 
-| Name                                            | Description                                                                   | Value        |
-| ----------------------------------------------- | ----------------------------------------------------------------------------- | ------------ |
-| `gorse.dashboard.username`                      | Username for the dashboard.                                                   | `gorse`      |
-| `gorse.dashboard.password`                      | Password for the dashboard.                                                   | `""`         |
-| `gorse.dashboard.authServer`                    | Token server for the dashboard.                                               | `""`         |
-| `gorse.api.key`                                 | The key to secure the API endpoint                                            | `""`         |
-| `gorse.api.corsDomains`                         | List of allowed values for Http Origin                                        | `[]`         |
-| `gorse.api.corsMethods`                         | List of http methods names. Checking is case-insensitive.                     | `[]`         |
-| `gorse.api.autoInsertUsers`                     | Insert new users while inserting feedback                                     | `true`       |
-| `gorse.api.autoInsertItems`                     | Insert new items while inserting feedback.                                    | `true`       |
-| `gorse.api.returnSize`                          | Default number of returned items                                              | `10`         |
-| `gorse.api.serverCacheExpire`                   | Server-side cache expire time                                                 | `10s`        |
-| `gorse.recommend.dataSource.feedbackTimeToLive` | The time-to-live (days) of positive feedback                                  | `0`          |
-| `gorse.recommend.dataSource.itemTimeToLive`     | The time-to-live (days) of items                                              | `0`          |
-| `gorse.recommend.dataSource.positiveFeedbacks`  | The feedback types for positive events                                        | `[]`         |
-| `gorse.recommend.dataSource.readFeedbacks`      | The feedback types for read events.                                           | `[]`         |
-| `gorse.recommend.cache.size`                    | The cache size for recommended/popular/latest items                           | `10`         |
-| `gorse.recommend.cache.expire`                  | Recommended cache expire time                                                 | `72h`        |
-| `gorse.recommend.popular`                       | The time window of popular items                                              | `4320h`      |
-| `gorse.recommend.neighbors.users.type`          | The type of neighbors for users                                               | `similar`    |
-| `gorse.recommend.neighbors.items.type`          | The type of neighbors for items.                                              | `similar`    |
-| `gorse.recommend.collaborative.enable`          | Enable approximate collaborative filtering recommend using vector index       | `true`       |
-| `gorse.recommend.replacement.enable`            | Replace historical items back to recommendations                              | `false`      |
-| `gorse.recommend.replacement.decay.positive`    | Decay the weights of replaced items from positive feedbacks                   | `0.8`        |
-| `gorse.recommend.replacement.decay.read`        | Decay the weights of replaced items from read feedbacks                       | `0.6`        |
-| `gorse.recommend.online.fallback`               | The fallback recommendation method is used when cached recommendation drained | `["latest"]` |
+| Name                         | Description                     | Value   |
+| ---------------------------- | ------------------------------- | ------- |
+| `gorse.dashboard.username`   | Username for the dashboard.     | `gorse` |
+| `gorse.dashboard.password`   | Password for the dashboard.     | `""`    |
+| `gorse.dashboard.authServer` | Token server for the dashboard. | `""`    |
 
+### Master SSL
+
+| Name                                            | Description                                               | Value   |
+| ----------------------------------------------- | --------------------------------------------------------- | ------- |
+| `gorse.master.ssl.mode`                         | Enable SSL for the gRPC communication.                    | `false` |
+| `gorse.master.ssl.ca`                           | SSL certification authority for the gRPC communication.   | `""`    |
+| `gorse.master.ssl.cert`                         | SSL certification for the gRPC communication.             | `""`    |
+| `gorse.master.ssl.key`                          | SSL certification key for the gRPC communication.         | `""`    |
+| `gorse.api.key`                                 | The key to secure the API endpoint                        | `""`    |
+| `gorse.api.corsDomains`                         | List of allowed values for Http Origin                    | `[]`    |
+| `gorse.api.corsMethods`                         | List of http methods names. Checking is case-insensitive. | `[]`    |
+| `gorse.api.autoInsertUsers`                     | Insert new users while inserting feedback                 | `true`  |
+| `gorse.api.autoInsertItems`                     | Insert new items while inserting feedback.                | `true`  |
+| `gorse.api.returnSize`                          | Default number of returned items                          | `10`    |
+| `gorse.api.serverCacheExpire`                   | Server-side cache expire time                             | `10s`   |
+| `gorse.recommend.dataSource.feedbackTimeToLive` | The time-to-live (days) of positive feedback              | `0`     |
+| `gorse.recommend.dataSource.itemTimeToLive`     | The time-to-live (days) of items                          | `0`     |
+| `gorse.recommend.dataSource.positiveFeedbacks`  | The feedback types for positive events                    | `[]`    |
+| `gorse.recommend.dataSource.readFeedbacks`      | The feedback types for read events.                       | `[]`    |
+| `gorse.recommend.cache.size`                    | The cache size for recommended/popular/latest items       | `10`    |
+| `gorse.recommend.cache.expire`                  | Recommended cache expire time                             | `72h`   |
+
+### Recommend online context
+
+| Name                            | Description                                  | Value   |
+| ------------------------------- | -------------------------------------------- | ------- |
+| `gorse.recommend.contextSize`   | The context size for online recommendations. | `100`   |
+| `gorse.recommend.activeUserTtl` | The time-to-live (days) of active users.     | `0`     |
+| `gorse.recommend.popular`       | The time window of popular items             | `4320h` |
+
+### Non-personalized recommenders
+
+| Name                                        | Description                                 | Value                                      |
+| ------------------------------------------- | ------------------------------------------- | ------------------------------------------ |
+| `gorse.recommend.nonPersonalized[0].name`   | Leaderboard name (first entry)              | `most_starred_weekly`                      |
+| `gorse.recommend.nonPersonalized[0].score`  | Leaderboard score expression (first entry)  | `count(feedback, .FeedbackType == 'star')` |
+| `gorse.recommend.nonPersonalized[0].filter` | Leaderboard filter expression (first entry) | `(now() - item.Timestamp).Hours() < 168`   |
+
+### Item-to-item recommenders
+
+| Name                                   | Description                                 | Value                   |
+| -------------------------------------- | ------------------------------------------- | ----------------------- |
+| `gorse.recommend.itemToItem[0].name`   | Item-to-item recommender name (first entry) | `neighbors`             |
+| `gorse.recommend.itemToItem[0].type`   | Item-to-item recommender type (first entry) | `embedding`             |
+| `gorse.recommend.itemToItem[0].column` | Embedding column (first entry)              | `item.Labels.embedding` |
+
+### User-to-user recommenders
+
+| Name                                 | Description                                 | Value       |
+| ------------------------------------ | ------------------------------------------- | ----------- |
+| `gorse.recommend.userToUser[0].name` | User-to-user recommender name (first entry) | `neighbors` |
+| `gorse.recommend.userToUser[0].type` | User-to-user recommender type (first entry) | `items`     |
+
+### External recommenders
+
+| Name                                   | Description                               | Value                                                                                                                                                                                                                                                                                                                      |
+| -------------------------------------- | ----------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `gorse.recommend.external[0].name`     | External recommender name (first entry)   | `trending`                                                                                                                                                                                                                                                                                                                 |
+| `gorse.recommend.external[0].script`   | External recommender script (first entry) | `const response = fetch("https://cdn.jsdelivr.net/gh/isboyjc/github-trending-api/data/daily/all.json");
+if (!response.ok) {
+  throw new Error(`${response.status} ${response.body}`);
+}
+const data = JSON.parse(response.body);
+data["items"].map((item) => {
+  return item["title"].toLowerCase().replace("/", ":");
+})
+` |
+| `gorse.recommend.neighbors.users.type` | The type of neighbors for users           | `similar`                                                                                                                                                                                                                                                                                                                  |
+| `gorse.recommend.neighbors.items.type` | The type of neighbors for items.          | `similar`                                                                                                                                                                                                                                                                                                                  |
+
+### Collaborative filtering
+
+| Name                                                   | Description                                                             | Value  |
+| ------------------------------------------------------ | ----------------------------------------------------------------------- | ------ |
+| `gorse.recommend.collaborative.enable`                 | Enable approximate collaborative filtering recommend using vector index | `true` |
+| `gorse.recommend.collaborative.fitPeriod`              | Time period for model fitting                                           | `60m`  |
+| `gorse.recommend.collaborative.fitEpoch`               | Number of epochs for model fitting                                      | `100`  |
+| `gorse.recommend.collaborative.optimizePeriod`         | Time period for hyperparameter optimization                             | `360m` |
+| `gorse.recommend.collaborative.optimizeTrials`         | Number of trials for hyperparameter optimization                        | `10`   |
+| `gorse.recommend.collaborative.earlyStopping.patience` | Early stopping patience epochs                                          | `10`   |
+
+### Replacement strategy
+
+| Name                                         | Description                                                 | Value   |
+| -------------------------------------------- | ----------------------------------------------------------- | ------- |
+| `gorse.recommend.replacement.enable`         | Replace historical items back to recommendations            | `false` |
+| `gorse.recommend.replacement.decay.positive` | Decay the weights of replaced items from positive feedbacks | `0.8`   |
+| `gorse.recommend.replacement.decay.read`     | Decay the weights of replaced items from read feedbacks     | `0.6`   |
+
+### Ranker
+
+| Name                                            | Description                                              | Value                                                                                                                 |
+| ----------------------------------------------- | -------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------- |
+| `gorse.recommend.ranker.type`                   | Ranker type (none|fm)                                    | `fm`                                                                                                                  |
+| `gorse.recommend.ranker.cacheExpire`            | Time period to refresh recommendation for inactive users | `120h`                                                                                                                |
+| `gorse.recommend.ranker.recommenders`           | Candidate recommenders used before ranking               | `["latest","collaborative","non-personalized/most_starred_weekly","item-to-item/neighbors","user-to-user/neighbors"]` |
+| `gorse.recommend.ranker.fitPeriod`              | Time period for model fitting                            | `60m`                                                                                                                 |
+| `gorse.recommend.ranker.fitEpoch`               | Number of epochs for model fitting                       | `100`                                                                                                                 |
+| `gorse.recommend.ranker.optimizePeriod`         | Time period for hyperparameter optimization              | `360m`                                                                                                                |
+| `gorse.recommend.ranker.optimizeTrials`         | Number of trials for hyperparameter optimization         | `10`                                                                                                                  |
+| `gorse.recommend.ranker.earlyStopping.patience` | Early stopping patience epochs                           | `10`                                                                                                                  |
+
+### Fallback recommenders
+
+| Name                                    | Description                                                                   | Value                                 |
+| --------------------------------------- | ----------------------------------------------------------------------------- | ------------------------------------- |
+| `gorse.recommend.fallback.recommenders` | Fallback recommenders used when cache drained                                 | `["item-to-item/neighbors","latest"]` |
+| `gorse.recommend.online.fallback`       | The fallback recommendation method is used when cached recommendation drained | `["latest"]`                          |
+
+### OIDC configuration
+
+| Name                      | Description                          | Value   |
+| ------------------------- | ------------------------------------ | ------- |
+| `gorse.oidc.enable`       | Enable OpenID Connect authentication | `false` |
+| `gorse.oidc.issuer`       | OAuth provider issuer                | `""`    |
+| `gorse.oidc.clientId`     | OAuth application client ID          | `""`    |
+| `gorse.oidc.clientSecret` | OAuth application client secret      | `""`    |
+| `gorse.oidc.redirectUrl`  | OAuth redirect/callback URL          | `""`    |
 
 ### Gorse master node parameters
 
@@ -166,7 +261,6 @@ The command removes all the Kubernetes components associated with the chart and 
 | `master.pdb.minAvailable`                 | Min number of pods that must still be available after the eviction                                                               | `1`                      |
 | `master.pdb.maxUnavailable`               | Max number of pods that can be unavailable after the eviction                                                                    | `""`                     |
 
-
 ### Gorse server node parameters
 
 | Name                                      | Description                                                                                                                      | Value                    |
@@ -222,7 +316,6 @@ The command removes all the Kubernetes components associated with the chart and 
 | `server.pdb.minAvailable`                 | Min number of pods that must still be available after the eviction                                                               | `1`                      |
 | `server.pdb.maxUnavailable`               | Max number of pods that can be unavailable after the eviction                                                                    | `""`                     |
 
-
 ### Gorse worker node parameters
 
 | Name                                      | Description                                                                                                  | Value                    |
@@ -266,7 +359,6 @@ The command removes all the Kubernetes components associated with the chart and 
 | `worker.pdb.create`                       | Specifies whether a PodDisruptionBudget should be created                                                    | `false`                  |
 | `worker.pdb.minAvailable`                 | Min number of pods that must still be available after the eviction                                           | `1`                      |
 | `worker.pdb.maxUnavailable`               | Max number of pods that can be unavailable after the eviction                                                | `""`                     |
-
 
 ### Database Parameters
 

@@ -56,6 +56,23 @@ gorse:
     ##
     authServer: ""
 
+  master:
+    ssl:
+      ## @section Master SSL
+      ##
+      ## @param gorse.master.ssl.mode Enable SSL for the gRPC communication.
+      ##
+      mode: false
+      ## @param gorse.master.ssl.ca SSL certification authority for the gRPC communication.
+      ##
+      ca: ""
+      ## @param gorse.master.ssl.cert SSL certification for the gRPC communication.
+      ##
+      cert: ""
+      ## @param gorse.master.ssl.key SSL certification key for the gRPC communication.
+      ##
+      key: ""
+
   api:
     ## @param gorse.api.key The key to secure the API endpoint
     ##
@@ -102,9 +119,69 @@ gorse:
       ##
       expire: "72h"
 
+      ## @section Recommend online context
+      ##
+    ## @param gorse.recommend.contextSize The context size for online recommendations.
+    ##
+    contextSize: 100
+
+    ## @param gorse.recommend.activeUserTtl The time-to-live (days) of active users.
+    ##
+    activeUserTtl: 0
+
     ## @param gorse.recommend.popular The time window of popular items
     ##
     popular: "4320h"
+
+    ## @section Non-personalized recommenders
+    ## A list of leaderboards with name/score/filter.
+    ## Each entry:
+    ## - name: string
+    ## - score: string (DSL expression)
+    ## - filter: string (DSL expression)
+    ## @param gorse.recommend.nonPersonalized[0].name Leaderboard name (first entry)
+    ## @param gorse.recommend.nonPersonalized[0].score Leaderboard score expression (first entry)
+    ## @param gorse.recommend.nonPersonalized[0].filter Leaderboard filter expression (first entry)
+    nonPersonalized:
+      - name: "most_starred_weekly"
+        score: "count(feedback, .FeedbackType == 'star')"
+        filter: "(now() - item.Timestamp).Hours() < 168"
+
+    ## @section Item-to-item recommenders
+    ## A list of item-to-item recommenders with name/type/column.
+    ## type: embedding|tags|users|chat
+    ## @param gorse.recommend.itemToItem[0].name Item-to-item recommender name (first entry)
+    ## @param gorse.recommend.itemToItem[0].type Item-to-item recommender type (first entry)
+    ## @param gorse.recommend.itemToItem[0].column Embedding column (first entry)
+    itemToItem:
+      - name: "neighbors"
+        type: "embedding"
+        column: "item.Labels.embedding"
+
+    ## @section User-to-user recommenders
+    ## A list of user-to-user recommenders with name/type.
+    ## type: embedding|tags|items
+    ## @param gorse.recommend.userToUser[0].name User-to-user recommender name (first entry)
+    ## @param gorse.recommend.userToUser[0].type User-to-user recommender type (first entry)
+    userToUser:
+      - name: "neighbors"
+        type: "items"
+
+    ## @section External recommenders
+    ## A list of external recommenders with name/script.
+    ## @param gorse.recommend.external[0].name External recommender name (first entry)
+    ## @param gorse.recommend.external[0].script External recommender script (first entry)
+    external:
+      - name: "trending"
+        script: |
+          const response = fetch("https://cdn.jsdelivr.net/gh/isboyjc/github-trending-api/data/daily/all.json");
+          if (!response.ok) {
+            throw new Error(`${response.status} ${response.body}`);
+          }
+          const data = JSON.parse(response.body);
+          data["items"].map((item) => {
+            return item["title"].toLowerCase().replace("/", ":");
+          })
 
     neighbors:
       users:
@@ -116,11 +193,31 @@ gorse:
         ##
         type: "similar"
 
+    ## @section Collaborative filtering
+    ##
     collaborative:
       ## @param gorse.recommend.collaborative.enable Enable approximate collaborative filtering recommend using vector index
       ##
       enable: true
+      ## @param gorse.recommend.collaborative.fitPeriod Time period for model fitting
+      ##
+      fitPeriod: "60m"
+      ## @param gorse.recommend.collaborative.fitEpoch Number of epochs for model fitting
+      ##
+      fitEpoch: 100
+      ## @param gorse.recommend.collaborative.optimizePeriod Time period for hyperparameter optimization
+      ##
+      optimizePeriod: "360m"
+      ## @param gorse.recommend.collaborative.optimizeTrials Number of trials for hyperparameter optimization
+      ##
+      optimizeTrials: 10
+      earlyStopping:
+        ## @param gorse.recommend.collaborative.earlyStopping.patience Early stopping patience epochs
+        ##
+        patience: 10
 
+    ## @section Replacement strategy
+    ##
     replacement:
       ## @param gorse.recommend.replacement.enable Replace historical items back to recommendations
       ##
@@ -133,11 +230,66 @@ gorse:
         ##
         read: 0.6
 
+    ## @section Ranker
+    ##
+    ranker:
+      ## @param gorse.recommend.ranker.type Ranker type (none|fm)
+      ##
+      type: "fm"
+      ## @param gorse.recommend.ranker.cacheExpire Time period to refresh recommendation for inactive users
+      ##
+      cacheExpire: "120h"
+      ## @param gorse.recommend.ranker.recommenders Candidate recommenders used before ranking
+      ##
+      recommenders: ["latest", "collaborative", "non-personalized/most_starred_weekly", "item-to-item/neighbors", "user-to-user/neighbors"]
+      ## @param gorse.recommend.ranker.fitPeriod Time period for model fitting
+      ##
+      fitPeriod: "60m"
+      ## @param gorse.recommend.ranker.fitEpoch Number of epochs for model fitting
+      ##
+      fitEpoch: 100
+      ## @param gorse.recommend.ranker.optimizePeriod Time period for hyperparameter optimization
+      ##
+      optimizePeriod: "360m"
+      ## @param gorse.recommend.ranker.optimizeTrials Number of trials for hyperparameter optimization
+      ##
+      optimizeTrials: 10
+      earlyStopping:
+        ## @param gorse.recommend.ranker.earlyStopping.patience Early stopping patience epochs
+        ##
+        patience: 10
+
+    ## @section Fallback recommenders
+    ##
+    fallback:
+      ## @param gorse.recommend.fallback.recommenders Fallback recommenders used when cache drained
+      ##
+      recommenders: ["item-to-item/neighbors", "latest"]
+
     online:
       ## @param gorse.recommend.online.fallback The fallback recommendation method is used when cached recommendation drained
       ##
       fallback:
         - "latest"
+
+  ## @section OIDC configuration
+  ##
+  oidc:
+    ## @param gorse.oidc.enable Enable OpenID Connect authentication
+    ##
+    enable: false
+    ## @param gorse.oidc.issuer OAuth provider issuer
+    ##
+    issuer: ""
+    ## @param gorse.oidc.clientId OAuth application client ID
+    ##
+    clientId: ""
+    ## @param gorse.oidc.clientSecret OAuth application client secret
+    ##
+    clientSecret: ""
+    ## @param gorse.oidc.redirectUrl OAuth redirect/callback URL
+    ##
+    redirectUrl: ""
 
 ## @section Gorse master node parameters
 ##
@@ -158,7 +310,7 @@ master:
   image:
     registry: docker.io
     repository: zhenghaoz/gorse-master
-    tag: 0.4.12
+    tag: nightly
     digest: ""
     ## Specify an imagePullPolicy
     ## ref: http://kubernetes.io/docs/user-guide/images/#pre-pulling-images
@@ -473,7 +625,7 @@ server:
   image:
     registry: docker.io
     repository: zhenghaoz/gorse-server
-    tag: 0.4.12
+    tag: nightly
     digest: ""
     ## Specify an imagePullPolicy
     ## ref: http://kubernetes.io/docs/user-guide/images/#pre-pulling-images
@@ -753,7 +905,7 @@ worker:
   image:
     registry: docker.io
     repository: zhenghaoz/gorse-worker
-    tag: 0.4.12
+    tag: nightly
     digest: ""
     ## Specify an imagePullPolicy
     ## ref: http://kubernetes.io/docs/user-guide/images/#pre-pulling-images
