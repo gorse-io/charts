@@ -2,6 +2,30 @@ apiVersion: v1
 entries:
   gorse:
   - apiVersion: v2
+    appVersion: 0.5.0-rc
+    created: "2025-12-13T09:09:11.743739338Z"
+    dependencies:
+    - name: common
+      repository: https://charts.bitnami.com/bitnami
+      tags:
+      - bitnami-common
+      version: 2.x.x
+    - condition: mongodb.enabled
+      name: mongodb
+      repository: https://charts.bitnami.com/bitnami
+      version: 18.x.x
+    description: Gorse Recommender System Engine
+    digest: cc10d39da97b7f5bfa0444ed0f924426cce9dcc26ba4a1c01d9f74712e35e903
+    icon: https://gorse.io/logo.png
+    maintainers:
+    - email: zhangzhenghao@hotmail.com
+      name: zhenghaoz
+    name: gorse
+    type: application
+    urls:
+    - https://github.com/gorse-io/charts/releases/download/gorse-0.5.0-rc/gorse-0.5.0-rc.tgz
+    version: 0.5.0-rc
+  - apiVersion: v2
     appVersion: 0.4.12
     created: "2023-03-04T03:39:03.117761992Z"
     dependencies:
@@ -353,4 +377,4 @@ entries:
     urls:
     - https://github.com/gorse-io/charts/releases/download/gorse-manager-0.4.0-alpha.1/gorse-manager-0.4.0-alpha.1.tgz
     version: 0.4.0-alpha.1
-generated: "2023-03-04T03:39:03.300466349Z"
+generated: "2025-12-13T09:09:11.955522107Z"
