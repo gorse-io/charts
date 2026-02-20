@@ -19,7 +19,7 @@ metadata:
     {{- include "common.tplvalues.render" ( dict "value" .Values.commonAnnotations "context" $ ) | nindent 4 }}
     {{- end }}
 spec:
-  {{- if and .Values.server.ingress.ingressClassName (eq "true" (include "common.ingress.supportsIngressClassname" .)) }}
+  {{- if .Values.server.ingress.ingressClassName }}
   ingressClassName: {{ .Values.server.ingress.ingressClassName | quote }}
   {{- end }}
   rules:
