@@ -1,5 +1,6 @@
 {{- if .Values.master.ingress.enabled }}
-apiVersion: {{ include "common.capabilities.ingress.apiVersion" . }}
+{{- $ingressApiVersion := include "common.capabilities.ingress.apiVersion" . -}}
+apiVersion: {{ $ingressApiVersion }}
 kind: Ingress
 metadata:
   name: {{ printf "%s-dashboard" (include "common.names.fullname" .) }}
@@ -28,7 +29,7 @@ spec:
       http:
         paths:
           - path: {{ .Values.master.ingress.path }}
-            {{- if eq "true" (include "common.ingress.supportsPathType" .) }}
+            {{- if or (eq $ingressApiVersion "networking.k8s.io/v1") (eq $ingressApiVersion "networking.k8s.io/v1beta1") }}
             pathType: {{ .Values.master.ingress.pathType }}
             {{- end }}
             backend: {{- include "common.ingress.backend" (dict "serviceName" (printf "%s-master" (include "common.names.fullname" .) ) "servicePort" "http" "context" $)  | nindent 14 }}
@@ -41,7 +42,7 @@ spec:
       http:
         paths:
           - path: {{ default "/" .path }}
-            {{- if eq "true" (include "common.ingress.supportsPathType" $) }}
+            {{- if or (eq $ingressApiVersion "networking.k8s.io/v1") (eq $ingressApiVersion "networking.k8s.io/v1beta1") }}
             pathType: {{ default "ImplementationSpecific" .pathType }}
             {{- end }}
             backend: {{- include "common.ingress.backend" (dict "serviceName" (printf "%s-master" (include "common.names.fullname" .) $) "servicePort" "http" "context" $) | nindent 14 }}

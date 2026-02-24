@@ -1,5 +1,6 @@
 {{- if .Values.server.ingress.enabled }}
-apiVersion: {{ include "common.capabilities.ingress.apiVersion" . }}
+{{- $ingressApiVersion := include "common.capabilities.ingress.apiVersion" . -}}
+apiVersion: {{ $ingressApiVersion }}
 kind: Ingress
 metadata:
   name: {{ printf "%s-api" (include "common.names.fullname" .) }}
@@ -19,7 +20,7 @@ metadata:
     {{- include "common.tplvalues.render" ( dict "value" .Values.commonAnnotations "context" $ ) | nindent 4 }}
     {{- end }}
 spec:
-  {{- if .Values.server.ingress.ingressClassName }}
+  {{- if and .Values.server.ingress.ingressClassName (eq $ingressApiVersion "networking.k8s.io/v1") }}
   ingressClassName: {{ .Values.server.ingress.ingressClassName | quote }}
   {{- end }}
   rules:
@@ -28,7 +29,7 @@ spec:
       http:
         paths:
           - path: {{ .Values.server.ingress.path }}
-            {{- if eq "true" (include "common.ingress.supportsPathType" .) }}
+            {{- if or (eq $ingressApiVersion "networking.k8s.io/v1") (eq $ingressApiVersion "networking.k8s.io/v1beta1") }}
             pathType: {{ .Values.server.ingress.pathType }}
             {{- end }}
             backend: {{- include "common.ingress.backend" (dict "serviceName" (printf "%s-server" (include "common.names.fullname" .) ) "servicePort" "http" "context" $)  | nindent 14 }}
@@ -41,7 +42,7 @@ spec:
       http:
         paths:
           - path: {{ default "/" .path }}
-            {{- if eq "true" (include "common.ingress.supportsPathType" $) }}
+            {{- if or (eq $ingressApiVersion "networking.k8s.io/v1") (eq $ingressApiVersion "networking.k8s.io/v1beta1") }}
             pathType: {{ default "ImplementationSpecific" .pathType }}
             {{- end }}
             backend: {{- include "common.ingress.backend" (dict "serviceName" (printf "%s-server" (include "common.names.fullname" .) $) "servicePort" "http" "context" $) | nindent 14 }}
