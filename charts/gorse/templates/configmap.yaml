@@ -309,32 +309,32 @@ data:
 
     [openai]
 
-    # Base URL of OpenAI API.
-    base_url = "http://localhost:11434/v1"
+    # Base URL of OpenAI API / Ollama
+    base_url = {{ .Values.gorse.openai.baseUrl | quote }}
 
     # API key of OpenAI API.
-    auth_token = "ollama"
+    auth_token = ""
 
     # Name of chat completion model.
-    chat_completion_model = "qwen2.5"
+    chat_completion_model = {{ .Values.gorse.openai.chatCompletionModel | quote }}
 
     # Maximum requests per minute for chat completion.
-    chat_completion_rpm = 15000
+    chat_completion_rpm = {{ .Values.gorse.openai.chatCompletionRpm }}
 
     # Maximum tokens per minute for chat completion.
-    chat_completion_tpm = 1200000
+    chat_completion_tpm = {{ .Values.gorse.openai.chatCompletionTpm }}
 
     # Name of embedding model.
-    embedding_model = "mxbai-embed-large"
+    embedding_model = {{ .Values.gorse.openai.embeddingModel | quote }}
 
     # Dimensions of embedding vectors.
-    embedding_dimensions = 1024
+    embedding_dimensions = {{ .Values.gorse.openai.embeddingDimensions }}
 
     # Maximum requests per minute for embedding.
-    embedding_rpm = 1800
+    embedding_rpm = {{ .Values.gorse.openai.embeddingRpm }}
 
     # Maximum tokens per minute for embedding.
-    embedding_tpm = 1200000
+    embedding_tpm = {{ .Values.gorse.openai.embeddingTpm }}
 
     # Log file for OpenAI API.
-    log_file = "openai.log"
+    log_file = {{ .Values.gorse.openai.logFile | quote }}

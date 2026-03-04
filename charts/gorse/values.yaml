@@ -272,6 +272,40 @@ gorse:
       fallback:
         - "latest"
 
+  ## @section OpenAI configuration
+  ##
+  openai:
+    ## @param gorse.openai.baseUrl Base URL of OpenAI API / Ollama
+    ##
+    baseUrl: "http://localhost:11434/v1"
+    ## @param gorse.openai.authToken API key of OpenAI API
+    ##
+    authToken: ""
+    ## @param gorse.openai.chatCompletionModel Name of chat completion model
+    ##
+    chatCompletionModel: "qwen2.5"
+    ## @param gorse.openai.chatCompletionRpm Maximum requests per minute for chat completion
+    ##
+    chatCompletionRpm: 15000
+    ## @param gorse.openai.chatCompletionTpm Maximum tokens per minute for chat completion
+    ##
+    chatCompletionTpm: 1200000
+    ## @param gorse.openai.embeddingModel Name of embedding model
+    ##
+    embeddingModel: "mxbai-embed-large"
+    ## @param gorse.openai.embeddingDimensions Dimensions of embedding vectors
+    ##
+    embeddingDimensions: 1024
+    ## @param gorse.openai.embeddingRpm Maximum requests per minute for embedding
+    ##
+    embeddingRpm: 1800
+    ## @param gorse.openai.embeddingTpm Maximum tokens per minute for embedding
+    ##
+    embeddingTpm: 1200000
+    ## @param gorse.openai.logFile Log file for OpenAI API
+    ##
+    logFile: "openai.log"
+
   ## @section OIDC configuration
   ##
   oidc:
