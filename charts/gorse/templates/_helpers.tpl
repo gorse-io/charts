@@ -76,6 +76,17 @@ Return Gorse API Secret
 {{- end -}}
 
 {{/*
+Return OpenAI Auth Token
+*/}}
+{{- define "gorse.openaiAuthToken" -}}
+{{- if not (empty .Values.gorse.openai.authToken) }}
+    {{- .Values.gorse.openai.authToken -}}
+{{- else -}}
+    {{- include "getValueFromSecret" (dict "Namespace" .Release.Namespace "Name" (include "common.names.fullname" .) "Length" 32 "Key" "openai-auth-token") -}}
+{{- end -}}
+{{- end -}}
+
+{{/*
 Return the MongoDB Hostname
 */}}
 {{- define "gorse.databaseHost" -}}

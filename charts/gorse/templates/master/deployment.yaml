@@ -85,6 +85,11 @@ spec:
                   key: dashboard-password
             - name: GORSE_DASHBOARD_AUTH_SERVER
               value: {{ .Values.gorse.dashboard.authServer }}
+            - name: GORSE_OPENAI_AUTH_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: {{ template "common.names.fullname" . }}
+                  key: openai-auth-token
             - name: GORSE_MASTER_PORT
               value: "{{ .Values.master.service.ports.grpc }}"
             - name: GORSE_MASTER_HTTP_PORT
