@@ -79,10 +79,11 @@ Return Gorse API Secret
 Return OpenAI Auth Token
 */}}
 {{- define "gorse.openaiAuthToken" -}}
-{{- if not (empty .Values.gorse.openai.authToken) }}
+{{- if not (empty .Values.gorse.openai.authToken) -}}
     {{- .Values.gorse.openai.authToken -}}
 {{- else -}}
-    {{- include "getValueFromSecret" (dict "Namespace" .Release.Namespace "Name" (include "common.names.fullname" .) "Length" 32 "Key" "openai-auth-token") -}}
+    {{- $secretValue := include "getValueFromSecret" (dict "Namespace" .Release.Namespace "Name" (include "common.names.fullname" .) "Length" 32 "Key" "openai-auth-token") -}}
+    {{- $secretValue | default "" -}}
 {{- end -}}
 {{- end -}}
 
