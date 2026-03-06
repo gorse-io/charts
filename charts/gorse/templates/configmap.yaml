@@ -313,7 +313,7 @@ data:
     base_url = {{ .Values.gorse.openai.baseUrl | quote }}
 
     # API key of OpenAI API.
-    auth_token = ""
+    auth_token = {{ .Values.gorse.openai.authToken | quote }}
 
     # Name of chat completion model.
     chat_completion_model = {{ .Values.gorse.openai.chatCompletionModel | quote }}
