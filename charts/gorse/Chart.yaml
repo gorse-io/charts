@@ -29,6 +29,7 @@ maintainers:
 
 dependencies:
   - name: common
+    condition: mongodb.enabled
     repository: https://charts.bitnami.com/bitnami
     tags:
       - bitnami-common
