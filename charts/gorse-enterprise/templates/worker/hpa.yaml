@@ -1,12 +1,12 @@
 {{- if eq .Values.architecture "distributed" }}
 {{- if eq .Values.architecture "distributed" }}
-{{- range $recommend := $.Values.gorse.recommends }}
+{{- range $pipeline := .Values.gorse.pipelines }}
 ---
 {{- if and $.Values.worker.autoscaling.enabled }}
 apiVersion: {{ include "common.capabilities.hpa.apiVersion" ( dict "context" $ ) }}
 kind: HorizontalPodAutoscaler
 metadata:
-  name: {{ printf "%s-%s" (include "gorse.worker.fullname" $ ) $recommend.name }}
+  name: {{ printf "%s-%s" (include "gorse.worker.fullname" $ ) $pipeline.name }}
   namespace: {{ $.Release.Namespace | quote }}
   labels: {{- include "common.labels.standard" $ | nindent 4 }}
     app.kubernetes.io/component: worker

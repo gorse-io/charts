@@ -1,12 +1,12 @@
 {{- if eq .Values.architecture "distributed" }}
 {{- if eq .Values.architecture "distributed" }}
-{{- range $recommend := .Values.gorse.recommends }}
+{{- range $pipeline := .Values.gorse.pipelines }}
 ---
 {{- if $.Values.worker.service.enabled }}
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ printf "%s-%s" (include "gorse.worker.fullname" $ ) $recommend.name }}
+  name: {{ printf "%s-%s" (include "gorse.worker.fullname" $ ) $pipeline.name }}
   namespace: {{ .Release.Namespace | quote }}
   labels: {{- include "common.labels.standard" . | nindent 4 }}
     app.kubernetes.io/component: worker

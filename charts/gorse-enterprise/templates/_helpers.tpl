@@ -25,9 +25,9 @@ We truncate at 63 chars because some Kubernetes name fields are limited to this 
 {{- end -}}
 
 {{- define "gorse.proxy.endpoints" -}}
-{{- range $i, $recommend := .Values.gorse.recommends -}}
+{{- range $i, $pipeline := .Values.gorse.pipelines -}}
     {{- printf "http://%s:%d" (printf "%s-%s" (include "gorse.server.fullname" $) .name) ($.Values.server.service.ports.http | int) -}}
-    {{- if not (eq (add $i 1) (len $.Values.gorse.recommends)) -}}
+    {{- if not (eq (add $i 1) (len $.Values.gorse.pipelines)) -}}
         {{- printf "," -}}
     {{- end -}}
 {{- end -}}

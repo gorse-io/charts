@@ -1,11 +1,11 @@
 {{- if eq .Values.architecture "distributed" }}
 {{- if eq .Values.architecture "distributed" }}
-{{- range $recommend := .Values.gorse.recommends }}
+{{- range $pipeline := .Values.gorse.pipelines }}
 ---
 apiVersion: apps/v1
 kind: {{ $.Values.master.kind }}
 metadata:
-  name: {{ printf "%s-%s" (include "gorse.master.fullname" $ ) $recommend.name }}
+  name: {{ printf "%s-%s" (include "gorse.master.fullname" $ ) $pipeline.name }}
   namespace: {{ $.Release.Namespace | quote }}
   labels: {{- include "common.labels.standard" $ | nindent 4 }}
     app.kubernetes.io/component: master
@@ -91,6 +91,7 @@ spec:
               value: "{{ $.Values.master.service.ports.http }}"
             - name: GORSE_MASTER_JOBS
               value: "{{ $.Values.master.jobs }}"
+            {{- if not $pipeline.externalDatabase.host }}
             - name: GORSE_DATABASE_HOST
               value: {{ include "gorse.databaseHost" $ }}
             - name: GORSE_DATABASE_PORT
@@ -108,6 +109,7 @@ spec:
               value: mongodb://$(GORSE_DATABASE_USER):$(GORSE_DATABASE_PASSWORD)@$(GORSE_DATABASE_HOST):$(GORSE_DATABASE_PORT)/$(GORSE_DATABASE_NAME)?connect=direct
             - name: GORSE_DATA_STORE
               value: mongodb://$(GORSE_DATABASE_USER):$(GORSE_DATABASE_PASSWORD)@$(GORSE_DATABASE_HOST):$(GORSE_DATABASE_PORT)/$(GORSE_DATABASE_NAME)?connect=direct
+            {{- end }}
           volumeMounts:
             - name: config
               mountPath: /etc/gorse/
@@ -142,7 +144,7 @@ spec:
       volumes:
         - name: config
           configMap:
-            name: {{ printf "%s-%s" (include "common.names.fullname" $ ) $recommend.name }}
+            name: {{ printf "%s-%s" (include "common.names.fullname" $ ) $pipeline.name }}
   {{- if not $.Values.master.persistence.enabled }}
         - name: data
           {{- if $.Values.master.persistence.medium }}
@@ -158,7 +160,7 @@ spec:
   {{- else if (eq $.Values.master.kind "Deployment") }}
         - name: data
           persistentVolumeClaim:
-            claimName: {{ printf "%s-%s" (include "gorse.master.fullname" $ ) $recommend.name }}
+            claimName: {{ printf "%s-%s" (include "gorse.master.fullname" $ ) $pipeline.name }}
   {{- else }}
   volumeClaimTemplates:
     - metadata:

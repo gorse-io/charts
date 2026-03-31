@@ -1,9 +1,9 @@
-{{- range $recommend := .Values.gorse.recommends }}
+{{- range $pipeline := .Values.gorse.pipelines }}
 ---
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: {{ printf "%s-%s" (include "common.names.fullname" $ ) $recommend.name }}
+  name: {{ printf "%s-%s" (include "common.names.fullname" $ ) $pipeline.name }}
   namespace: {{ $.Release.Namespace | quote }}
   labels: {{- include "common.labels.standard" $ | nindent 4 }}
     {{- if $.Values.commonLabels }}
@@ -16,26 +16,16 @@ data:
   config.toml: |
     [database]
 
-    # The database for caching, support Redis, MySQL, Postgres and MongoDB:
-    #   redis://<user>:<password>@<host>:<port>/<db_number>
-    #   rediss://<user>:<password>@<host>:<port>/<db_number>
-    #   redis+cluster://<user>:<password>@<host1>:<port1>,<host2>:<port2>,...,<hostN>:<portN>
-    #   postgres://bob:secret@1.2.3.4:5432/mydb?sslmode=verify-full
-    #   postgresql://bob:secret@1.2.3.4:5432/mydb?sslmode=verify-full
-    #   mongodb://[username:password@]host1[:port1][,...hostN[:portN]][/[defaultauthdb][?options]]
-    #   mongodb+srv://[username:password@]host1[:port1][,...hostN[:portN]][/[defaultauthdb][?options]]
-    cache_store = "redis://localhost:6379/0"
-
-    # The database for persist data, support MySQL, Postgres, ClickHouse and MongoDB:
-    #   mysql://[username[:password]@][protocol[(address)]]/dbname[?param1=value1&...&paramN=valueN]
-    #   postgres://bob:secret@1.2.3.4:5432/mydb?sslmode=verify-full
-    #   postgresql://bob:secret@1.2.3.4:5432/mydb?sslmode=verify-full
-    #   clickhouse://user:password@host[:port]/database?param1=value1&...&paramN=valueN
-    #   chhttp://user:password@host[:port]/database?param1=value1&...&paramN=valueN
-    #   chhttps://user:password@host[:port]/database?param1=value1&...&paramN=valueN
-    #   mongodb://[username:password@]host1[:port1][,...hostN[:portN]][/[defaultauthdb][?options]]
-    #   mongodb+srv://[username:password@]host1[:port1][,...hostN[:portN]][/[defaultauthdb][?options]]
-    data_store = "mysql://gorse:gorse_pass@tcp(localhost:3306)/gorse"
+    {{- if $pipeline.externalDatabase.host }}
+    # The database for caching (using pipeline-specific externalDatabase)
+    cache_store = "mongodb://{{ $pipeline.externalDatabase.username }}:{{ $pipeline.externalDatabase.password }}@{{ $pipeline.externalDatabase.host }}:{{ $pipeline.externalDatabase.port }}/{{ $pipeline.externalDatabase.database }}"
+    # The database for persist data (using pipeline-specific externalDatabase)
+    data_store = "mongodb://{{ $pipeline.externalDatabase.username }}:{{ $pipeline.externalDatabase.password }}@{{ $pipeline.externalDatabase.host }}:{{ $pipeline.externalDatabase.port }}/{{ $pipeline.externalDatabase.database }}"
+    {{- end }}
+    {{- if not $pipeline.externalDatabase.host }}
+    # The database for caching and persist data will be set via environment variables
+    # cache_store and data_store are injected by GORSE_CACHE_STORE and GORSE_DATA_STORE
+    {{- end }}
 
     # The naming prefix for tables (collections, keys) in databases.
     table_prefix = ""
@@ -97,8 +87,8 @@ data:
     # Server-side cache expire time. The default value is 10s.
     cache_expire = {{ $.Values.gorse.api.serverCacheExpire | quote }}
 
-    {{- if $recommend.config }}
-    {{ $recommend.config | nindent 4 }}
+    {{- if $pipeline.recommend }}
+    {{ $pipeline.recommend | nindent 4 }}
     {{- end }}
 
     [tracing]
