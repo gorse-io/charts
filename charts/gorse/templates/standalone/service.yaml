@@ -1,0 +1,46 @@
+{{- if .Values.standalone }}
+{{- if eq .Values.architecture "standalone" }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "gorse.standalone.fullname" . }}
+  namespace: {{ .Release.Namespace | quote }}
+  labels: {{- include "common.labels.standard" . | nindent 4 }}
+    app.kubernetes.io/component: standalone
+    {{- if .Values.commonLabels }}
+    {{- include "common.tplvalues.render" ( dict "value" .Values.commonLabels "context" $ ) | nindent 4 }}
+    {{- end }}
+  {{- if or .Values.commonAnnotations .Values.standalone.service.annotations }}
+  annotations:
+    {{- if .Values.commonAnnotations }}
+    {{- include "common.tplvalues.render" ( dict "value" .Values.commonAnnotations "context" $ ) | nindent 4 }}
+    {{- end }}
+    {{- if .Values.standalone.service.annotations }}
+    {{- include "common.tplvalues.render" (dict "value" .Values.standalone.service.annotations "context" $) | nindent 4 }}
+    {{- end }}
+  {{- end }}
+spec:
+  type: {{ .Values.standalone.service.type }}
+  {{- if and .Values.standalone.service.clusterIP (eq .Values.standalone.service.type "ClusterIP") }}
+  clusterIP: {{ .Values.standalone.service.clusterIP }}
+  {{- end }}
+  {{- if and .Values.standalone.service.externalTrafficPolicy (or (eq .Values.standalone.service.type "LoadBalancer") (eq .Values.standalone.service.type "NodePort")) }}
+  externalTrafficPolicy: {{ .Values.standalone.service.externalTrafficPolicy }}
+  {{- end }}
+  {{- if (and (eq .Values.standalone.service.type "LoadBalancer") .Values.standalone.service.loadBalancerSourceRanges) }}
+  loadBalancerSourceRanges: {{- toYaml .Values.standalone.service.loadBalancerSourceRanges | nindent 4 }}
+  {{- end }}
+  {{- if (and (eq .Values.standalone.service.type "LoadBalancer") (not (empty .Values.standalone.service.loadBalancerIP))) }}
+  loadBalancerIP: {{ .Values.standalone.service.loadBalancerIP }}
+  {{- end }}
+  ports:
+    - name: http
+      port: {{ .Values.standalone.service.ports.http }}
+      targetPort: http
+      {{- if and (or (eq .Values.standalone.service.type "NodePort") (eq .Values.standalone.service.type "LoadBalancer")) (not (empty .Values.standalone.service.nodePorts.http)) }}
+      nodePort: {{ .Values.standalone.service.nodePorts.http }}
+      {{- end }}
+  selector: {{- include "common.labels.matchLabels" . | nindent 4 }}
+    app.kubernetes.io/component: standalone
+{{- end }}
+{{- end }}
