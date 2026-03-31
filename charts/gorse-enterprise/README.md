@@ -52,6 +52,15 @@
 | `gorse.recommends[0].replacement.decay.read`        | Decay the weights of replaced items from read feedbacks                       | `0.6`        |
 | `gorse.recommends[0].online.fallback`               | The fallback recommendation method is used when cached recommendation drained | `["latest"]` |
 
+### Tracing configuration
+
+| Name                              | Description                                 | Value                              |
+| --------------------------------- | ------------------------------------------- | ---------------------------------- |
+| `gorse.tracing.enable`            | Enable tracing for REST APIs                | `false`                            |
+| `gorse.tracing.exporter`          | Tracing exporter type (zipkin\|otlp\|otlphttp) | `otlphttp`                      |
+| `gorse.tracing.collectorEndpoint` | Tracing collector endpoint                  | `http://localhost:4318/v1/traces` |
+| `gorse.tracing.sampler`           | Tracing sampler type (always\|never\|ratio) | `always`                           |
+| `gorse.tracing.ratio`             | Ratio used when sampler is set to ratio     | `1`                                |
 ### Gorse master node parameters
 
 | Name                                      | Description                                                                                                                      | Value                    |
@@ -282,4 +291,3 @@
 | `externalDatabase.database`                  | Gorse database name                                                       | `gorse`             |
 | `externalDatabase.existingSecret`            | Name of an existing secret resource containing the database credentials   | `""`                |
 | `externalDatabase.existingSecretPasswordKey` | Name of an existing secret key containing the database credentials        | `mongodb-passwords` |
-

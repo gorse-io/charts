@@ -365,6 +365,25 @@ standalone:
   ##
   initContainers: []
 
+  ## @section Tracing configuration
+  ##
+  tracing:
+    ## @param gorse.tracing.enable Enable tracing for REST APIs
+    ##
+    enable: false
+    ## @param gorse.tracing.exporter Tracing exporter type (zipkin|otlp|otlphttp)
+    ##
+    exporter: "otlphttp"
+    ## @param gorse.tracing.collectorEndpoint Tracing collector endpoint
+    ##
+    collectorEndpoint: "http://localhost:4318/v1/traces"
+    ## @param gorse.tracing.sampler Tracing sampler type (always|never|ratio)
+    ##
+    sampler: "always"
+    ## @param gorse.tracing.ratio Ratio used when sampler is set to ratio
+    ##
+    ratio: 1
+
 ## @section Gorse master node parameters
 ##
 master:
