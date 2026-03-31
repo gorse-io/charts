@@ -1,3 +1,4 @@
+{{- if eq .Values.architecture "distributed" }}
 {{- if .Values.server.ingress.enabled }}
 {{- $ingressApiVersion := include "common.capabilities.ingress.apiVersion" . -}}
 apiVersion: {{ $ingressApiVersion }}
@@ -61,4 +62,5 @@ spec:
     {{- include "common.tplvalues.render" (dict "value" .Values.server.ingress.extraTls "context" $) | nindent 4 }}
     {{- end }}
   {{- end }}
+{{- end }}
 {{- end }}

@@ -1,3 +1,4 @@
+{{- if eq .Values.architecture "distributed" }}
 {{- if and .Values.server.autoscaling.enabled }}
 apiVersion: {{ include "common.capabilities.hpa.apiVersion" ( dict "context" $ ) }}
 kind: HorizontalPodAutoscaler
@@ -44,4 +45,5 @@ spec:
           averageUtilization: {{ .Values.server.autoscaling.targetCPU }}
         {{- end }}
     {{- end }}
+{{- end }}
 {{- end }}

@@ -42,6 +42,15 @@ secretAnnotations: {}
 ##
 clusterDomain: cluster.local
 
+## @section Architecture parameters
+##
+
+## @param architecture Gorse deployment architecture. Allowed values: `standalone` or `distributed`
+## - standalone: Deploy gorse-in-one (all-in-one) for development/testing
+## - distributed: Deploy full Gorse cluster (master, worker, server) for production
+##
+architecture: distributed
+
 ## @section Gorse Configuration parameters
 ##
 gorse:
@@ -326,6 +335,271 @@ gorse:
     redirectUrl: ""
 
 ## @section Gorse master node parameters
+
+## @section Gorse standalone (gorse-in-one) parameters
+## Only used when architecture is set to `standalone`
+##
+standalone:
+  ## Gorse-in-one image version
+  ## ref: https://hub.docker.com/r/zhenghaoz/gorse-in-one
+  ## @param standalone.image.registry Gorse-in-one image registry
+  ## @param standalone.image.repository Gorse-in-one image repository
+  ## @param standalone.image.tag Gorse-in-one image tag (immutable tags are recommended)
+  ## @param standalone.image.digest Gorse-in-one image digest in the way sha256:aa.... Please note this parameter, if set, will override the tag
+  ## @param standalone.image.pullPolicy Gorse-in-one image pull policy
+  ## @param standalone.image.pullSecrets Specify docker-registry secret names as an array
+  ##
+  image:
+    registry: docker.io
+    repository: zhenghaoz/gorse-in-one
+    tag: nightly
+    digest: ""
+    pullPolicy: IfNotPresent
+    pullSecrets: []
+
+  ## @param standalone.kind Use either Deployment or StatefulSet (default)
+  ## ref: https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/
+  ##
+  kind: StatefulSet
+
+  ## @param standalone.replicaCount Number of gorse-in-one replicas (should be 1 for standalone)
+  ##
+  replicaCount: 1
+
+  ## Persistence parameters
+  ## ref: https://kubernetes.io/docs/user-guide/persistent-volumes/
+  ##
+  persistence:
+    ## @param standalone.persistence.enabled Enable persistence using Persistent Volume Claims
+    ##
+    enabled: true
+    ## @param standalone.persistence.medium Provide a medium for `emptyDir` volumes.
+    ##
+    medium: ""
+    ## @param standalone.persistence.sizeLimit Set this to enable a size limit for `emptyDir` volumes.
+    ##
+    sizeLimit: ""
+    ## @param standalone.persistence.path The path the volume will be mounted at
+    ##
+    path: /var/lib/gorse
+    ## @param standalone.persistence.subPath The subdirectory of the volume to mount
+    ##
+    subPath: ""
+    ## @param standalone.persistence.storageClass Persistent Volume storage class
+    ##
+    storageClass: ""
+    ## @param standalone.persistence.accessModes Persistent Volume access modes
+    ##
+    accessModes:
+      - ReadWriteOnce
+    ## @param standalone.persistence.size Persistent Volume size
+    ##
+    size: 1Gi
+
+  ## Gorse-in-one service parameters
+  ##
+  service:
+    ## @param standalone.service.type Kubernetes Service type
+    ##
+    type: ClusterIP
+    ## @param standalone.service.ports.http Gorse-in-one HTTP service port
+    ##
+    ports:
+      http: 8087
+    ## @param standalone.service.nodePorts.http HTTP node port (only used when service.type is NodePort or LoadBalancer)
+    ##
+    nodePorts:
+      http: ""
+    ## @param standalone.service.clusterIP Gorse-in-one service Cluster IP
+    ## e.g.:
+    ## clusterIP: None
+    ##
+    clusterIP: ""
+    ## @param standalone.service.loadBalancerIP Gorse-in-one service Load Balancer IP
+    ## ref: https://kubernetes.io/docs/user-guide/services/#type-loadbalancer
+    ##
+    loadBalancerIP: ""
+    ## @param standalone.service.loadBalancerSourceRanges Gorse-in-one service Load Balancer sources
+    ## ref: https://kubernetes.io/docs/tasks/access-application-cluster/configure-cloud-provider-firewall/#restrict-access-for-loadbalancer-service
+    ## e.g:
+    ## loadBalancerSourceRanges:
+    ##   - 10.10.10.0/24
+    ##
+    loadBalancerSourceRanges: []
+    ## @param standalone.service.externalTrafficPolicy Gorse-in-one service external traffic policy
+    ## ref https://kubernetes.io/docs/tasks/access-application-cluster/create-external-load-balancer/#preserving-the-client-source-ip
+    ##
+    externalTrafficPolicy: Cluster
+    ## @param standalone.service.annotations Additional custom annotations for Gorse-in-one service
+    ##
+    annotations: {}
+
+  ## Gorse-in-one resource requests and limits
+  ## ref: https://kubernetes.io/docs/user-guide/compute-resources/
+  ## @param standalone.resources.limits The resources limits for the gorse-in-one containers
+  ## @param standalone.resources.requests The requested resources for the gorse-in-one containers
+  ##
+  resources:
+    limits: {}
+    requests: {}
+
+  ## Configure extra options for gorse-in-one containers' liveness and readiness probes
+  ## ref: https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-probes/#configure-probes
+  ## @param standalone.livenessProbe.enabled Enable livenessProbe on gorse-in-one nodes
+  ## @param standalone.livenessProbe.initialDelaySeconds Initial delay seconds for livenessProbe
+  ## @param standalone.livenessProbe.periodSeconds Period seconds for livenessProbe
+  ## @param standalone.livenessProbe.timeoutSeconds Timeout seconds for livenessProbe
+  ## @param standalone.livenessProbe.failureThreshold Failure threshold for livenessProbe
+  ## @param standalone.livenessProbe.successThreshold Success threshold for livenessProbe
+  ##
+  livenessProbe:
+    enabled: true
+    initialDelaySeconds: 5
+    periodSeconds: 10
+    timeoutSeconds: 5
+    failureThreshold: 5
+    successThreshold: 1
+  ## @param standalone.readinessProbe.enabled Enable readinessProbe on gorse-in-one nodes
+  ## @param standalone.readinessProbe.initialDelaySeconds Initial delay seconds for readinessProbe
+  ## @param standalone.readinessProbe.periodSeconds Period seconds for readinessProbe
+  ## @param standalone.readinessProbe.timeoutSeconds Timeout seconds for readinessProbe
+  ## @param standalone.readinessProbe.failureThreshold Failure threshold for readinessProbe
+  ## @param standalone.readinessProbe.successThreshold Success threshold for readinessProbe
+  ##
+  readinessProbe:
+    enabled: true
+    initialDelaySeconds: 5
+    periodSeconds: 10
+    timeoutSeconds: 5
+    failureThreshold: 5
+    successThreshold: 1
+
+  ## @param standalone.podAffinityPreset Pod affinity preset. Ignored if `standalone.affinity` is set. Allowed values: `soft` or `hard`
+  ## ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#inter-pod-affinity-and-anti-affinity
+  ##
+  podAffinityPreset: ""
+  ## @param standalone.podAntiAffinityPreset Pod anti-affinity preset. Ignored if `standalone.affinity` is set. Allowed values: `soft` or `hard`
+  ## ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#inter-pod-affinity-and-anti-affinity
+  ##
+  podAntiAffinityPreset: soft
+  ## Node standalone.affinity preset
+  ## ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#node-affinity
+  ##
+  nodeAffinityPreset:
+    ## @param standalone.nodeAffinityPreset.type Node affinity preset type. Ignored if `standalone.affinity` is set. Allowed values: `soft` or `hard`
+    ##
+    type: ""
+    ## @param standalone.nodeAffinityPreset.key Node label key to match. Ignored if `standalone.affinity` is set.
+    ##
+    key: ""
+    ## @param standalone.nodeAffinityPreset.values Node label values to match. Ignored if `standalone.affinity` is set.
+    ##
+    values: []
+  ## @param standalone.affinity Affinity for gorse-in-one pods assignment
+  ## ref: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/#affinity-and-anti-affinity
+  ## NOTE: `standalone.podAffinityPreset`, `standalone.podAntiAffinityPreset`, and `standalone.nodeAffinityPreset` will be ignored when it's set
+  ##
+  affinity: {}
+  ## @param standalone.nodeSelector Node labels for gorse-in-one pods assignment
+  ## ref: https://kubernetes.io/docs/user-guide/node-selection/
+  ##
+  nodeSelector: {}
+  ## @param standalone.tolerations Tolerations for gorse-in-one pods assignment
+  ## ref: https://kubernetes.io/docs/concepts/configuration/taint-and-toleration/
+  ##
+  tolerations: []
+  ## @param standalone.podLabels Extra labels for gorse-in-one pods
+  ##
+  podLabels: {}
+  ## @param standalone.podAnnotations Annotations for gorse-in-one pods
+  ##
+  podAnnotations: {}
+  ## @param standalone.priorityClassName gorse-in-one pods' priorityClassName
+  ##
+  priorityClassName: ""
+  ## @param standalone.schedulerName Name of the k8s scheduler (other than default)
+  ## ref: https://kubernetes.io/docs/tasks/administer-cluster/configure-multiple-schedulers/
+  ##
+  schedulerName: ""
+  ## @param standalone.terminationGracePeriodSeconds Seconds Redmine pod needs to terminate gracefully
+  ## ref: https://kubernetes.io/docs/concepts/workloads/pods/pod/#termination-of-pods
+  ##
+  terminationGracePeriodSeconds: ""
+  ## @param standalone.topologySpreadConstraints Topology Spread Constraints for pod assignment
+  ## ref: https://kubernetes.io/docs/concepts/workloads/pods/pod-topology-spread-constraints/
+  ## The value is evaluated as a template
+  ##
+  topologySpreadConstraints: []
+  ## @param standalone.podSecurityContextEnabled Enabled gorse-in-one pods' Security Context
+  ## ref: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/
+  ##
+  podSecurityContextEnabled: true
+  ## @param standalone.podSecurityContext.fsGroup Set gorse-in-one pod's Security Context fsGroup
+  ##
+  podSecurityContext:
+    fsGroup: 1001
+  ## @param standalone.containerSecurityContext.enabled Enabled gorse-in-one containers' Security Context
+  ## @param standalone.containerSecurityContext.runAsUser Set gorse-in-one containers' Security Context runAsUser
+  ## @param standalone.containerSecurityContext.runAsNonRoot Set gorse-in-one containers' Security Context runAsNonRoot
+  ## @param standalone.containerSecurityContext.readOnlyRootFilesystem Set gorse-in-one containers' Security Context readOnlyRootFilesystem
+  ##
+  containerSecurityContext:
+    enabled: true
+    runAsUser: 1001
+    runAsNonRoot: true
+    readOnlyRootFilesystem: false
+
+  ## @param standalone.command Override default container command (useful when using custom images)
+  ##
+  command: []
+  ## @param standalone.args Override default container args (useful when using custom images)
+  ##
+  args: []
+  ## @param standalone.hostAliases gorse-in-one pods host aliases
+  ## https://kubernetes.io/docs/concepts/services-networking/add-entries-to-pod-etc-hosts-with-host-aliases/
+  ##
+  hostAliases: []
+  ## @param standalone.extraEnvVars Array with extra environment variables to add to gorse-in-one nodes
+  ## e.g:
+  ## extraEnvVars:
+  ##   - name: FOO
+  ##     value: "bar"
+  ##
+  extraEnvVars: []
+  ## @param standalone.extraEnvVarsCM Name of existing ConfigMap containing extra env vars for gorse-in-one nodes
+  ##
+  extraEnvVarsCM: ""
+  ## @param standalone.extraEnvVarsSecret Name of existing Secret containing extra env vars for gorse-in-one nodes
+  ##
+  extraEnvVarsSecret: ""
+  ## @param standalone.extraVolumes Optionally specify extra list of additional volumes for the gorse-in-one pod(s)
+  ##
+  extraVolumes: []
+  ## @param standalone.extraVolumeMounts Optionally specify extra list of additional volumeMounts for the gorse-in-one container(s)
+  ##
+  extraVolumeMounts: []
+  ## @param standalone.sidecars Add additional sidecar containers to the gorse-in-one pod(s)
+  ## e.g:
+  ## sidecars:
+  ##   - name: your-image-name
+  ##     image: your-image
+  ##     imagePullPolicy: Always
+  ##     ports:
+  ##       - name: portname
+  ##         containerPort: 1234
+  ##
+  sidecars: []
+  ## @param standalone.initContainers Add additional init containers to the gorse-in-one pod(s)
+  ## ref: https://kubernetes.io/docs/concepts/workloads/pods/init-containers/
+  ## e.g:
+  ## initContainers:
+  ##  - name: your-image-name
+  ##    image: your-image
+  ##    imagePullPolicy: Always
+  ##    command: ['sh', '-c', 'echo "hello world"']
+  ##
+  initContainers: []
+
 ##
 master:
   ## @param master.jobs Number of working jobs in the master node
