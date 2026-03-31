@@ -36,12 +36,32 @@ The command deploys Gorse on the Kubernetes cluster in the default configuration
 
 > **Tip**: List all releases using `helm list`
 
+## Architecture
+
+Gorse supports two deployment architectures:
+
+### Distributed (Default)
+
+Full cluster deployment with separate Master, Worker, and Server components. Suitable for production workloads.
+
+```bash
+helm install gorse gorse-io/gorse --set architecture=distributed
+```
+
+### Standalone
+
+Single gorse-in-one container for development and testing. All components run in a single pod.
+
+```bash
+helm install gorse gorse-io/gorse --set architecture=standalone
+```
+
 ## Uninstalling the Chart
 
 To uninstall/delete the `gorse` deployment:
 
 ```bash
-helm unistall gorse
+helm uninstall gorse
 ```
 
 The command removes all the Kubernetes components associated with the chart and deletes the release.
@@ -68,6 +88,12 @@ The command removes all the Kubernetes components associated with the chart and 
 | `secretAnnotations` | Annotations to add to secret                       | `{}`            |
 | `clusterDomain`     | Default Kubernetes cluster domain                  | `cluster.local` |
 
+### Architecture parameters
+
+| Name           | Description                                                                  | Value         |
+| -------------- | ---------------------------------------------------------------------------- | ------------- |
+| `architecture` | Gorse deployment architecture. Allowed values: `standalone` or `distributed` | `distributed` |
+
 ### Gorse Configuration parameters
 
 | Name                         | Description                     | Value   |
@@ -78,112 +104,30 @@ The command removes all the Kubernetes components associated with the chart and 
 
 ### Master SSL
 
-| Name                                            | Description                                               | Value   |
-| ----------------------------------------------- | --------------------------------------------------------- | ------- |
-| `gorse.master.ssl.mode`                         | Enable SSL for the gRPC communication.                    | `false` |
-| `gorse.master.ssl.ca`                           | SSL certification authority for the gRPC communication.   | `""`    |
-| `gorse.master.ssl.cert`                         | SSL certification for the gRPC communication.             | `""`    |
-| `gorse.master.ssl.key`                          | SSL certification key for the gRPC communication.         | `""`    |
-| `gorse.api.key`                                 | The key to secure the API endpoint                        | `""`    |
-| `gorse.api.corsDomains`                         | List of allowed values for Http Origin                    | `[]`    |
-| `gorse.api.corsMethods`                         | List of http methods names. Checking is case-insensitive. | `[]`    |
-| `gorse.api.autoInsertUsers`                     | Insert new users while inserting feedback                 | `true`  |
-| `gorse.api.autoInsertItems`                     | Insert new items while inserting feedback.                | `true`  |
-| `gorse.api.returnSize`                          | Default number of returned items                          | `10`    |
-| `gorse.api.serverCacheExpire`                   | Server-side cache expire time                             | `10s`   |
-| `gorse.recommend.dataSource.feedbackTimeToLive` | The time-to-live (days) of positive feedback              | `0`     |
-| `gorse.recommend.dataSource.itemTimeToLive`     | The time-to-live (days) of items                          | `0`     |
-| `gorse.recommend.dataSource.positiveFeedbacks`  | The feedback types for positive events                    | `[]`    |
-| `gorse.recommend.dataSource.readFeedbacks`      | The feedback types for read events.                       | `[]`    |
-| `gorse.recommend.cache.size`                    | The cache size for recommended/popular/latest items       | `10`    |
-| `gorse.recommend.cache.expire`                  | Recommended cache expire time                             | `72h`   |
-
-### Recommend online context
-
-| Name                            | Description                                  | Value   |
-| ------------------------------- | -------------------------------------------- | ------- |
-| `gorse.recommend.contextSize`   | The context size for online recommendations. | `100`   |
-| `gorse.recommend.activeUserTtl` | The time-to-live (days) of active users.     | `0`     |
-| `gorse.recommend.popular`       | The time window of popular items             | `4320h` |
-
-### Non-personalized recommenders
-
-| Name                                        | Description                                 | Value                                      |
-| ------------------------------------------- | ------------------------------------------- | ------------------------------------------ |
-| `gorse.recommend.nonPersonalized[0].name`   | Leaderboard name (first entry)              | `most_starred_weekly`                      |
-| `gorse.recommend.nonPersonalized[0].score`  | Leaderboard score expression (first entry)  | `count(feedback, .FeedbackType == 'star')` |
-| `gorse.recommend.nonPersonalized[0].filter` | Leaderboard filter expression (first entry) | `(now() - item.Timestamp).Hours() < 168`   |
-
-### Item-to-item recommenders
-
-| Name                                   | Description                                 | Value                   |
-| -------------------------------------- | ------------------------------------------- | ----------------------- |
-| `gorse.recommend.itemToItem[0].name`   | Item-to-item recommender name (first entry) | `neighbors`             |
-| `gorse.recommend.itemToItem[0].type`   | Item-to-item recommender type (first entry) | `embedding`             |
-| `gorse.recommend.itemToItem[0].column` | Embedding column (first entry)              | `item.Labels.embedding` |
-
-### User-to-user recommenders
-
-| Name                                 | Description                                 | Value       |
-| ------------------------------------ | ------------------------------------------- | ----------- |
-| `gorse.recommend.userToUser[0].name` | User-to-user recommender name (first entry) | `neighbors` |
-| `gorse.recommend.userToUser[0].type` | User-to-user recommender type (first entry) | `items`     |
-
-### External recommenders
-
-| Name                                   | Description                               | Value                                                                                                                                                                                                                                                                                                                      |
-| -------------------------------------- | ----------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `gorse.recommend.external[0].name`     | External recommender name (first entry)   | `trending`                                                                                                                                                                                                                                                                                                                 |
-| `gorse.recommend.external[0].script`   | External recommender script (first entry) | `const response = fetch("https://cdn.jsdelivr.net/gh/isboyjc/github-trending-api/data/daily/all.json");
-if (!response.ok) {
-  throw new Error(`${response.status} ${response.body}`);
-}
-const data = JSON.parse(response.body);
-data["items"].map((item) => {
-  return item["title"].toLowerCase().replace("/", ":");
-})
-` |
-| `gorse.recommend.neighbors.users.type` | The type of neighbors for users           | `similar`                                                                                                                                                                                                                                                                                                                  |
-| `gorse.recommend.neighbors.items.type` | The type of neighbors for items.          | `similar`                                                                                                                                                                                                                                                                                                                  |
-
-### Collaborative filtering
-
-| Name                                                   | Description                                                             | Value  |
-| ------------------------------------------------------ | ----------------------------------------------------------------------- | ------ |
-| `gorse.recommend.collaborative.enable`                 | Enable approximate collaborative filtering recommend using vector index | `true` |
-| `gorse.recommend.collaborative.fitPeriod`              | Time period for model fitting                                           | `60m`  |
-| `gorse.recommend.collaborative.fitEpoch`               | Number of epochs for model fitting                                      | `100`  |
-| `gorse.recommend.collaborative.optimizePeriod`         | Time period for hyperparameter optimization                             | `360m` |
-| `gorse.recommend.collaborative.optimizeTrials`         | Number of trials for hyperparameter optimization                        | `10`   |
-| `gorse.recommend.collaborative.earlyStopping.patience` | Early stopping patience epochs                                          | `10`   |
-
-### Replacement strategy
-
-| Name                                         | Description                                                 | Value   |
-| -------------------------------------------- | ----------------------------------------------------------- | ------- |
-| `gorse.recommend.replacement.enable`         | Replace historical items back to recommendations            | `false` |
-| `gorse.recommend.replacement.decay.positive` | Decay the weights of replaced items from positive feedbacks | `0.8`   |
-| `gorse.recommend.replacement.decay.read`     | Decay the weights of replaced items from read feedbacks     | `0.6`   |
-
-### Ranker
-
-| Name                                            | Description                                              | Value                                                                                                                 |
-| ----------------------------------------------- | -------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------- |
-| `gorse.recommend.ranker.type`                   | Ranker type (none|fm)                                    | `fm`                                                                                                                  |
-| `gorse.recommend.ranker.cacheExpire`            | Time period to refresh recommendation for inactive users | `120h`                                                                                                                |
-| `gorse.recommend.ranker.recommenders`           | Candidate recommenders used before ranking               | `["latest","collaborative","non-personalized/most_starred_weekly","item-to-item/neighbors","user-to-user/neighbors"]` |
-| `gorse.recommend.ranker.fitPeriod`              | Time period for model fitting                            | `60m`                                                                                                                 |
-| `gorse.recommend.ranker.fitEpoch`               | Number of epochs for model fitting                       | `100`                                                                                                                 |
-| `gorse.recommend.ranker.optimizePeriod`         | Time period for hyperparameter optimization              | `360m`                                                                                                                |
-| `gorse.recommend.ranker.optimizeTrials`         | Number of trials for hyperparameter optimization         | `10`                                                                                                                  |
-| `gorse.recommend.ranker.earlyStopping.patience` | Early stopping patience epochs                           | `10`                                                                                                                  |
-
-### Fallback recommenders
-
-| Name                                    | Description                                                                   | Value                                 |
-| --------------------------------------- | ----------------------------------------------------------------------------- | ------------------------------------- |
-| `gorse.recommend.fallback.recommenders` | Fallback recommenders used when cache drained                                 | `["item-to-item/neighbors","latest"]` |
-| `gorse.recommend.online.fallback`       | The fallback recommendation method is used when cached recommendation drained | `["latest"]`                          |
+| Name                               | Description                                               | Value                       |
+| ---------------------------------- | --------------------------------------------------------- | --------------------------- |
+| `gorse.master.ssl.mode`            | Enable SSL for the gRPC communication.                    | `false`                     |
+| `gorse.master.ssl.ca`              | SSL certification authority for the gRPC communication.   | `""`                        |
+| `gorse.master.ssl.cert`            | SSL certification for the gRPC communication.             | `""`                        |
+| `gorse.master.ssl.key`             | SSL certification key for the gRPC communication.         | `""`                        |
+| `gorse.api.key`                    | The key to secure the API endpoint                        | `""`                        |
+| `gorse.api.corsDomains`            | List of allowed values for Http Origin                    | `[]`                        |
+| `gorse.api.corsMethods`            | List of http methods names. Checking is case-insensitive. | `[]`                        |
+| `gorse.api.autoInsertUsers`        | Insert new users while inserting feedback                 | `true`                      |
+| `gorse.api.autoInsertItems`        | Insert new items while inserting feedback.                | `true`                      |
+| `gorse.api.returnSize`             | Default number of returned items                          | `10`                        |
+| `gorse.api.serverCacheExpire`      | Server-side cache expire time                             | `10s`                       |
+| `gorse.recommend`                  | TOML string for recommend configuration                   | `""`                        |
+| `gorse.openai.baseUrl`             | Base URL of OpenAI API / Ollama                           | `http://localhost:11434/v1` |
+| `gorse.openai.authToken`           | API key of OpenAI API                                     | `""`                        |
+| `gorse.openai.chatCompletionModel` | Name of chat completion model                             | `qwen2.5`                   |
+| `gorse.openai.chatCompletionRpm`   | Maximum requests per minute for chat completion           | `15000`                     |
+| `gorse.openai.chatCompletionTpm`   | Maximum tokens per minute for chat completion             | `1200000`                   |
+| `gorse.openai.embeddingModel`      | Name of embedding model                                   | `mxbai-embed-large`         |
+| `gorse.openai.embeddingDimensions` | Dimensions of embedding vectors                           | `1024`                      |
+| `gorse.openai.embeddingRpm`        | Maximum requests per minute for embedding                 | `1800`                      |
+| `gorse.openai.embeddingTpm`        | Maximum tokens per minute for embedding                   | `1200000`                   |
+| `gorse.openai.logFile`             | Log file for OpenAI API                                   | `openai.log`                |
 
 ### OIDC configuration
 
@@ -197,69 +141,140 @@ data["items"].map((item) => {
 
 ### Gorse master node parameters
 
-| Name                                      | Description                                                                                                                      | Value                    |
-| ----------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------- | ------------------------ |
-| `master.jobs`                             | Number of working jobs in the master node                                                                                        | `1`                      |
-| `master.image.registry`                   | Gorse image registry                                                                                                             | `docker.io`              |
-| `master.image.repository`                 | Gorse Master image repository                                                                                                    | `zhenghaoz/gorse-master` |
-| `master.image.tag`                        | Gorse Master image tag (immutable tags are recommended)                                                                          | `0.4.12`                 |
-| `master.image.digest`                     | Gorse Master image digest in the way sha256:aa.... Please note this parameter, if set, will override the tag                     | `""`                     |
-| `master.image.pullPolicy`                 | Gorse Master image pull policy                                                                                                   | `IfNotPresent`           |
-| `master.image.pullSecrets`                | Specify docker-registry secret names as an array                                                                                 | `[]`                     |
-| `master.kind`                             | Use either Deployment or StatefulSet (default)                                                                                   | `StatefulSet`            |
-| `master.persistence.enabled`              | Enable persistence on Gorse master nodes using Persistent Volume Claims                                                          | `true`                   |
-| `master.persistence.medium`               | Provide a medium for `emptyDir` volumes.                                                                                         | `""`                     |
-| `master.persistence.sizeLimit`            | Set this to enable a size limit for `emptyDir` volumes.                                                                          | `""`                     |
-| `master.persistence.path`                 | The path the volume will be mounted at on Gorse master containers                                                                | `/var/lib/gorse`         |
-| `master.persistence.subPath`              | The subdirectory of the volume to mount on Gorse master containers                                                               | `""`                     |
-| `master.persistence.subPathExpr`          | Used to construct the subPath subdirectory of the volume to mount on Gorse master containers                                     | `""`                     |
-| `master.persistence.storageClass`         | Persistent Volume storage class                                                                                                  | `""`                     |
-| `master.persistence.accessModes`          | Persistent Volume access modes                                                                                                   | `["ReadWriteOnce"]`      |
-| `master.persistence.size`                 | Persistent Volume size                                                                                                           | `8Gi`                    |
-| `master.persistence.annotations`          | Additional custom annotations for the PVC                                                                                        | `{}`                     |
-| `master.persistence.selector`             | Additional labels to match for the PVC                                                                                           | `{}`                     |
-| `master.persistence.dataSource`           | Custom PVC data source                                                                                                           | `{}`                     |
-| `master.persistence.existingClaim`        | Use a existing PVC which must be created manually before bound                                                                   | `""`                     |
-| `master.service.type`                     | Gorse master service type                                                                                                        | `ClusterIP`              |
-| `master.service.ports.http`               | HTTP port of the master node (dashboard)                                                                                         | `80`                     |
-| `master.service.ports.grpc`               | GRPC port of the master node                                                                                                     | `8086`                   |
-| `master.service.nodePorts.http`           | HTTP port of the master node (dashboard)                                                                                         | `""`                     |
-| `master.service.nodePorts.grpc`           | GRPC port of the master node                                                                                                     | `""`                     |
-| `master.service.externalTrafficPolicy`    | Gorse master service external traffic policy                                                                                     | `Cluster`                |
-| `master.service.extraPorts`               | Extra ports to expose (normally used with the `sidecar` value)                                                                   | `[]`                     |
-| `master.service.internalTrafficPolicy`    | Gorse master service internal traffic policy (requires Kubernetes v1.22 or greater to be usable)                                 | `Cluster`                |
-| `master.service.clusterIP`                | Gorse master service Cluster IP                                                                                                  | `""`                     |
-| `master.service.loadBalancerIP`           | Gorse master service Load Balancer IP                                                                                            | `""`                     |
-| `master.service.loadBalancerSourceRanges` | Gorse master service Load Balancer sources                                                                                       | `[]`                     |
-| `master.service.annotations`              | Additional custom annotations for Gorse master service                                                                           | `{}`                     |
-| `master.service.sessionAffinity`          | Session Affinity for Kubernetes service, can be "None" or "ClientIP"                                                             | `None`                   |
-| `master.service.sessionAffinityConfig`    | Additional settings for the sessionAffinity                                                                                      | `{}`                     |
-| `master.ingress.enabled`                  | Enable ingress controller resource                                                                                               | `false`                  |
-| `master.ingress.pathType`                 | Ingress Path type                                                                                                                | `ImplementationSpecific` |
-| `master.ingress.apiVersion`               | Override API Version (automatically detected if not set)                                                                         | `""`                     |
-| `master.ingress.ingressClassName`         | IngressClass that will be be used to implement the Ingress (Kubernetes 1.18+)                                                    | `""`                     |
-| `master.ingress.hostname`                 | Default host for the ingress resource                                                                                            | `gorse.local`            |
-| `master.ingress.path`                     | The Path to Gorse. You may need to set this to '/*' in order to use this                                                         | `/`                      |
-| `master.ingress.annotations`              | Additional annotations for the Ingress resource. To enable certificate autogeneration, place here your cert-manager annotations. | `{}`                     |
-| `master.ingress.tls`                      | Enable TLS configuration for the hostname defined at ingress.hostname parameter                                                  | `false`                  |
-| `master.ingress.extraHosts`               | The list of additional hostnames to be covered with this ingress record.                                                         | `[]`                     |
-| `master.ingress.extraPaths`               | Any additional arbitrary paths that may need to be added to the ingress under the main host.                                     | `[]`                     |
-| `master.ingress.extraTls`                 | The tls configuration for additional hostnames to be covered with this ingress record.                                           | `[]`                     |
-| `master.ingress.secrets`                  | If you're providing your own certificates, please use this to add the certificates as secrets                                    | `[]`                     |
-| `master.ingress.extraRules`               | Additional rules to be covered with this ingress record                                                                          | `[]`                     |
-| `master.resources.limits`                 | The resources limits for the Gorse replicas containers                                                                           | `{}`                     |
-| `master.resources.requests`               | The requested resources for the Gorse replicas containers                                                                        | `{}`                     |
-| `master.podAffinityPreset`                | Pod affinity preset. Ignored if `master.affinity` is set. Allowed values: `soft` or `hard`                                       | `""`                     |
-| `master.podAntiAffinityPreset`            | Pod anti-affinity preset. Ignored if `master.affinity` is set. Allowed values: `soft` or `hard`                                  | `soft`                   |
-| `master.nodeAffinityPreset.type`          | Node affinity preset type. Ignored if `master.affinity` is set. Allowed values: `soft` or `hard`                                 | `""`                     |
-| `master.nodeAffinityPreset.key`           | Node label key to match. Ignored if `master.affinity` is set                                                                     | `""`                     |
-| `master.nodeAffinityPreset.values`        | Node label values to match. Ignored if `master.affinity` is set                                                                  | `[]`                     |
-| `master.affinity`                         | Affinity for Gorse master pods assignment                                                                                        | `{}`                     |
-| `master.nodeSelector`                     | Node labels for Gorse master pods assignment                                                                                     | `{}`                     |
-| `master.tolerations`                      | Tolerations for Gorse master pods assignment                                                                                     | `[]`                     |
-| `master.pdb.create`                       | Specifies whether a PodDisruptionBudget should be created                                                                        | `false`                  |
-| `master.pdb.minAvailable`                 | Min number of pods that must still be available after the eviction                                                               | `1`                      |
-| `master.pdb.maxUnavailable`               | Max number of pods that can be unavailable after the eviction                                                                    | `""`                     |
+
+### Gorse standalone (gorse-in-one) parameters
+
+| Name                                                         | Description                                                                                                                      | Value                    |
+| ------------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------- | ------------------------ |
+| `standalone.image.registry`                                  | Gorse-in-one image registry                                                                                                      | `docker.io`              |
+| `standalone.image.repository`                                | Gorse-in-one image repository                                                                                                    | `zhenghaoz/gorse-in-one` |
+| `standalone.image.tag`                                       | Gorse-in-one image tag (immutable tags are recommended)                                                                          | `nightly`                |
+| `standalone.image.digest`                                    | Gorse-in-one image digest in the way sha256:aa.... Please note this parameter, if set, will override the tag                     | `""`                     |
+| `standalone.image.pullPolicy`                                | Gorse-in-one image pull policy                                                                                                   | `IfNotPresent`           |
+| `standalone.image.pullSecrets`                               | Specify docker-registry secret names as an array                                                                                 | `[]`                     |
+| `standalone.kind`                                            | Use either Deployment or StatefulSet (default)                                                                                   | `StatefulSet`            |
+| `standalone.replicaCount`                                    | Number of gorse-in-one replicas (should be 1 for standalone)                                                                     | `1`                      |
+| `standalone.persistence.enabled`                             | Enable persistence using Persistent Volume Claims                                                                                | `true`                   |
+| `standalone.persistence.medium`                              | Provide a medium for `emptyDir` volumes.                                                                                         | `""`                     |
+| `standalone.persistence.sizeLimit`                           | Set this to enable a size limit for `emptyDir` volumes.                                                                          | `""`                     |
+| `standalone.persistence.path`                                | The path the volume will be mounted at                                                                                           | `/var/lib/gorse`         |
+| `standalone.persistence.subPath`                             | The subdirectory of the volume to mount                                                                                          | `""`                     |
+| `standalone.persistence.storageClass`                        | Persistent Volume storage class                                                                                                  | `""`                     |
+| `standalone.persistence.accessModes`                         | Persistent Volume access modes                                                                                                   | `["ReadWriteOnce"]`      |
+| `standalone.persistence.size`                                | Persistent Volume size                                                                                                           | `1Gi`                    |
+| `standalone.service.type`                                    | Kubernetes Service type                                                                                                          | `ClusterIP`              |
+| `standalone.service.ports.http`                              | Gorse-in-one HTTP service port                                                                                                   | `8087`                   |
+| `standalone.service.nodePorts.http`                          | HTTP node port (only used when service.type is NodePort or LoadBalancer)                                                         | `""`                     |
+| `standalone.service.clusterIP`                               | Gorse-in-one service Cluster IP                                                                                                  | `""`                     |
+| `standalone.service.loadBalancerIP`                          | Gorse-in-one service Load Balancer IP                                                                                            | `""`                     |
+| `standalone.service.loadBalancerSourceRanges`                | Gorse-in-one service Load Balancer sources                                                                                       | `[]`                     |
+| `standalone.service.externalTrafficPolicy`                   | Gorse-in-one service external traffic policy                                                                                     | `Cluster`                |
+| `standalone.service.annotations`                             | Additional custom annotations for Gorse-in-one service                                                                           | `{}`                     |
+| `standalone.resources.limits`                                | The resources limits for the gorse-in-one containers                                                                             | `{}`                     |
+| `standalone.resources.requests`                              | The requested resources for the gorse-in-one containers                                                                          | `{}`                     |
+| `standalone.livenessProbe.enabled`                           | Enable livenessProbe on gorse-in-one nodes                                                                                       | `true`                   |
+| `standalone.livenessProbe.initialDelaySeconds`               | Initial delay seconds for livenessProbe                                                                                          | `5`                      |
+| `standalone.livenessProbe.periodSeconds`                     | Period seconds for livenessProbe                                                                                                 | `10`                     |
+| `standalone.livenessProbe.timeoutSeconds`                    | Timeout seconds for livenessProbe                                                                                                | `5`                      |
+| `standalone.livenessProbe.failureThreshold`                  | Failure threshold for livenessProbe                                                                                              | `5`                      |
+| `standalone.livenessProbe.successThreshold`                  | Success threshold for livenessProbe                                                                                              | `1`                      |
+| `standalone.readinessProbe.enabled`                          | Enable readinessProbe on gorse-in-one nodes                                                                                      | `true`                   |
+| `standalone.readinessProbe.initialDelaySeconds`              | Initial delay seconds for readinessProbe                                                                                         | `5`                      |
+| `standalone.readinessProbe.periodSeconds`                    | Period seconds for readinessProbe                                                                                                | `10`                     |
+| `standalone.readinessProbe.timeoutSeconds`                   | Timeout seconds for readinessProbe                                                                                               | `5`                      |
+| `standalone.readinessProbe.failureThreshold`                 | Failure threshold for readinessProbe                                                                                             | `5`                      |
+| `standalone.readinessProbe.successThreshold`                 | Success threshold for readinessProbe                                                                                             | `1`                      |
+| `standalone.podAffinityPreset`                               | Pod affinity preset. Ignored if `standalone.affinity` is set. Allowed values: `soft` or `hard`                                   | `""`                     |
+| `standalone.podAntiAffinityPreset`                           | Pod anti-affinity preset. Ignored if `standalone.affinity` is set. Allowed values: `soft` or `hard`                              | `soft`                   |
+| `standalone.nodeAffinityPreset.type`                         | Node affinity preset type. Ignored if `standalone.affinity` is set. Allowed values: `soft` or `hard`                             | `""`                     |
+| `standalone.nodeAffinityPreset.key`                          | Node label key to match. Ignored if `standalone.affinity` is set.                                                                | `""`                     |
+| `standalone.nodeAffinityPreset.values`                       | Node label values to match. Ignored if `standalone.affinity` is set.                                                             | `[]`                     |
+| `standalone.affinity`                                        | Affinity for gorse-in-one pods assignment                                                                                        | `{}`                     |
+| `standalone.nodeSelector`                                    | Node labels for gorse-in-one pods assignment                                                                                     | `{}`                     |
+| `standalone.tolerations`                                     | Tolerations for gorse-in-one pods assignment                                                                                     | `[]`                     |
+| `standalone.podLabels`                                       | Extra labels for gorse-in-one pods                                                                                               | `{}`                     |
+| `standalone.podAnnotations`                                  | Annotations for gorse-in-one pods                                                                                                | `{}`                     |
+| `standalone.priorityClassName`                               | gorse-in-one pods' priorityClassName                                                                                             | `""`                     |
+| `standalone.schedulerName`                                   | Name of the k8s scheduler (other than default)                                                                                   | `""`                     |
+| `standalone.terminationGracePeriodSeconds`                   | Seconds Redmine pod needs to terminate gracefully                                                                                | `""`                     |
+| `standalone.topologySpreadConstraints`                       | Topology Spread Constraints for pod assignment                                                                                   | `[]`                     |
+| `standalone.podSecurityContextEnabled`                       | Enabled gorse-in-one pods' Security Context                                                                                      | `true`                   |
+| `standalone.podSecurityContext.fsGroup`                      | Set gorse-in-one pod's Security Context fsGroup                                                                                  | `1001`                   |
+| `standalone.containerSecurityContext.enabled`                | Enabled gorse-in-one containers' Security Context                                                                                | `true`                   |
+| `standalone.containerSecurityContext.runAsUser`              | Set gorse-in-one containers' Security Context runAsUser                                                                          | `1001`                   |
+| `standalone.containerSecurityContext.runAsNonRoot`           | Set gorse-in-one containers' Security Context runAsNonRoot                                                                       | `true`                   |
+| `standalone.containerSecurityContext.readOnlyRootFilesystem` | Set gorse-in-one containers' Security Context readOnlyRootFilesystem                                                             | `false`                  |
+| `standalone.command`                                         | Override default container command (useful when using custom images)                                                             | `[]`                     |
+| `standalone.args`                                            | Override default container args (useful when using custom images)                                                                | `[]`                     |
+| `standalone.hostAliases`                                     | gorse-in-one pods host aliases                                                                                                   | `[]`                     |
+| `standalone.extraEnvVars`                                    | Array with extra environment variables to add to gorse-in-one nodes                                                              | `[]`                     |
+| `standalone.extraEnvVarsCM`                                  | Name of existing ConfigMap containing extra env vars for gorse-in-one nodes                                                      | `""`                     |
+| `standalone.extraEnvVarsSecret`                              | Name of existing Secret containing extra env vars for gorse-in-one nodes                                                         | `""`                     |
+| `standalone.extraVolumes`                                    | Optionally specify extra list of additional volumes for the gorse-in-one pod(s)                                                  | `[]`                     |
+| `standalone.extraVolumeMounts`                               | Optionally specify extra list of additional volumeMounts for the gorse-in-one container(s)                                       | `[]`                     |
+| `standalone.sidecars`                                        | Add additional sidecar containers to the gorse-in-one pod(s)                                                                     | `[]`                     |
+| `standalone.initContainers`                                  | Add additional init containers to the gorse-in-one pod(s)                                                                        | `[]`                     |
+| `master.jobs`                                                | Number of working jobs in the master node                                                                                        | `1`                      |
+| `master.image.registry`                                      | Gorse image registry                                                                                                             | `docker.io`              |
+| `master.image.repository`                                    | Gorse Master image repository                                                                                                    | `zhenghaoz/gorse-master` |
+| `master.image.tag`                                           | Gorse Master image tag (immutable tags are recommended)                                                                          | `nightly`                |
+| `master.image.digest`                                        | Gorse Master image digest in the way sha256:aa.... Please note this parameter, if set, will override the tag                     | `""`                     |
+| `master.image.pullPolicy`                                    | Gorse Master image pull policy                                                                                                   | `IfNotPresent`           |
+| `master.image.pullSecrets`                                   | Specify docker-registry secret names as an array                                                                                 | `[]`                     |
+| `master.kind`                                                | Use either Deployment or StatefulSet (default)                                                                                   | `StatefulSet`            |
+| `master.persistence.enabled`                                 | Enable persistence on Gorse master nodes using Persistent Volume Claims                                                          | `true`                   |
+| `master.persistence.medium`                                  | Provide a medium for `emptyDir` volumes.                                                                                         | `""`                     |
+| `master.persistence.sizeLimit`                               | Set this to enable a size limit for `emptyDir` volumes.                                                                          | `""`                     |
+| `master.persistence.path`                                    | The path the volume will be mounted at on Gorse master containers                                                                | `/var/lib/gorse`         |
+| `master.persistence.subPath`                                 | The subdirectory of the volume to mount on Gorse master containers                                                               | `""`                     |
+| `master.persistence.subPathExpr`                             | Used to construct the subPath subdirectory of the volume to mount on Gorse master containers                                     | `""`                     |
+| `master.persistence.storageClass`                            | Persistent Volume storage class                                                                                                  | `""`                     |
+| `master.persistence.accessModes`                             | Persistent Volume access modes                                                                                                   | `["ReadWriteOnce"]`      |
+| `master.persistence.size`                                    | Persistent Volume size                                                                                                           | `8Gi`                    |
+| `master.persistence.annotations`                             | Additional custom annotations for the PVC                                                                                        | `{}`                     |
+| `master.persistence.selector`                                | Additional labels to match for the PVC                                                                                           | `{}`                     |
+| `master.persistence.dataSource`                              | Custom PVC data source                                                                                                           | `{}`                     |
+| `master.persistence.existingClaim`                           | Use a existing PVC which must be created manually before bound                                                                   | `""`                     |
+| `master.service.type`                                        | Gorse master service type                                                                                                        | `ClusterIP`              |
+| `master.service.ports.http`                                  | HTTP port of the master node (dashboard)                                                                                         | `80`                     |
+| `master.service.ports.grpc`                                  | GRPC port of the master node                                                                                                     | `8086`                   |
+| `master.service.nodePorts.http`                              | HTTP port of the master node (dashboard)                                                                                         | `""`                     |
+| `master.service.nodePorts.grpc`                              | GRPC port of the master node                                                                                                     | `""`                     |
+| `master.service.externalTrafficPolicy`                       | Gorse master service external traffic policy                                                                                     | `Cluster`                |
+| `master.service.extraPorts`                                  | Extra ports to expose (normally used with the `sidecar` value)                                                                   | `[]`                     |
+| `master.service.internalTrafficPolicy`                       | Gorse master service internal traffic policy (requires Kubernetes v1.22 or greater to be usable)                                 | `Cluster`                |
+| `master.service.clusterIP`                                   | Gorse master service Cluster IP                                                                                                  | `""`                     |
+| `master.service.loadBalancerIP`                              | Gorse master service Load Balancer IP                                                                                            | `""`                     |
+| `master.service.loadBalancerSourceRanges`                    | Gorse master service Load Balancer sources                                                                                       | `[]`                     |
+| `master.service.annotations`                                 | Additional custom annotations for Gorse master service                                                                           | `{}`                     |
+| `master.service.sessionAffinity`                             | Session Affinity for Kubernetes service, can be "None" or "ClientIP"                                                             | `None`                   |
+| `master.service.sessionAffinityConfig`                       | Additional settings for the sessionAffinity                                                                                      | `{}`                     |
+| `master.ingress.enabled`                                     | Enable ingress controller resource                                                                                               | `false`                  |
+| `master.ingress.pathType`                                    | Ingress Path type                                                                                                                | `ImplementationSpecific` |
+| `master.ingress.apiVersion`                                  | Override API Version (automatically detected if not set)                                                                         | `""`                     |
+| `master.ingress.ingressClassName`                            | IngressClass that will be be used to implement the Ingress (Kubernetes 1.18+)                                                    | `""`                     |
+| `master.ingress.hostname`                                    | Default host for the ingress resource                                                                                            | `gorse.local`            |
+| `master.ingress.path`                                        | The Path to Gorse. You may need to set this to '/*' in order to use this                                                         | `/`                      |
+| `master.ingress.annotations`                                 | Additional annotations for the Ingress resource. To enable certificate autogeneration, place here your cert-manager annotations. | `{}`                     |
+| `master.ingress.tls`                                         | Enable TLS configuration for the hostname defined at ingress.hostname parameter                                                  | `false`                  |
+| `master.ingress.extraHosts`                                  | The list of additional hostnames to be covered with this ingress record.                                                         | `[]`                     |
+| `master.ingress.extraPaths`                                  | Any additional arbitrary paths that may need to be added to the ingress under the main host.                                     | `[]`                     |
+| `master.ingress.extraTls`                                    | The tls configuration for additional hostnames to be covered with this ingress record.                                           | `[]`                     |
+| `master.ingress.secrets`                                     | If you're providing your own certificates, please use this to add the certificates as secrets                                    | `[]`                     |
+| `master.ingress.extraRules`                                  | Additional rules to be covered with this ingress record                                                                          | `[]`                     |
+| `master.resources.limits`                                    | The resources limits for the Gorse replicas containers                                                                           | `{}`                     |
+| `master.resources.requests`                                  | The requested resources for the Gorse replicas containers                                                                        | `{}`                     |
+| `master.podAffinityPreset`                                   | Pod affinity preset. Ignored if `master.affinity` is set. Allowed values: `soft` or `hard`                                       | `""`                     |
+| `master.podAntiAffinityPreset`                               | Pod anti-affinity preset. Ignored if `master.affinity` is set. Allowed values: `soft` or `hard`                                  | `soft`                   |
+| `master.nodeAffinityPreset.type`                             | Node affinity preset type. Ignored if `master.affinity` is set. Allowed values: `soft` or `hard`                                 | `""`                     |
+| `master.nodeAffinityPreset.key`                              | Node label key to match. Ignored if `master.affinity` is set                                                                     | `""`                     |
+| `master.nodeAffinityPreset.values`                           | Node label values to match. Ignored if `master.affinity` is set                                                                  | `[]`                     |
+| `master.affinity`                                            | Affinity for Gorse master pods assignment                                                                                        | `{}`                     |
+| `master.nodeSelector`                                        | Node labels for Gorse master pods assignment                                                                                     | `{}`                     |
+| `master.tolerations`                                         | Tolerations for Gorse master pods assignment                                                                                     | `[]`                     |
+| `master.pdb.create`                                          | Specifies whether a PodDisruptionBudget should be created                                                                        | `false`                  |
+| `master.pdb.minAvailable`                                    | Min number of pods that must still be available after the eviction                                                               | `1`                      |
+| `master.pdb.maxUnavailable`                                  | Max number of pods that can be unavailable after the eviction                                                                    | `""`                     |
 
 ### Gorse server node parameters
 
@@ -267,7 +282,7 @@ data["items"].map((item) => {
 | ----------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------- | ------------------------ |
 | `server.image.registry`                   | Gorse image registry                                                                                                             | `docker.io`              |
 | `server.image.repository`                 | Gorse Server image repository                                                                                                    | `zhenghaoz/gorse-server` |
-| `server.image.tag`                        | Gorse Server image tag (immutable tags are recommended)                                                                          | `0.4.12`                 |
+| `server.image.tag`                        | Gorse Server image tag (immutable tags are recommended)                                                                          | `nightly`                |
 | `server.image.digest`                     | Gorse Server image digest in the way sha256:aa.... Please note this parameter, if set, will override the tag                     | `""`                     |
 | `server.image.pullPolicy`                 | Gorse Server image pull policy                                                                                                   | `IfNotPresent`           |
 | `server.image.pullSecrets`                | Specify docker-registry secret names as an array                                                                                 | `[]`                     |
@@ -323,7 +338,7 @@ data["items"].map((item) => {
 | `worker.jobs`                             | Number of working jobs in the worker node                                                                    | `1`                      |
 | `worker.image.registry`                   | Gorse image registry                                                                                         | `docker.io`              |
 | `worker.image.repository`                 | Gorse Worker image repository                                                                                | `zhenghaoz/gorse-worker` |
-| `worker.image.tag`                        | Gorse Worker image tag (immutable tags are recommended)                                                      | `0.4.12`                 |
+| `worker.image.tag`                        | Gorse Worker image tag (immutable tags are recommended)                                                      | `nightly`                |
 | `worker.image.digest`                     | Gorse Worker image digest in the way sha256:aa.... Please note this parameter, if set, will override the tag | `""`                     |
 | `worker.image.pullPolicy`                 | Gorse Worker image pull policy                                                                               | `IfNotPresent`           |
 | `worker.image.pullSecrets`                | Specify docker-registry secret names as an array                                                             | `[]`                     |
@@ -382,24 +397,3 @@ data["items"].map((item) => {
 | `externalDatabase.database`                  | Gorse database name                                                       | `gorse`             |
 | `externalDatabase.existingSecret`            | Name of an existing secret resource containing the database credentials   | `""`                |
 | `externalDatabase.existingSecretPasswordKey` | Name of an existing secret key containing the database credentials        | `mongodb-passwords` |
-
-
-```bash
-helm install gorse \
-  --set gorse.dashboard.username=admin \
-  --set gorse.dashboard.password=password \
-  --set gorse.api.key=api_key \
-    gorse-io/gorse
-```
-
-The above command sets the Gorse administrator account username and password to `admin` and `password` respectively. Additionally, it sets the RESTful API key to `api_key`.
-
-> NOTE: Once this chart is deployed, it is not possible to change the application's access credentials, such as usernames or passwords, using Helm. To change these application credentials after deployment, delete any persistent volumes (PVs) used by the chart and re-deploy it, or use the application's built-in administrative tools if available.
-
-Alternatively, a YAML file that specifies the values for the above parameters can be provided while installing the chart. For example,
-
-```bash
-helm install gorse -f values.yaml gorse-io/gorse
-```
-
-> **Tip:** You can use the default values.yaml
