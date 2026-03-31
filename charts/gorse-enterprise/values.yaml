@@ -364,6 +364,22 @@ standalone:
   ##    command: ['sh', '-c', 'echo "hello world"']
   ##
   initContainers: []
+  tracing:
+    ## @param standalone.tracing.enable Enable tracing for REST APIs
+    ##
+    enable: false
+    ## @param standalone.tracing.exporter Tracing exporter type (zipkin|otlp|otlphttp)
+    ##
+    exporter: "otlphttp"
+    ## @param standalone.tracing.collectorEndpoint Tracing collector endpoint
+    ##
+    collectorEndpoint: "http://localhost:4318/v1/traces"
+    ## @param standalone.tracing.sampler Tracing sampler type (always|never|ratio)
+    ##
+    sampler: "always"
+    ## @param standalone.tracing.ratio Ratio used when sampler is set to ratio
+    ##
+    ratio: 1
 
 ## @section Gorse master node parameters
 ##
