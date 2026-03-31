@@ -1,3 +1,4 @@
+{{- if eq .Values.architecture "distributed" }}
 apiVersion: apps/v1
 kind: ReplicaSet
 metadata:
@@ -77,3 +78,4 @@ spec:
           {{- if $.Values.proxy.resources }}
           resources: {{- toYaml $.Values.proxy.resources | nindent 12 }}
           {{- end }}
+{{- end }}

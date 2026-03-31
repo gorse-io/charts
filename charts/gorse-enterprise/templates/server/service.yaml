@@ -1,3 +1,5 @@
+{{- if eq .Values.architecture "distributed" }}
+{{- if eq .Values.architecture "distributed" }}
 {{- range $recommend := .Values.gorse.recommends }}
 ---
 apiVersion: v1
@@ -54,4 +56,6 @@ spec:
       {{- end }}
   selector: {{- include "common.labels.matchLabels" $ | nindent 4 }}
     app.kubernetes.io/component: server
+{{- end }}
+{{- end }}
 {{- end }}

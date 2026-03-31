@@ -163,3 +163,39 @@ Return the MongoDB secret key
     {{- .Values.externalDatabase.existingSecretPasswordKey -}}
 {{- end -}}
 {{- end -}}
+
+{{/*
+Return true if architecture is standalone
+*/}}
+{{- define "gorse.standalone.enabled" -}}
+{{- eq .Values.architecture "standalone" -}}
+{{- end -}}
+
+{{/*
+Return true if architecture is distributed
+*/}}
+{{- define "gorse.distributed.enabled" -}}
+{{- eq .Values.architecture "distributed" -}}
+{{- end -}}
+
+{{- define "gorse.standalone.fullname" -}}
+{{ printf "%s" (include "common.names.fullname" .) }}
+{{- end -}}
+
+{{/*
+Return true if architecture is standalone
+*/}}
+{{- define "gorse.standalone.enabled" -}}
+{{- eq .Values.architecture "standalone" -}}
+{{- end -}}
+
+{{/*
+Return true if architecture is distributed
+*/}}
+{{- define "gorse.distributed.enabled" -}}
+{{- eq .Values.architecture "distributed" -}}
+{{- end -}}
+
+{{- define "gorse.standalone.fullname" -}}
+{{ printf "%s" (include "common.names.fullname" .) }}
+{{- end -}}
