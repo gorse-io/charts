@@ -1,12 +1,12 @@
 {{- if eq .Values.architecture "distributed" }}
 {{- if eq .Values.architecture "distributed" }}
-{{- range $recommend := .Values.gorse.recommends }}
+{{- range $pipeline := .Values.gorse.pipelines }}
 ---
 {{- if and (eq $.Values.master.kind "Deployment") ($.Values.master.persistence.enabled) (not $.Values.master.persistence.existingClaim) }}
 kind: PersistentVolumeClaim
 apiVersion: v1
 metadata:
-  name: {{ printf "%s-%s" (include "gorse.master.fullname" $ ) $recommend.name }}
+  name: {{ printf "%s-%s" (include "gorse.master.fullname" $ ) $pipeline.name }}
   namespace: {{ .Release.Namespace | quote }}
   labels: {{- include "common.labels.matchLabels" . | nindent 4 }}
     app.kubernetes.io/component: master

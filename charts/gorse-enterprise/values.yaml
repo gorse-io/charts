@@ -88,18 +88,31 @@ gorse:
     ##
     serverCacheExpire: "10s"
 
-  recommends:
-    ## @param gorse.recommends[0].name The name of recommend channel
+  pipelines:
+    ## @param gorse.pipelines[0].name The name of recommend channel
     ##
     - name: default
-      ## @param gorse.recommends[0].config TOML string for recommend configuration
+      ## @param gorse.pipelines[0].recommend TOML string for recommend configuration
       ## Example:
-      ## config: |
+      ## recommend: |
       ##   [recommend]
       ##   cache_size = 100
       ##   [recommend.data_source]
       ##   positive_feedback_types = ["star", "like"]
-      config: ""
+      recommend: ""
+      ## External database configuration for cache storage
+      ## @param gorse.pipelines[0].externalDatabase.host Database host for cache
+      ## @param gorse.pipelines[0].externalDatabase.port Database port for cache
+      ## @param gorse.pipelines[0].externalDatabase.username Database username for cache
+      ## @param gorse.pipelines[0].externalDatabase.password Database password for cache
+      ## @param gorse.pipelines[0].externalDatabase.database Database name for cache
+      ##
+      externalDatabase:
+        host: ""
+        port: 27017
+        username: ""
+        password: ""
+        database: ""
 
 ## @section Gorse standalone (gorse-in-one) parameters
 ## Only used when architecture is set to `standalone`
