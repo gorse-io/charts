@@ -364,10 +364,6 @@ standalone:
   ##    command: ['sh', '-c', 'echo "hello world"']
   ##
   initContainers: []
-
-## @section Tracing configuration
-##
-standalone:
   tracing:
     ## @param standalone.tracing.enable Enable tracing for REST APIs
     ##
